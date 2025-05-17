@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, Download, Plus, Calendar } from "lucide-react";
+import { FileText, Download, Plus, Calendar, Image } from "lucide-react";
 
 const reportTypes = [
   {
@@ -59,11 +59,11 @@ const Reports = () => {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
-          <Button>
+          <Button className="bg-construction-navy hover:bg-construction-darkBlue">
             <Calendar className="mr-2 h-4 w-4" />
             Select Date Range
           </Button>
-          <Button variant="default">
+          <Button variant="default" className="bg-construction-navy hover:bg-construction-darkBlue">
             <Plus className="mr-2 h-4 w-4" />
             Create New Report
           </Button>
