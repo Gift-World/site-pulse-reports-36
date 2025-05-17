@@ -20,7 +20,7 @@ import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 
 export function Header() {
   const isMobile = useIsMobile();
-  const { isCollapsed } = useSidebar();
+  const { open } = useSidebar();
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-background px-4 shadow-sm">

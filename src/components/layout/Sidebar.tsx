@@ -10,7 +10,7 @@ import {
   SidebarGroupLabel,
   SidebarMenu, 
   SidebarMenuItem, 
-  SidebarMenuButton,
+  SidebarMenuButton, 
   SidebarTrigger,
   useSidebar
 } from "@/components/ui/sidebar";
@@ -64,7 +64,8 @@ const navItems = [
 ];
 
 export function MainSidebar() {
-  const { isCollapsed } = useSidebar();
+  const { open } = useSidebar();
+  const isCollapsed = !open;
   
   return (
     <Sidebar

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -102,7 +101,7 @@ const Safety = () => {
               <Progress 
                 value={safetyStats.score} 
                 className="h-2" 
-                indicatorColor={
+                indicatorClassName={
                   safetyStats.score > 90 ? "bg-construction-green" : 
                   safetyStats.score > 70 ? "bg-construction-blue" : 
                   "bg-construction-orange"
