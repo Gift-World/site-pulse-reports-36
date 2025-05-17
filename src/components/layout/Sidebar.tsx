@@ -64,18 +64,18 @@ const navItems = [
 ];
 
 export function MainSidebar() {
-  const { collapsed } = useSidebar();
+  const { isCollapsed } = useSidebar();
   
   return (
     <Sidebar
       className={cn(
         "border-r border-border transition-all duration-300 ease-in-out",
-        collapsed ? "w-16" : "w-64"
+        isCollapsed ? "w-16" : "w-64"
       )}
     >
       {/* Logo Area */}
       <div className="p-4 flex items-center justify-between">
-        {!collapsed && (
+        {!isCollapsed && (
           <div className="flex items-center">
             <div className="h-8 w-8 rounded-md bg-construction-blue flex items-center justify-center text-white font-bold">
               CP
@@ -88,7 +88,7 @@ export function MainSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className={cn("text-xs uppercase font-semibold text-muted-foreground px-4 py-2", collapsed && "sr-only")}>
+          <SidebarGroupLabel className={cn("text-xs uppercase font-semibold text-muted-foreground px-4 py-2", isCollapsed && "sr-only")}>
             Main Navigation
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -109,7 +109,7 @@ export function MainSidebar() {
                       end={item.path === "/"}
                     >
                       {item.icon}
-                      {!collapsed && <span>{item.name}</span>}
+                      {!isCollapsed && <span>{item.name}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

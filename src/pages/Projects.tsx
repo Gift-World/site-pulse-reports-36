@@ -88,7 +88,7 @@ const Projects = () => {
                   <Progress
                     value={project.progress}
                     className="h-2"
-                    indicatorColor={
+                    indicatorClassName={
                       project.progress === 100 ? "bg-construction-green" :
                       project.progress > 50 ? "bg-construction-blue" : "bg-construction-orange"
                     }

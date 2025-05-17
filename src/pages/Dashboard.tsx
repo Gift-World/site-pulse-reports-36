@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -22,7 +23,10 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  Legend
+  Legend,
+  PieChart,
+  Pie,
+  Cell
 } from "recharts";
 
 const projectProgress = 68;
@@ -44,6 +48,31 @@ const safetyData = [
   { name: "Thu", incidents: 0, nearMisses: 1 },
   { name: "Fri", incidents: 0, nearMisses: 0 },
   { name: "Sat", incidents: 0, nearMisses: 0 },
+];
+
+const taskStatusData = [
+  { name: "Completed", value: 68, color: "#1A73E8" },
+  { name: "In Progress", value: 22, color: "#FF5722" },
+  { name: "Not Started", value: 10, color: "#EEEEEE" }
+];
+
+const issuesByPriority = [
+  { name: "High", value: 5, color: "#EA4335" },
+  { name: "Medium", value: 4, color: "#FF5722" },
+  { name: "Low", value: 3, color: "#FFC107" }
+];
+
+const budgetDistribution = [
+  { name: "Materials", value: 42, color: "#1A73E8" },
+  { name: "Labor", value: 30, color: "#34A853" },
+  { name: "Equipment", value: 15, color: "#FBBC05" },
+  { name: "Other", value: 13, color: "#9e9e9e" }
+];
+
+const safetyStats = [
+  { name: "Safe Days", value: 36, color: "#34A853" },
+  { name: "Near Misses", value: 4, color: "#FBBC05" },
+  { name: "Incidents", value: 1, color: "#EA4335" }
 ];
 
 const recentActivities = [
@@ -94,10 +123,33 @@ const Dashboard = () => {
             <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">68%</div>
-            <p className="text-xs text-muted-foreground">
-              +2.5% from last week
-            </p>
+            <div className="flex items-center">
+              <div className="mr-4">
+                <div className="text-2xl font-bold">68%</div>
+                <p className="text-xs text-muted-foreground">
+                  +2.5% from last week
+                </p>
+              </div>
+              <div className="h-20 w-20">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={taskStatusData}
+                      innerRadius={25}
+                      outerRadius={35}
+                      dataKey="value"
+                      startAngle={90}
+                      endAngle={-270}
+                      stroke="none"
+                    >
+                      {taskStatusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
             <Progress 
               value={projectProgress} 
               className="mt-3 h-2 bg-secondary [&>div]:bg-construction-blue" 
@@ -111,14 +163,43 @@ const Dashboard = () => {
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">
-              5 high priority
-            </p>
+            <div className="flex items-center">
+              <div className="mr-4">
+                <div className="text-2xl font-bold">12</div>
+                <p className="text-xs text-muted-foreground">
+                  5 high priority
+                </p>
+              </div>
+              <div className="h-20 w-20">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={issuesByPriority}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={35}
+                      fill="#8884d8"
+                    >
+                      {issuesByPriority.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
             <div className="mt-3 flex gap-1">
-              <div className="h-2 flex-1 rounded-full bg-construction-red" />
-              <div className="h-2 flex-1 rounded-full bg-construction-orange" />
-              <div className="h-2 flex-1 rounded-full bg-construction-blue" />
+              {issuesByPriority.map((item, index) => (
+                <div key={index} className="flex items-center">
+                  <div 
+                    className="h-2 w-2 rounded-full mr-1"
+                    style={{ backgroundColor: item.color }} 
+                  />
+                  <span className="text-xs text-muted-foreground mr-2">{item.name}</span>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -129,10 +210,32 @@ const Dashboard = () => {
             <ShieldCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">95%</div>
-            <p className="text-xs text-muted-foreground">
-              1 incident this week
-            </p>
+            <div className="flex items-center">
+              <div className="mr-4">
+                <div className="text-2xl font-bold">95%</div>
+                <p className="text-xs text-muted-foreground">
+                  1 incident this week
+                </p>
+              </div>
+              <div className="h-20 w-20">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={safetyStats}
+                      dataKey="value"
+                      nameKey="name"
+                      innerRadius={25}
+                      outerRadius={35}
+                      stroke="none"
+                    >
+                      {safetyStats.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
             <Progress 
               value={95} 
               className="mt-3 h-2 bg-secondary [&>div]:bg-construction-green" 
@@ -146,10 +249,34 @@ const Dashboard = () => {
             <ChartLine className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$1.2M</div>
-            <p className="text-xs text-muted-foreground">
-              68% of budget used
-            </p>
+            <div className="flex items-center">
+              <div className="mr-4">
+                <div className="text-2xl font-bold">$1.2M</div>
+                <p className="text-xs text-muted-foreground">
+                  68% of budget used
+                </p>
+              </div>
+              <div className="h-20 w-20">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={budgetDistribution}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={35}
+                      fill="#8884d8"
+                      stroke="none"
+                    >
+                      {budgetDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
             <Progress 
               value={68} 
               className="mt-3 h-2 bg-secondary [&>div]:bg-construction-orange" 
