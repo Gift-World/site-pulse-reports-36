@@ -7,7 +7,7 @@ import { Header } from "./Header";
 
 export function Layout() {
   return (
-    <SidebarProvider defaultCollapsed={false} collapsedWidth={70}>
+    <SidebarProvider>
       <div className="flex h-screen w-full overflow-hidden">
         <MainSidebar />
         <div className="flex flex-1 flex-col overflow-hidden">

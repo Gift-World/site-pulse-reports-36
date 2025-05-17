@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -11,7 +10,7 @@ import {
   AlertCircle,
   Calendar,
   ShieldCheck,
-  Chart
+  ChartLine
 } from "lucide-react";
 import {
   AreaChart,
@@ -101,8 +100,7 @@ const Dashboard = () => {
             </p>
             <Progress 
               value={projectProgress} 
-              className="mt-3 h-2" 
-              indicatorColor="bg-construction-blue"
+              className="mt-3 h-2 bg-secondary [&>div]:bg-construction-blue" 
             />
           </CardContent>
         </Card>
@@ -137,8 +135,7 @@ const Dashboard = () => {
             </p>
             <Progress 
               value={95} 
-              className="mt-3 h-2" 
-              indicatorColor="bg-construction-green" 
+              className="mt-3 h-2 bg-secondary [&>div]:bg-construction-green" 
             />
           </CardContent>
         </Card>
@@ -146,7 +143,7 @@ const Dashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Budget Status</CardTitle>
-            <Chart className="h-4 w-4 text-muted-foreground" />
+            <ChartLine className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">$1.2M</div>
@@ -155,8 +152,7 @@ const Dashboard = () => {
             </p>
             <Progress 
               value={68} 
-              className="mt-3 h-2" 
-              indicatorColor="bg-construction-orange" 
+              className="mt-3 h-2 bg-secondary [&>div]:bg-construction-orange" 
             />
           </CardContent>
         </Card>

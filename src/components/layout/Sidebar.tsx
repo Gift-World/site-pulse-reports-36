@@ -18,7 +18,7 @@ import {
   Users, 
   FileText, 
   MessageSquare, 
-  Chart, 
+  ChartLine, 
   ShieldAlert, 
   ClipboardCheck, 
   FolderOpen, 
@@ -72,7 +72,6 @@ export function MainSidebar() {
         "border-r border-border transition-all duration-300 ease-in-out",
         collapsed ? "w-16" : "w-64"
       )}
-      collapsible
     >
       {/* Logo Area */}
       <div className="p-4 flex items-center justify-between">
