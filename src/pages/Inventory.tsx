@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +16,8 @@ import {
   FileDown, 
   Filter,
   ArrowUpDown,
-  PackageCheck
+  PackageCheck,
+  HardDrive
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -113,6 +113,39 @@ const inventoryItems: InventoryItem[] = [
     supplier: "WoodWorks Co.",
     cost: 120.00,
     lastUpdated: "May 15, 2025"
+  },
+  {
+    id: 8,
+    name: "Concrete Mixer",
+    category: "Plant & Equipment",
+    quantity: 2,
+    unit: "Units",
+    status: "In Stock",
+    supplier: "ConstructionEquip Inc.",
+    cost: 1200.00,
+    lastUpdated: "May 10, 2025"
+  },
+  {
+    id: 9,
+    name: "Scaffold System (Full Set)",
+    category: "Plant & Equipment",
+    quantity: 3,
+    unit: "Sets",
+    status: "In Stock",
+    supplier: "ScaffoldPro Systems",
+    cost: 3500.00,
+    lastUpdated: "May 5, 2025"
+  },
+  {
+    id: 10,
+    name: "Excavator (Mini)",
+    category: "Plant & Equipment",
+    quantity: 1,
+    unit: "Unit",
+    status: "On Order",
+    supplier: "HeavyMachinery Ltd.",
+    cost: 45000.00,
+    lastUpdated: "May 16, 2025"
   }
 ];
 
@@ -132,8 +165,8 @@ const getStatusBadge = (status: string) => {
 };
 
 const summaryStats = {
-  totalItems: 7,
-  totalValue: 25430.50,
+  totalItems: 10,
+  totalValue: 65672.00,
   lowStockItems: 1,
   outOfStockItems: 1,
   categoryCounts: [
@@ -141,12 +174,14 @@ const summaryStats = {
     { name: "Plumbing", count: 1 },
     { name: "Electrical", count: 1 },
     { name: "Finishing", count: 1 },
-    { name: "Carpentry", count: 1 }
+    { name: "Carpentry", count: 1 },
+    { name: "Plant & Equipment", count: 3 }
   ]
 };
 
 const Inventory = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("inventory");
   
   const filteredItems = inventoryItems.filter(item =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -160,7 +195,7 @@ const Inventory = () => {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Inventory</h1>
           <p className="text-muted-foreground">
-            Manage your project materials and supplies
+            Manage your project materials, supplies, and equipment
           </p>
         </div>
         <Button>
@@ -241,9 +276,9 @@ const Inventory = () => {
       
       <Card>
         <CardHeader>
-          <CardTitle>Materials Inventory</CardTitle>
+          <CardTitle>Materials & Equipment Inventory</CardTitle>
           <CardDescription>
-            Manage your construction materials, supplies, and equipment
+            Manage your construction materials, supplies, equipment, and machinery
           </CardDescription>
           <div className="flex flex-wrap gap-3 pt-4">
             <div className="relative flex-1">
@@ -266,9 +301,10 @@ const Inventory = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="inventory" className="space-y-4">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             <TabsList>
               <TabsTrigger value="inventory">Inventory</TabsTrigger>
+              <TabsTrigger value="equipment">Plant & Equipment</TabsTrigger>
               <TabsTrigger value="categories">Categories</TabsTrigger>
               <TabsTrigger value="orders">Orders</TabsTrigger>
             </TabsList>
@@ -285,10 +321,38 @@ const Inventory = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredItems.map((item) => (
+                  {filteredItems.filter(item => item.category !== "Plant & Equipment").map((item) => (
                     <TableRow key={item.id}>
                       <TableCell className="font-medium">{item.name}</TableCell>
                       <TableCell>{item.category}</TableCell>
+                      <TableCell>{item.quantity} {item.unit}</TableCell>
+                      <TableCell>{getStatusBadge(item.status)}</TableCell>
+                      <TableCell>{item.supplier}</TableCell>
+                      <TableCell className="text-right">${item.cost.toFixed(2)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TabsContent>
+            <TabsContent value="equipment">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium">Plant & Equipment</h3>
+                <HardDrive className="h-5 w-5 text-construction-blue" />
+              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Equipment</TableHead>
+                    <TableHead>Quantity</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Supplier</TableHead>
+                    <TableHead className="text-right">Value</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredItems.filter(item => item.category === "Plant & Equipment").map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="font-medium">{item.name}</TableCell>
                       <TableCell>{item.quantity} {item.unit}</TableCell>
                       <TableCell>{getStatusBadge(item.status)}</TableCell>
                       <TableCell>{item.supplier}</TableCell>
