@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,7 @@ import { projects } from "./Projects";
 const ProjectDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("overview");
   
   const project = projects.find(p => p.id === Number(id));
   
@@ -157,7 +158,7 @@ const ProjectDetail = () => {
       </div>
       
       {/* Main Content */}
-      <Tabs defaultValue="overview" className="space-y-4">
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="milestones">Milestones</TabsTrigger>
@@ -295,7 +296,7 @@ const ProjectDetail = () => {
                       </div>
                     ))}
                     {project.milestones.length > 3 && (
-                      <Button variant="ghost" className="w-full" onClick={() => document.querySelector('[data-value="milestones"]')?.click()}>
+                      <Button variant="ghost" className="w-full" onClick={() => setActiveTab("milestones")}>
                         View All Milestones
                       </Button>
                     )}
