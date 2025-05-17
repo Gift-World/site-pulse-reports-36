@@ -1,0 +1,254 @@
+
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { ShieldAlert, FileText, Clipboard, AlertCircle, Plus } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+const safetyStats = {
+  score: 95,
+  incidents: 1,
+  nearMisses: 3,
+  inspectionsDue: 2,
+  daysWithoutIncident: 14
+};
+
+const recentIncidents = [
+  {
+    id: 1,
+    date: "May 13, 2025",
+    title: "Minor Injury",
+    description: "Worker sustained minor cut while handling materials",
+    severity: "Low",
+    location: "Building A - Floor 3",
+    reported: "Michael Robinson"
+  },
+  {
+    id: 2,
+    date: "May 2, 2025",
+    title: "Near Miss",
+    description: "Unsecured tool nearly fell from scaffolding",
+    severity: "Medium",
+    location: "Building B - Exterior",
+    reported: "David Lee"
+  },
+  {
+    id: 3,
+    date: "April 29, 2025",
+    title: "Equipment Malfunction",
+    description: "Crane safety mechanism activated during routine operation",
+    severity: "Medium",
+    location: "Central Site",
+    reported: "Robert Wilson"
+  }
+];
+
+const upcomingInspections = [
+  {
+    id: 1,
+    date: "May 18, 2025",
+    title: "Electrical Safety Inspection",
+    inspector: "External Contractor",
+    location: "All Buildings",
+    status: "Scheduled"
+  },
+  {
+    id: 2,
+    date: "May 20, 2025",
+    title: "Scaffolding Safety Check",
+    inspector: "Michael Robinson",
+    location: "Building A",
+    status: "Pending"
+  }
+];
+
+const Safety = () => {
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Safety Management</h1>
+          <p className="text-muted-foreground">
+            Monitor and improve site safety metrics
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button variant="outline">
+            <FileText className="mr-2 h-4 w-4" />
+            Safety Reports
+          </Button>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Report Incident
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-5">
+        <Card className="md:col-span-3">
+          <CardHeader>
+            <CardTitle>Safety Overview</CardTitle>
+            <CardDescription>Current safety metrics and statistics</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <span>Overall Safety Score</span>
+                <span className="font-bold text-lg">{safetyStats.score}%</span>
+              </div>
+              <Progress 
+                value={safetyStats.score} 
+                className="h-2" 
+                indicatorColor={
+                  safetyStats.score > 90 ? "bg-construction-green" : 
+                  safetyStats.score > 70 ? "bg-construction-blue" : 
+                  "bg-construction-orange"
+                }
+              />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="stat-card">
+                <div className="stat-label">Incidents (Month)</div>
+                <div className="stat-value">{safetyStats.incidents}</div>
+              </Card>
+              <Card className="stat-card">
+                <div className="stat-label">Near Misses</div>
+                <div className="stat-value">{safetyStats.nearMisses}</div>
+              </Card>
+              <Card className="stat-card">
+                <div className="stat-label">Inspections Due</div>
+                <div className="stat-value">{safetyStats.inspectionsDue}</div>
+              </Card>
+              <Card className="stat-card">
+                <div className="stat-label">Days Without Incident</div>
+                <div className="stat-value">{safetyStats.daysWithoutIncident}</div>
+              </Card>
+            </div>
+            <Alert>
+              <ShieldAlert className="h-4 w-4" />
+              <AlertTitle>Safety Reminder</AlertTitle>
+              <AlertDescription>
+                All workers must complete the updated safety training by May 25, 2025.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>Common safety tasks</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button variant="outline" className="w-full justify-start">
+              <ShieldAlert className="mr-2 h-4 w-4" />
+              Report New Incident
+            </Button>
+            <Button variant="outline" className="w-full justify-start">
+              <FileText className="mr-2 h-4 w-4" />
+              Create Safety Report
+            </Button>
+            <Button variant="outline" className="w-full justify-start">
+              <Clipboard className="mr-2 h-4 w-4" />
+              Schedule Safety Inspection
+            </Button>
+            <Button variant="outline" className="w-full justify-start">
+              <AlertCircle className="mr-2 h-4 w-4" />
+              Safety Bulletin
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs defaultValue="incidents" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="incidents">Recent Incidents</TabsTrigger>
+          <TabsTrigger value="inspections">Upcoming Inspections</TabsTrigger>
+        </TabsList>
+        <TabsContent value="incidents">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Incidents</CardTitle>
+              <CardDescription>
+                Safety incidents reported in the last 30 days
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {recentIncidents.map((incident) => (
+                  <div key={incident.id} className="border rounded-lg p-4">
+                    <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
+                      <div>
+                        <p className="font-medium">{incident.title}</p>
+                        <p className="text-sm text-muted-foreground">{incident.date}</p>
+                      </div>
+                      <Badge 
+                        variant={
+                          incident.severity === "Low" ? "outline" :
+                          incident.severity === "Medium" ? "secondary" : "destructive"
+                        }
+                      >
+                        {incident.severity} Severity
+                      </Badge>
+                    </div>
+                    <p className="text-sm mb-3">{incident.description}</p>
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
+                      <div>Location: {incident.location}</div>
+                      <div>Reported by: {incident.reported}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button variant="outline" className="w-full">View All Incidents</Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        <TabsContent value="inspections">
+          <Card>
+            <CardHeader>
+              <CardTitle>Upcoming Inspections</CardTitle>
+              <CardDescription>
+                Scheduled safety inspections and audits
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {upcomingInspections.map((inspection) => (
+                  <div key={inspection.id} className="border rounded-lg p-4">
+                    <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
+                      <div>
+                        <p className="font-medium">{inspection.title}</p>
+                        <p className="text-sm text-muted-foreground">{inspection.date}</p>
+                      </div>
+                      <Badge 
+                        variant={
+                          inspection.status === "Scheduled" ? "outline" : "secondary"
+                        }
+                      >
+                        {inspection.status}
+                      </Badge>
+                    </div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
+                      <div>Inspector: {inspection.inspector}</div>
+                      <div>Location: {inspection.location}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button variant="outline" className="w-full">View All Inspections</Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default Safety;
