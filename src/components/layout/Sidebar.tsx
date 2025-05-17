@@ -18,11 +18,12 @@ import {
   Users, 
   FileText, 
   MessageSquare, 
-  ChartLine, 
+  ChartBar, 
   ShieldAlert, 
   ClipboardCheck, 
   FolderOpen, 
-  ChartBar
+  Package,
+  UserPlus
 } from "lucide-react";
 
 const navItems = [
@@ -47,9 +48,19 @@ const navItems = [
     icon: <Users className="h-5 w-5" /> 
   },
   { 
-    path: "/communication", 
-    name: "Communication", 
-    icon: <MessageSquare className="h-5 w-5" /> 
+    path: "/tasks", 
+    name: "Tasks", 
+    icon: <ClipboardCheck className="h-5 w-5" /> 
+  },
+  { 
+    path: "/inventory", 
+    name: "Inventory", 
+    icon: <Package className="h-5 w-5" /> 
+  },
+  { 
+    path: "/labor", 
+    name: "Labor", 
+    icon: <UserPlus className="h-5 w-5" /> 
   },
   { 
     path: "/safety", 
@@ -57,9 +68,9 @@ const navItems = [
     icon: <ShieldAlert className="h-5 w-5" /> 
   },
   { 
-    path: "/tasks", 
-    name: "Tasks", 
-    icon: <ClipboardCheck className="h-5 w-5" /> 
+    path: "/communication", 
+    name: "Communication", 
+    icon: <MessageSquare className="h-5 w-5" /> 
   }
 ];
 

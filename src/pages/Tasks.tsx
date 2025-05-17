@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -9,7 +9,8 @@ import {
   Clock, 
   AlertCircle, 
   XCircle,
-  Filter
+  Filter,
+  UserPlus
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -21,8 +22,13 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { Task } from "@/types/task";
+import TaskCalendar from "@/components/tasks/TaskCalendar";
+import TaskImport from "@/components/tasks/TaskImport";
+import TaskAssignmentModal from "@/components/tasks/TaskAssignmentModal";
+import { useToast } from "@/components/ui/use-toast";
 
-const tasks = [
+const initialTasks: Task[] = [
   {
     id: 1,
     title: "Complete foundation inspection for Building B",
@@ -129,6 +135,44 @@ const getPriorityBadge = (priority: string) => {
 };
 
 const Tasks = () => {
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [assigneeFilter, setAssigneeFilter] = useState("all");
+  const [assignModalOpen, setAssignModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const { toast } = useToast();
+
+  const filteredTasks = tasks.filter(task => {
+    if (statusFilter !== "all" && task.status.toLowerCase() !== statusFilter) {
+      return false;
+    }
+    if (assigneeFilter !== "all" && !task.assignee.toLowerCase().includes(assigneeFilter)) {
+      return false;
+    }
+    return true;
+  });
+
+  const handleTaskImport = (newTasks: Task[]) => {
+    // Generate new IDs to avoid conflicts
+    const updatedNewTasks = newTasks.map((task, index) => ({
+      ...task,
+      id: tasks.length + index + 100
+    }));
+    
+    setTasks([...tasks, ...updatedNewTasks]);
+  };
+
+  const handleOpenAssignModal = (task: Task) => {
+    setSelectedTask(task);
+    setAssignModalOpen(true);
+  };
+
+  const handleAssignTask = (taskId: number, assignee: string) => {
+    setTasks(tasks.map(task => 
+      task.id === taskId ? { ...task, assignee } : task
+    ));
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -144,127 +188,173 @@ const Tasks = () => {
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <CardTitle>Task Management</CardTitle>
-              <CardDescription>View and manage project tasks</CardDescription>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Select defaultValue="all">
-                <SelectTrigger className="w-[180px]">
-                  <Filter className="mr-2 h-4 w-4" />
-                  <SelectValue placeholder="Filter by status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Tasks</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="in-progress">In Progress</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="overdue">Overdue</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select defaultValue="all">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Filter by assignee" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Assignees</SelectItem>
-                  <SelectItem value="david-lee">David Lee</SelectItem>
-                  <SelectItem value="robert-wilson">Robert Wilson</SelectItem>
-                  <SelectItem value="sarah-johnson">Sarah Johnson</SelectItem>
-                  <SelectItem value="jennifer-chen">Jennifer Chen</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="list" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="list">List View</TabsTrigger>
-              <TabsTrigger value="board">Board View</TabsTrigger>
-            </TabsList>
-            <TabsContent value="list">
-              <div className="space-y-4">
-                {tasks.map((task) => (
-                  <div 
-                    key={task.id} 
-                    className="border rounded-md p-4"
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <CardTitle>Task Management</CardTitle>
+                  <CardDescription>View and manage project tasks</CardDescription>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <Select 
+                    defaultValue="all"
+                    value={statusFilter}
+                    onValueChange={setStatusFilter}
                   >
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                      <div className="space-y-2">
-                        <div className="flex items-start gap-2">
-                          {getStatusIcon(task.status)}
-                          <div>
-                            <p className="font-medium">{task.title}</p>
-                            <p className="text-sm text-muted-foreground">{task.description}</p>
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {getStatusBadge(task.status)}
-                          {getPriorityBadge(task.priority)}
-                        </div>
-                      </div>
-                      <div className="flex flex-col space-y-2">
-                        <div className="flex items-center text-sm">
-                          <span className="text-muted-foreground mr-1">Assignee:</span>
-                          <span>{task.assignee}</span>
-                        </div>
-                        <div className="flex items-center text-sm">
-                          <span className="text-muted-foreground mr-1">Due:</span>
-                          <span>{task.dueDate}</span>
-                        </div>
-                        {task.status === "In Progress" && (
-                          <div className="w-full md:w-40">
-                            <div className="flex justify-between text-xs mb-1">
-                              <span>Progress</span>
-                              <span>{task.progress}%</span>
-                            </div>
-                            <Progress value={task.progress} className="h-2" />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    <SelectTrigger className="w-[180px]">
+                      <Filter className="mr-2 h-4 w-4" />
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Tasks</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="in progress">In Progress</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="overdue">Overdue</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select 
+                    defaultValue="all"
+                    value={assigneeFilter}
+                    onValueChange={setAssigneeFilter}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Filter by assignee" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Assignees</SelectItem>
+                      <SelectItem value="david lee">David Lee</SelectItem>
+                      <SelectItem value="robert wilson">Robert Wilson</SelectItem>
+                      <SelectItem value="sarah johnson">Sarah Johnson</SelectItem>
+                      <SelectItem value="jennifer chen">Jennifer Chen</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            </TabsContent>
-            <TabsContent value="board">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {["Pending", "In Progress", "Completed", "Overdue"].map((status) => (
-                  <div key={status} className="space-y-4">
-                    <div className="font-medium flex items-center gap-2">
-                      {getStatusIcon(status)}
-                      <span>{status}</span>
-                      <span className="bg-muted rounded-full px-2 py-0.5 text-xs">
-                        {tasks.filter(t => t.status === status).length}
-                      </span>
-                    </div>
-                    {tasks
-                      .filter(task => task.status === status)
-                      .map(task => (
-                        <Card key={task.id} className="shadow-sm">
-                          <CardHeader className="p-4 pb-2">
-                            <CardTitle className="text-base">{task.title}</CardTitle>
-                          </CardHeader>
-                          <CardContent className="p-4 pt-0 space-y-2">
-                            <p className="text-sm text-muted-foreground">{task.description}</p>
-                            <div className="flex items-center justify-between">
-                              <div className="text-xs text-muted-foreground">{task.dueDate}</div>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="list" className="space-y-4">
+                <TabsList>
+                  <TabsTrigger value="list">List View</TabsTrigger>
+                  <TabsTrigger value="board">Board View</TabsTrigger>
+                </TabsList>
+                <TabsContent value="list">
+                  <div className="space-y-4">
+                    {filteredTasks.map((task) => (
+                      <div 
+                        key={task.id} 
+                        className="border rounded-md p-4"
+                      >
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                          <div className="space-y-2">
+                            <div className="flex items-start gap-2">
+                              {getStatusIcon(task.status)}
+                              <div>
+                                <p className="font-medium">{task.title}</p>
+                                <p className="text-sm text-muted-foreground">{task.description}</p>
+                              </div>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {getStatusBadge(task.status)}
                               {getPriorityBadge(task.priority)}
                             </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+                          </div>
+                          <div className="flex flex-col space-y-2">
+                            <div className="flex items-center text-sm">
+                              <span className="text-muted-foreground mr-1">Assignee:</span>
+                              <span>{task.assignee}</span>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-6 w-6 ml-1"
+                                onClick={() => handleOpenAssignModal(task)}
+                              >
+                                <UserPlus className="h-3 w-3" />
+                              </Button>
+                            </div>
+                            <div className="flex items-center text-sm">
+                              <span className="text-muted-foreground mr-1">Due:</span>
+                              <span>{task.dueDate}</span>
+                            </div>
+                            {task.status === "In Progress" && (
+                              <div className="w-full md:w-40">
+                                <div className="flex justify-between text-xs mb-1">
+                                  <span>Progress</span>
+                                  <span>{task.progress}%</span>
+                                </div>
+                                <Progress value={task.progress} className="h-2" />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+                </TabsContent>
+                <TabsContent value="board">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {["Pending", "In Progress", "Completed", "Overdue"].map((status) => (
+                      <div key={status} className="space-y-4">
+                        <div className="font-medium flex items-center gap-2">
+                          {getStatusIcon(status)}
+                          <span>{status}</span>
+                          <span className="bg-muted rounded-full px-2 py-0.5 text-xs">
+                            {tasks.filter(t => t.status === status).length}
+                          </span>
+                        </div>
+                        {tasks
+                          .filter(task => task.status === status)
+                          .map(task => (
+                            <Card key={task.id} className="shadow-sm">
+                              <CardHeader className="p-4 pb-2">
+                                <CardTitle className="text-base">{task.title}</CardTitle>
+                              </CardHeader>
+                              <CardContent className="p-4 pt-0 space-y-2">
+                                <p className="text-sm text-muted-foreground">{task.description}</p>
+                                <div className="flex items-center justify-between">
+                                  <div className="text-xs text-muted-foreground">{task.dueDate}</div>
+                                  {getPriorityBadge(task.priority)}
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <div className="text-xs">Assignee: {task.assignee}</div>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="h-6 w-6"
+                                    onClick={() => handleOpenAssignModal(task)}
+                                  >
+                                    <UserPlus className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="space-y-6">
+          <TaskImport onImport={handleTaskImport} />
+          <TaskCalendar tasks={tasks} />
+        </div>
+      </div>
+
+      {/* Task Assignment Modal */}
+      {selectedTask && (
+        <TaskAssignmentModal
+          isOpen={assignModalOpen}
+          onClose={() => setAssignModalOpen(false)}
+          task={selectedTask}
+          onAssign={handleAssignTask}
+        />
+      )}
     </div>
   );
 };

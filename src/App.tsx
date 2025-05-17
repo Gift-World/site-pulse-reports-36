@@ -12,6 +12,8 @@ import Team from "./pages/Team";
 import Communication from "./pages/Communication";
 import Safety from "./pages/Safety";
 import Tasks from "./pages/Tasks";
+import Inventory from "./pages/Inventory";
+import Labor from "./pages/Labor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,8 @@ const App = () => (
             <Route path="/communication" element={<Communication />} />
             <Route path="/safety" element={<Safety />} />
             <Route path="/tasks" element={<Tasks />} />
+            <Route path="/inventory" element={<Inventory />} />
+            <Route path="/labor" element={<Labor />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
