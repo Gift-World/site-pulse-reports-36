@@ -1,0 +1,86 @@
+
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Project } from "@/types/project";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Trash2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+
+interface ProjectHeaderProps {
+  project: Project;
+}
+
+export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ project }) => {
+  const navigate = useNavigate();
+
+  const handleDeleteProject = () => {
+    // In a real app, this would call an API to delete the project
+    toast({
+      title: "Project Deleted",
+      description: `${project.name} has been successfully deleted.`
+    });
+    navigate("/projects");
+  };
+
+  return (
+    <div>
+      <Button variant="ghost" className="mb-4" onClick={() => navigate('/projects')}>
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back to Projects
+      </Button>
+      
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
+            <Badge
+              variant={
+                project.status === "Completed" ? "outline" :
+                project.status === "In Progress" ? "default" : "secondary"
+              }
+            >
+              {project.status}
+            </Badge>
+          </div>
+          <p className="text-muted-foreground mt-1">
+            {project.description}
+          </p>
+        </div>
+        
+        <div className="flex gap-2">
+          {project.status !== "Completed" && (
+            <Button>
+              Edit Project
+            </Button>
+          )}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Project
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the project
+                  "{project.name}" and all of its associated data.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteProject}>
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+    </div>
+  );
+};
