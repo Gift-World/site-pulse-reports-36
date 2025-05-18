@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,18 +12,28 @@ import { Button } from "@/components/ui/button";
 import { Plus, FileDown } from "lucide-react";
 import { ReportForm } from "@/components/reports/ReportForm";
 import { toast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function ReportTemplateDialog() {
+  const [reportType, setReportType] = useState("daily");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  
   const handleSubmit = (data: any) => {
     console.log("Report submitted:", data);
     toast({
-      title: "Report Created",
-      description: `Daily site report has been created for ${data.projectName}.`,
+      title: `${getReportTitle(reportType)} Created`,
+      description: `${getReportTitle(reportType)} has been created for ${data.projectName}.`,
     });
+    setDialogOpen(false);
   };
 
   const generateWeeklyReport = () => {
-    // This would fetch daily reports and aggregate them
     toast({
       title: "Weekly Report Generated",
       description: "Weekly report has been created from the daily reports.",
@@ -31,20 +41,30 @@ export function ReportTemplateDialog() {
   };
 
   const generateMonthlyReport = () => {
-    // This would fetch daily reports and aggregate them
     toast({
       title: "Monthly Report Generated",
       description: "Monthly report has been created from the daily reports.",
     });
   };
+  
+  const getReportTitle = (type: string) => {
+    switch(type) {
+      case "daily": return "Daily Site Report";
+      case "safety": return "Safety Report";
+      case "visit": return "Site Visit Report";
+      case "weather": return "Weather Report";
+      case "meeting": return "Meeting Minutes";
+      default: return "Report";
+    }
+  };
 
   return (
-    <Dialog>
-      <div className="flex gap-2">
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <div className="flex flex-col sm:flex-row gap-2">
         <DialogTrigger asChild>
           <Button variant="default" className="bg-construction-navy hover:bg-construction-darkBlue">
             <Plus className="mr-2 h-4 w-4" />
-            Create New Report
+            Create Report
           </Button>
         </DialogTrigger>
         <Button 
@@ -68,10 +88,28 @@ export function ReportTemplateDialog() {
         <DialogHeader>
           <DialogTitle>Create New Report</DialogTitle>
           <DialogDescription>
-            Fill out the form below to create a new daily site report.
+            Select a report type and fill in the details.
           </DialogDescription>
         </DialogHeader>
-        <ReportForm onSubmit={handleSubmit} />
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-2">Report Type</label>
+          <Select value={reportType} onValueChange={setReportType}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select report type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="daily">Daily Site Report</SelectItem>
+              <SelectItem value="safety">Safety Report</SelectItem>
+              <SelectItem value="visit">Site Visit Report</SelectItem>
+              <SelectItem value="weather">Weather Report</SelectItem>
+              <SelectItem value="meeting">Meeting Minutes</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <ReportForm 
+          onSubmit={handleSubmit} 
+          reportType={reportType}
+        />
       </DialogContent>
     </Dialog>
   );
