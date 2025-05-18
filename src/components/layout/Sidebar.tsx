@@ -61,11 +61,6 @@ const navItems = [
     icon: <FileText className="h-5 w-5" /> 
   },
   { 
-    path: "/gallery", 
-    name: "Gallery", 
-    icon: <Image className="h-5 w-5" /> 
-  },
-  { 
     path: "/safety", 
     name: "Safety", 
     icon: <ShieldAlert className="h-5 w-5" /> 
@@ -84,6 +79,11 @@ const navItems = [
     path: "/files", 
     name: "Files", 
     icon: <Files className="h-5 w-5" /> 
+  },
+  { 
+    path: "/gallery", 
+    name: "Gallery", 
+    icon: <Image className="h-5 w-5" /> 
   },
   { 
     path: "/chat", 

@@ -5,44 +5,44 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    --background: 0 0% 100%; /* White */
+    --foreground: 220 76% 21%; /* Navy Blue text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 220 76% 21%; /* Navy Blue text */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover: 0 0% 100%; /* White */
+    --popover-foreground: 220 76% 21%; /* Navy Blue text */
 
-    --primary: 220 76% 21%;  /* Navy Blue */
-    --primary-foreground: 0 0% 100%;  /* White */
+    --primary: 220 76% 21%; /* Navy Blue */
+    --primary-foreground: 0 0% 100%; /* White */
 
-    --secondary: 220 16% 92%;
-    --secondary-foreground: 220 76% 21%;
+    --secondary: 220 16% 92%; /* Light Navy */
+    --secondary-foreground: 220 76% 21%; /* Navy Blue */
 
-    --muted: 220 16% 92%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 220 16% 92%; /* Light Navy */
+    --muted-foreground: 215 16% 47%; /* Muted Navy */
 
-    --accent: 220 16% 92%;
-    --accent-foreground: 220 76% 21%;
+    --accent: 16 100% 57%; /* Dark Orange */
+    --accent-foreground: 0 0% 100%; /* White */
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%; /* Red */
+    --destructive-foreground: 0 0% 100%; /* White */
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 220 76% 21%;
+    --border: 214 32% 91%; /* Light Gray */
+    --input: 214 32% 91%; /* Light Gray */
+    --ring: 220 76% 21%; /* Navy Blue */
 
     --radius: 0.5rem;
 
-    --sidebar-background: 220 76% 21%;  /* Navy Blue */
-    --sidebar-foreground: 0 0% 100%;    /* White */
-    --sidebar-primary: 0 0% 100%;       /* White */
-    --sidebar-primary-foreground: 220 76% 21%;  /* Navy Blue */
-    --sidebar-accent: 220 30% 30%;      /* Lighter Navy */
-    --sidebar-accent-foreground: 0 0% 100%;  /* White */
-    --sidebar-border: 220 30% 30%;      /* Lighter Navy */
-    --sidebar-ring: 0 0% 100%;          /* White */
+    --sidebar-background: 220 76% 21%; /* Navy Blue */
+    --sidebar-foreground: 0 0% 100%; /* White */
+    --sidebar-primary: 0 0% 100%; /* White */
+    --sidebar-primary-foreground: 220 76% 21%; /* Navy Blue */
+    --sidebar-accent: 220 30% 30%; /* Lighter Navy */
+    --sidebar-accent-foreground: 0 0% 100%; /* White */
+    --sidebar-border: 220 30% 30%; /* Lighter Navy */
+    --sidebar-ring: 0 0% 100%; /* White */
   }
 
   .dark {
@@ -55,8 +55,8 @@
     --popover: 224 71% 4%;
     --popover-foreground: 210 20% 98%;
 
-    --primary: 220 76% 21%;  /* Navy Blue */
-    --primary-foreground: 0 0% 100%;  /* White */
+    --primary: 220 76% 21%; /* Navy Blue */
+    --primary-foreground: 0 0% 100%; /* White */
 
     --secondary: 220 40% 16%;
     --secondary-foreground: 0 0% 100%;
@@ -64,7 +64,7 @@
     --muted: 220 40% 16%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 220 40% 16%;
+    --accent: 16 100% 57%; /* Dark Orange */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 63% 31%;
@@ -74,14 +74,14 @@
     --input: 220 40% 16%;
     --ring: 220 76% 30%;
     
-    --sidebar-background: 220 76% 15%;  /* Darker Navy */
-    --sidebar-foreground: 0 0% 100%;    /* White */
-    --sidebar-primary: 0 0% 100%;       /* White */
-    --sidebar-primary-foreground: 220 76% 21%;  /* Navy Blue */
-    --sidebar-accent: 220 30% 30%;      /* Lighter Navy */
-    --sidebar-accent-foreground: 0 0% 100%;  /* White */
-    --sidebar-border: 220 40% 25%;      /* Mid Navy */
-    --sidebar-ring: 0 0% 100%;          /* White */
+    --sidebar-background: 220 76% 15%; /* Darker Navy */
+    --sidebar-foreground: 0 0% 100%; /* White */
+    --sidebar-primary: 0 0% 100%; /* White */
+    --sidebar-primary-foreground: 220 76% 21%; /* Navy Blue */
+    --sidebar-accent: 220 30% 30%; /* Lighter Navy */
+    --sidebar-accent-foreground: 0 0% 100%; /* White */
+    --sidebar-border: 220 40% 25%; /* Mid Navy */
+    --sidebar-ring: 0 0% 100%; /* White */
   }
 }
 
@@ -107,5 +107,17 @@
   }
   .stat-label {
     @apply text-sm text-construction-gray;
+  }
+  .info-card {
+    @apply bg-gradient-to-br from-white to-secondary/50 rounded-lg border border-border p-5 shadow-sm;
+  }
+  .progress-gradient-good {
+    @apply bg-gradient-to-r from-emerald-500 to-teal-400;
+  }
+  .progress-gradient-warning {
+    @apply bg-gradient-to-r from-amber-500 to-orange-400;
+  }
+  .progress-gradient-danger {
+    @apply bg-gradient-to-r from-red-500 to-pink-500;
   }
 }

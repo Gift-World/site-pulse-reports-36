@@ -64,15 +64,15 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				construction: {
-					blue: '#0A2463', // Changed to Navy Blue
+					blue: '#0A2463', // Navy Blue
 					darkBlue: '#061440',
 					gray: '#475569',
 					lightGray: '#F8FAFC',
-					orange: '#FF5722',
+					orange: '#FF5722', // Dark Orange
 					green: '#34A853',
 					red: '#EA4335',
-					navy: '#0A2463', // Added Navy color
-					white: '#FFFFFF'  // Added White color
+					navy: '#0A2463',
+					white: '#FFFFFF'
 				}
 			},
 			borderRadius: {
