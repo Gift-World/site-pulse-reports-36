@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartBar, Users, Clock, Shield, PieChart, CheckCircle } from "lucide-react";
+import { ChartBar, Users, Clock, Shield, PieChart, CheckCircle, Database } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
@@ -151,47 +151,62 @@ const Home = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[
             {
-              title: "Starter",
-              price: "$99",
-              description: "Perfect for small teams and simple projects",
+              title: "Free",
+              price: "$0",
+              description: "Perfect for small teams with a single project",
               features: [
-                "Up to 3 active projects",
-                "5 team members",
+                "1 active project",
+                "Up to 5 team members",
                 "Basic reporting",
-                "Email support"
+                "1GB storage",
+                "Community support"
+              ]
+            },
+            {
+              title: "Basic",
+              price: "$29.99",
+              description: "For growing construction businesses",
+              features: [
+                "Up to 5 active projects",
+                "10 team members",
+                "Standard reporting",
+                "Email support",
+                "5GB file storage"
               ]
             },
             {
               title: "Professional",
-              price: "$199",
-              description: "Ideal for growing construction businesses",
+              price: "$99",
+              description: "Ideal for mid-sized construction companies",
               features: [
-                "Up to 10 active projects",
-                "20 team members",
+                "Up to 30 active projects",
+                "30 team members",
                 "Advanced reporting",
                 "Priority support",
-                "File storage (10GB)"
+                "25GB file storage",
+                "Custom reports"
               ],
               recommended: true
             },
             {
               title: "Enterprise",
-              price: "$399",
+              price: "$199",
               description: "For large companies with complex requirements",
               features: [
                 "Unlimited projects",
                 "Unlimited team members",
                 "Custom reports",
                 "Dedicated account manager",
-                "File storage (50GB)",
-                "API access"
+                "100GB file storage",
+                "API access",
+                "Advanced analytics"
               ]
             }
           ].map((plan, index) => (
-            <Card key={index} className={plan.recommended ? "border-construction-navy relative" : ""}>
+            <Card key={index} className={plan.recommended ? "border-construction-navy relative shadow-md" : ""}>
               {plan.recommended && (
                 <div className="absolute top-0 w-full text-center transform -translate-y-1/2">
                   <span className="bg-construction-navy text-white px-4 py-1 text-sm rounded-full">
@@ -199,13 +214,13 @@ const Home = () => {
                   </span>
                 </div>
               )}
-              <CardHeader className={plan.recommended ? "pt-8" : ""}>
-                <CardTitle>{plan.title}</CardTitle>
+              <CardHeader className={plan.recommended ? "pt-8 bg-construction-navy text-white rounded-t-lg" : ""}>
+                <CardTitle className={plan.recommended ? "text-white" : ""}>{plan.title}</CardTitle>
                 <div className="flex items-end gap-1">
-                  <span className="text-3xl font-bold">{plan.price}</span>
-                  <span className="text-muted-foreground mb-1">/month</span>
+                  <span className={`text-3xl font-bold ${plan.recommended ? "text-white" : ""}`}>{plan.price}</span>
+                  <span className={`${plan.recommended ? "text-white/80" : "text-muted-foreground"} mb-1`}>/month</span>
                 </div>
-                <CardDescription>{plan.description}</CardDescription>
+                <CardDescription className={plan.recommended ? "text-white/80" : ""}>{plan.description}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <ul className="space-y-2">
