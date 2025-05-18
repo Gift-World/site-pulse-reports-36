@@ -5,6 +5,7 @@ export interface Project {
   description: string;
   status: "In Progress" | "Planning" | "Completed" | "On Hold";
   progress: number;
+  timelapse?: number;
   team: number;
   dueDate: string;
   location?: string;
@@ -35,4 +36,17 @@ export interface Project {
     status: "Completed" | "In Progress" | "Pending" | "Overdue";
   }[];
   notes?: string;
+  defectsLiability?: {
+    lapseDate: string;
+    endDate: string;
+  };
+  finalReports?: {
+    projectReport: string;
+    safetyReport: string;
+    budgetReport: string;
+  };
+  keyImpacts?: {
+    positive: string[];
+    negative: string[];
+  };
 }

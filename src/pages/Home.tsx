@@ -161,8 +161,8 @@ const Home = () => {
                 "1 active project",
                 "Up to 5 team members",
                 "Basic reporting",
-                "1GB storage",
-                "Community support"
+                "5GB storage",
+                "No email support"
               ]
             },
             {
@@ -174,7 +174,7 @@ const Home = () => {
                 "10 team members",
                 "Standard reporting",
                 "Email support",
-                "5GB file storage"
+                "15GB file storage"
               ]
             },
             {
@@ -186,7 +186,7 @@ const Home = () => {
                 "30 team members",
                 "Advanced reporting",
                 "Priority support",
-                "25GB file storage",
+                "50GB file storage",
                 "Custom reports"
               ],
               recommended: true

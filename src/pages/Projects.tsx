@@ -1,12 +1,14 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { FolderOpen, Plus, Users, Calendar } from "lucide-react";
+import { FolderOpen, Plus, Users, Calendar, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/types/project";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { NewProjectForm } from "@/components/projects/NewProjectForm";
 
 const projects: Project[] = [
   {
@@ -15,6 +17,7 @@ const projects: Project[] = [
     description: "12-story commercial building with underground parking",
     status: "In Progress",
     progress: 65,
+    timelapse: 70,
     team: 28,
     dueDate: "Dec 15, 2025",
     location: "Riverside Business District",
@@ -77,6 +80,7 @@ const projects: Project[] = [
     description: "Twin 20-story residential towers with amenities",
     status: "In Progress",
     progress: 42,
+    timelapse: 38,
     team: 35,
     dueDate: "Mar 30, 2026",
     location: "Northern Heights District",
@@ -144,6 +148,7 @@ const projects: Project[] = [
     description: "Complete renovation of historic 8-story hotel",
     status: "Planning",
     progress: 10,
+    timelapse: 5,
     team: 15,
     dueDate: "Aug 22, 2025",
     location: "City Center",
@@ -196,6 +201,7 @@ const projects: Project[] = [
     description: "3-level shopping mall with food court and cinema",
     status: "Completed",
     progress: 100,
+    timelapse: 100,
     team: 0,
     dueDate: "Completed Apr 2025",
     location: "Westside Commercial District",
@@ -229,12 +235,26 @@ const projects: Project[] = [
         status: "Completed"
       }
     ],
+    defectsLiability: {
+      lapseDate: "Apr 15, 2026",
+      endDate: "Apr 15, 2027"
+    },
+    finalReports: {
+      projectReport: "final-project-report.pdf",
+      safetyReport: "final-safety-report.pdf",
+      budgetReport: "final-budget-report.pdf"
+    },
+    keyImpacts: {
+      positive: ["Completed 2 weeks ahead of schedule", "Under budget by 3.8%", "Zero safety incidents"],
+      negative: ["Supply chain delays in Q2", "Weather disruptions in March"]
+    },
     notes: "Project completed on schedule and under budget. Final client walkthrough resulted in excellent feedback. Warranty period in effect for 12 months."
   }
 ];
 
 const Projects = () => {
   const navigate = useNavigate();
+  const [openNewProjectDialog, setOpenNewProjectDialog] = useState(false);
   
   return (
     <div className="space-y-6">
@@ -245,7 +265,7 @@ const Projects = () => {
             Manage and monitor all your construction projects
           </p>
         </div>
-        <Button>
+        <Button onClick={() => setOpenNewProjectDialog(true)}>
           <Plus className="mr-2 h-4 w-4" />
           New Project
         </Button>
@@ -285,6 +305,22 @@ const Projects = () => {
                   />
                 </div>
                 
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium">Timelapse</span>
+                    <span className="text-sm font-medium">{project.timelapse}%</span>
+                  </div>
+                  <Progress
+                    value={project.timelapse}
+                    className="h-2"
+                    indicatorClassName={
+                      project.timelapse === 100 ? "bg-construction-green" :
+                      project.timelapse >= project.progress ? "bg-construction-green" : 
+                      project.timelapse >= project.progress - 10 ? "bg-construction-blue" : "bg-construction-red"
+                    }
+                  />
+                </div>
+                
                 <div className="flex gap-4 text-sm">
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4 text-muted-foreground" />
@@ -303,12 +339,25 @@ const Projects = () => {
                 className="w-full"
                 onClick={() => navigate(`/projects/${project.id}`)}
               >
-                View Details
+                {project.status === "Completed" ? "View Final Report" : "View Details"}
               </Button>
             </CardFooter>
           </Card>
         ))}
       </div>
+
+      {/* New Project Dialog */}
+      <Dialog open={openNewProjectDialog} onOpenChange={setOpenNewProjectDialog}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Create New Project</DialogTitle>
+            <DialogDescription>
+              Fill out the project details to create a new construction project
+            </DialogDescription>
+          </DialogHeader>
+          <NewProjectForm onComplete={() => setOpenNewProjectDialog(false)} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
