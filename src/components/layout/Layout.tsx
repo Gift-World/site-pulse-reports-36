@@ -20,7 +20,7 @@ export function Layout() {
       <div className="flex h-screen w-full overflow-hidden flex-col">
         <div className="flex flex-1 w-full overflow-hidden">
           {showSidebar && <MainSidebar />}
-          <div className="flex flex-1 flex-col overflow-hidden">
+          <div className={`flex flex-1 flex-col overflow-hidden ${showSidebar ? "ml-16 md:ml-64" : ""}`}>
             <Header />
             <main className={`flex-1 overflow-auto ${showSidebar ? "p-4 md:p-6" : "p-0"}`}>
               <Outlet />

@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Project } from "@/types/project";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OverviewTab } from "./tabs/OverviewTab";
@@ -18,8 +18,15 @@ interface InProgressProjectViewProps {
 }
 
 export function InProgressProjectView({ project }: InProgressProjectViewProps) {
+  const [activeTab, setActiveTab] = useState("overview");
+  
   return (
-    <Tabs defaultValue="overview" className="w-full">
+    <Tabs 
+      defaultValue="overview" 
+      className="w-full"
+      value={activeTab}
+      onValueChange={setActiveTab}
+    >
       <TabsList className="flex flex-wrap h-auto">
         <TabsTrigger value="overview">Overview</TabsTrigger>
         <TabsTrigger value="milestones">Milestones</TabsTrigger>
@@ -35,7 +42,7 @@ export function InProgressProjectView({ project }: InProgressProjectViewProps) {
       
       <div className="mt-6">
         <TabsContent value="overview" className="mt-0">
-          <OverviewTab project={project} />
+          <OverviewTab project={project} setActiveTab={setActiveTab} />
         </TabsContent>
         
         <TabsContent value="milestones" className="mt-0">
@@ -47,31 +54,31 @@ export function InProgressProjectView({ project }: InProgressProjectViewProps) {
         </TabsContent>
         
         <TabsContent value="documents" className="mt-0">
-          <DocumentsTab project={project} />
+          <DocumentsTab />
         </TabsContent>
         
         <TabsContent value="gallery" className="mt-0">
-          <GalleryTab project={project} />
+          <GalleryTab />
         </TabsContent>
         
         <TabsContent value="safety" className="mt-0">
-          <SafetyTab project={project} />
+          <SafetyTab />
         </TabsContent>
         
         <TabsContent value="inventory" className="mt-0">
-          <InventoryTab project={project} />
+          <InventoryTab />
         </TabsContent>
         
         <TabsContent value="labor" className="mt-0">
-          <LaborTab project={project} />
+          <LaborTab />
         </TabsContent>
         
         <TabsContent value="plant" className="mt-0">
-          <PlantTab project={project} />
+          <PlantTab />
         </TabsContent>
         
         <TabsContent value="program" className="mt-0">
-          <ProgramTab project={project} />
+          <ProgramTab />
         </TabsContent>
       </div>
     </Tabs>

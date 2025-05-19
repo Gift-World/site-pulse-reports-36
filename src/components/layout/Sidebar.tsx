@@ -99,7 +99,7 @@ export function MainSidebar() {
   return (
     <Sidebar
       className={cn(
-        "border-r border-border transition-all duration-300 ease-in-out",
+        "border-r border-border fixed left-0 top-0 bottom-0 transition-all duration-300 ease-in-out z-40",
         isCollapsed ? "w-16" : "w-64",
         "bg-construction-navy text-white"
       )}
