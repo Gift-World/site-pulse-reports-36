@@ -1,13 +1,21 @@
-
-import React from "react";
+import React, { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartBar, Users, Clock, Shield, PieChart, CheckCircle } from "lucide-react";
+import { ChartBar, Users, Clock, Shield, PieChart, CheckCircle, Book, List, Construction, Info, Building } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { HelpCenter } from "@/components/home/HelpCenter";
+import { SolutionsList } from "@/components/home/SolutionsList";
 
 const Home = () => {
   const navigate = useNavigate();
+  const pricingRef = useRef<HTMLElement>(null);
+  const featuresRef = useRef<HTMLDivElement>(null);
+
+  const scrollToSection = (ref: React.RefObject<HTMLElement>) => {
+    if (ref && ref.current) {
+      ref.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="space-y-12">
@@ -25,23 +33,24 @@ const Home = () => {
             <Button 
               size="lg" 
               className="bg-construction-navy hover:bg-construction-darkBlue"
-              onClick={() => navigate("/dashboard")}
+              onClick={() => scrollToSection(pricingRef)}
             >
               Get Started
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              onClick={() => navigate("#features")}
-            >
-              Learn More
-            </Button>
+            <SolutionsList>
+              <Button 
+                size="lg" 
+                variant="outline"
+              >
+                Learn More
+              </Button>
+            </SolutionsList>
           </div>
         </div>
       </div>
 
       {/* Why ConstructPulse */}
-      <section id="why" className="py-16 px-4">
+      <div ref={featuresRef}>
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Why ConstructPulse?</h2>
@@ -98,7 +107,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Features Section */}
       <section id="features" className="py-16 px-4 bg-gray-50">
@@ -163,7 +172,7 @@ const Home = () => {
       <HelpCenter />
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-16 px-4">
+      <section ref={pricingRef} id="pricing" className="py-16 px-4">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Simple, Transparent Pricing</h2>
