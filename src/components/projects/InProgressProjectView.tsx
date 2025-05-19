@@ -54,31 +54,31 @@ export function InProgressProjectView({ project }: InProgressProjectViewProps) {
         </TabsContent>
         
         <TabsContent value="documents" className="mt-0">
-          <DocumentsTab />
+          <DocumentsTab project={project} />
         </TabsContent>
         
         <TabsContent value="gallery" className="mt-0">
-          <GalleryTab />
+          <GalleryTab project={project} />
         </TabsContent>
         
         <TabsContent value="safety" className="mt-0">
-          <SafetyTab />
+          <SafetyTab project={project} />
         </TabsContent>
         
         <TabsContent value="inventory" className="mt-0">
-          <InventoryTab />
+          <InventoryTab project={project} />
         </TabsContent>
         
         <TabsContent value="labor" className="mt-0">
-          <LaborTab />
+          <LaborTab project={project} />
         </TabsContent>
         
         <TabsContent value="plant" className="mt-0">
-          <PlantTab />
+          <PlantTab project={project} />
         </TabsContent>
         
         <TabsContent value="program" className="mt-0">
-          <ProgramTab />
+          <ProgramTab project={project} />
         </TabsContent>
       </div>
     </Tabs>
