@@ -9,6 +9,10 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { LaborForm, LaborResource } from "./LaborForm";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Download, FileSpreadsheet, FileText, MoreHorizontal, Pencil, Trash2, Upload } from "lucide-react";
+import { toast } from "sonner";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface LaborTabProps {
   project: Project;
@@ -47,9 +51,130 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
       status: "Active"
     }
   ]);
+  
+  const [editResource, setEditResource] = useState<LaborResource | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const handleAddResource = (resource: LaborResource) => {
     setLaborResources(prevResources => [...prevResources, resource]);
+  };
+  
+  const handleUpdateResource = (updatedResource: LaborResource) => {
+    setLaborResources(prevResources => 
+      prevResources.map(resource => 
+        resource.id === updatedResource.id ? updatedResource : resource
+      )
+    );
+    setEditResource(null);
+  };
+  
+  const handleEditResource = (resource: LaborResource) => {
+    setEditResource(resource);
+    setIsEditDialogOpen(true);
+  };
+  
+  const handleDeleteResource = (resourceId: string) => {
+    setLaborResources(prevResources => 
+      prevResources.filter(resource => resource.id !== resourceId)
+    );
+    toast.success("Resource removed successfully");
+  };
+
+  // Function to export data to Excel (CSV)
+  const exportToExcel = () => {
+    const headers = ["Name", "Type", "Role", "Rate", "Rate Type", "Working Days", "Status"];
+    
+    // Create CSV content
+    let csvContent = headers.join(",") + "\n";
+    
+    laborResources.forEach(resource => {
+      const row = [
+        `"${resource.name}"`,
+        `"${resource.type}"`,
+        `"${resource.role}"`,
+        resource.rate,
+        `"${resource.rateType}"`,
+        `"${resource.workingDays.join(", ")}"`,
+        `"${resource.status}"`
+      ];
+      
+      csvContent += row.join(",") + "\n";
+    });
+    
+    // Create a download link
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${project.name}_labor_resources.csv`);
+    link.style.display = "none";
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success("Labor resources exported to Excel");
+  };
+
+  // Function to export to PDF
+  const exportToPDF = () => {
+    // This would typically use a library like jspdf or pdfmake
+    // For now we'll just show a toast message
+    toast.info("PDF export functionality coming soon");
+  };
+  
+  // Function to handle file upload
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          // Process CSV/Excel file
+          const text = e.target?.result as string;
+          const rows = text.split('\n');
+          const headers = rows[0].split(',');
+          
+          // Skip header row and process data rows
+          const newResources: LaborResource[] = [];
+          
+          for (let i = 1; i < rows.length; i++) {
+            if (!rows[i].trim()) continue;
+            
+            const values = rows[i].split(',');
+            const resource: LaborResource = {
+              id: Date.now().toString() + i,
+              name: values[0]?.replace(/"/g, '') || '',
+              type: (values[1]?.replace(/"/g, '') || 'Skilled') as "Subcontractor" | "Skilled" | "Unskilled",
+              role: values[2]?.replace(/"/g, '') || '',
+              rate: parseFloat(values[3]) || 0,
+              rateType: (values[4]?.replace(/"/g, '') || 'Hourly') as "Hourly" | "Daily" | "Weekly",
+              workingDays: values[5]?.replace(/"/g, '').split(', ') || [],
+              status: (values[6]?.replace(/"/g, '') || 'Active') as "Active" | "Inactive"
+            };
+            
+            newResources.push(resource);
+          }
+          
+          if (newResources.length > 0) {
+            setLaborResources(prev => [...prev, ...newResources]);
+            toast.success(`Imported ${newResources.length} labor resources`);
+          } else {
+            toast.error("No valid data found in the file");
+          }
+          
+        } catch (error) {
+          console.error("Error processing file:", error);
+          toast.error("Error processing file. Please check the format and try again.");
+        }
+      };
+      
+      reader.readAsText(file);
+      
+      // Reset the file input
+      event.target.value = '';
+    }
   };
 
   // Calculate labor distribution based on resource types
@@ -94,6 +219,60 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
     }
   };
 
+  // Render a table row with actions
+  const renderTableRow = (resource: LaborResource) => (
+    <TableRow key={resource.id}>
+      <TableCell>
+        <div className="flex items-center gap-2">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback>{getInitials(resource.name)}</AvatarFallback>
+          </Avatar>
+          <span className="font-medium">{resource.name}</span>
+        </div>
+      </TableCell>
+      <TableCell>{getTypeBadge(resource.type)}</TableCell>
+      <TableCell>{resource.role}</TableCell>
+      <TableCell>${resource.rate}/{resource.rateType.toLowerCase().replace('ly', '')}</TableCell>
+      <TableCell>
+        <div className="flex flex-wrap gap-1">
+          {resource.workingDays.map(day => (
+            <span key={day} className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">
+              {day.substring(0, 3)}
+            </span>
+          ))}
+        </div>
+      </TableCell>
+      <TableCell>{getStatusBadge(resource.status)}</TableCell>
+      <TableCell>
+        <div className="flex justify-end">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => handleEditResource(resource)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                className="text-red-600"
+                onClick={() => handleDeleteResource(resource.id)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -101,7 +280,40 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
           <CardTitle>Labor Management</CardTitle>
           <CardDescription>Workforce allocation and tracking</CardDescription>
         </div>
-        <LaborForm onAddResource={handleAddResource} />
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <input
+              type="file"
+              id="file-upload"
+              accept=".csv,.xlsx,.xls"
+              className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+              onChange={handleFileUpload}
+            />
+            <Button variant="outline" size="sm" className="flex items-center gap-1">
+              <Upload className="h-4 w-4" />
+              Import
+            </Button>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center gap-1">
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={exportToExcel}>
+                <FileSpreadsheet className="mr-2 h-4 w-4" />
+                Export to Excel
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={exportToPDF}>
+                <FileText className="mr-2 h-4 w-4" />
+                Export to PDF
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <LaborForm onAddResource={handleAddResource} />
+        </div>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -174,34 +386,11 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
                   <TableHead>Rate</TableHead>
                   <TableHead>Working Days</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {laborResources.map((resource) => (
-                  <TableRow key={resource.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback>{getInitials(resource.name)}</AvatarFallback>
-                        </Avatar>
-                        <span className="font-medium">{resource.name}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{getTypeBadge(resource.type)}</TableCell>
-                    <TableCell>{resource.role}</TableCell>
-                    <TableCell>${resource.rate}/{resource.rateType.toLowerCase().replace('ly', '')}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {resource.workingDays.map(day => (
-                          <span key={day} className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">
-                            {day.substring(0, 3)}
-                          </span>
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell>{getStatusBadge(resource.status)}</TableCell>
-                  </TableRow>
-                ))}
+                {laborResources.map(resource => renderTableRow(resource))}
               </TableBody>
             </Table>
           </TabsContent>
@@ -215,6 +404,7 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
                   <TableHead>Rate</TableHead>
                   <TableHead>Working Days</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -242,6 +432,31 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
                         </div>
                       </TableCell>
                       <TableCell>{getStatusBadge(resource.status)}</TableCell>
+                      <TableCell>
+                        <div className="flex justify-end">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEditResource(resource)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-red-600"
+                                onClick={() => handleDeleteResource(resource.id)}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
               </TableBody>
@@ -257,6 +472,7 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
                   <TableHead>Rate</TableHead>
                   <TableHead>Working Days</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -284,6 +500,31 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
                         </div>
                       </TableCell>
                       <TableCell>{getStatusBadge(resource.status)}</TableCell>
+                      <TableCell>
+                        <div className="flex justify-end">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEditResource(resource)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-red-600"
+                                onClick={() => handleDeleteResource(resource.id)}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
               </TableBody>
@@ -299,6 +540,7 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
                   <TableHead>Rate</TableHead>
                   <TableHead>Working Days</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -326,6 +568,31 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
                         </div>
                       </TableCell>
                       <TableCell>{getStatusBadge(resource.status)}</TableCell>
+                      <TableCell>
+                        <div className="flex justify-end">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEditResource(resource)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-red-600"
+                                onClick={() => handleDeleteResource(resource.id)}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
               </TableBody>
@@ -333,6 +600,16 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
           </TabsContent>
         </Tabs>
       </CardContent>
+      
+      {/* Edit Resource Dialog */}
+      {editResource && (
+        <LaborForm 
+          onUpdateResource={handleUpdateResource}
+          editingResource={editResource}
+          isOpen={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+        />
+      )}
     </Card>
   );
 };

@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,10 @@ import { toast } from "sonner";
 
 interface LaborFormProps {
   onAddResource: (resource: LaborResource) => void;
+  onUpdateResource?: (resource: LaborResource) => void;
+  editingResource?: LaborResource | null;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export interface LaborResource {
@@ -24,7 +28,13 @@ export interface LaborResource {
   status: "Active" | "Inactive";
 }
 
-export const LaborForm: React.FC<LaborFormProps> = ({ onAddResource }) => {
+export const LaborForm: React.FC<LaborFormProps> = ({ 
+  onAddResource, 
+  onUpdateResource, 
+  editingResource, 
+  isOpen, 
+  onOpenChange 
+}) => {
   const [showDialog, setShowDialog] = useState(false);
   const [resourceType, setResourceType] = useState<"Skilled" | "Unskilled" | "Subcontractor">("Skilled");
   
@@ -37,6 +47,21 @@ export const LaborForm: React.FC<LaborFormProps> = ({ onAddResource }) => {
     workingDays: [],
     status: "Active"
   });
+
+  // Handle dialog open state from parent component
+  useEffect(() => {
+    if (isOpen !== undefined) {
+      setShowDialog(isOpen);
+    }
+  }, [isOpen]);
+
+  // Load editing resource data when provided
+  useEffect(() => {
+    if (editingResource) {
+      setFormData(editingResource);
+      setResourceType(editingResource.type);
+    }
+  }, [editingResource]);
 
   const handleInputChange = (field: keyof LaborResource, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -54,6 +79,29 @@ export const LaborForm: React.FC<LaborFormProps> = ({ onAddResource }) => {
     });
   };
 
+  const handleDialogChange = (open: boolean) => {
+    setShowDialog(open);
+    if (onOpenChange) {
+      onOpenChange(open);
+    }
+    
+    if (!open) {
+      // Reset form when closing
+      if (!editingResource) {
+        setFormData({
+          name: "",
+          role: "",
+          type: "Skilled",
+          rate: 0,
+          rateType: "Hourly",
+          workingDays: [],
+          status: "Active"
+        });
+        setResourceType("Skilled");
+      }
+    }
+  };
+
   const handleSubmit = () => {
     // Validate form
     if (!formData.name || !formData.role || formData.rate === 0) {
@@ -61,18 +109,26 @@ export const LaborForm: React.FC<LaborFormProps> = ({ onAddResource }) => {
       return;
     }
     
-    const newResource: LaborResource = {
-      id: Date.now().toString(),
+    const resourceData: LaborResource = {
+      id: formData.id || Date.now().toString(),
       name: formData.name || "",
       type: resourceType,
       role: formData.role || "",
       rate: formData.rate || 0,
       rateType: formData.rateType as "Hourly" | "Daily" | "Weekly",
       workingDays: formData.workingDays || [],
-      status: "Active"
+      status: formData.status as "Active" | "Inactive" || "Active"
     };
     
-    onAddResource(newResource);
+    if (editingResource) {
+      if (onUpdateResource) {
+        onUpdateResource(resourceData);
+        toast.success(`${resourceType} resource updated successfully`);
+      }
+    } else {
+      onAddResource(resourceData);
+      toast.success(`${resourceType} resource added successfully`);
+    }
     
     // Reset form and close dialog
     setFormData({
@@ -85,24 +141,28 @@ export const LaborForm: React.FC<LaborFormProps> = ({ onAddResource }) => {
       status: "Active"
     });
     
-    setShowDialog(false);
-    toast.success(`${resourceType} resource added successfully`);
+    handleDialogChange(false);
   };
 
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   
+  const dialogTitle = editingResource ? "Edit Labor Resource" : "Add Labor Resource";
+  const submitButtonText = editingResource ? `Update ${resourceType}` : `Add ${resourceType}`;
+  
   return (
     <>
-      <Button onClick={() => setShowDialog(true)} variant="outline">
-        Add Labor Resource
-      </Button>
+      {!onOpenChange && (
+        <Button onClick={() => handleDialogChange(true)} variant="outline">
+          Add Labor Resource
+        </Button>
+      )}
       
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+      <Dialog open={showDialog} onOpenChange={handleDialogChange}>
         <DialogContent className="max-w-[60%] overflow-y-auto max-h-[85vh]">
           <DialogHeader>
-            <DialogTitle>Add Labor Resource</DialogTitle>
+            <DialogTitle>{dialogTitle}</DialogTitle>
             <DialogDescription>
-              Add new {resourceType.toLowerCase()} resource to the project
+              {editingResource ? `Edit ${resourceType.toLowerCase()} resource details` : `Add new ${resourceType.toLowerCase()} resource to the project`}
             </DialogDescription>
           </DialogHeader>
           
@@ -166,7 +226,6 @@ export const LaborForm: React.FC<LaborFormProps> = ({ onAddResource }) => {
                       onChange={e => handleInputChange("rate", parseFloat(e.target.value))}
                     />
                     <Select 
-                      defaultValue="Hourly"
                       value={formData.rateType}
                       onValueChange={value => handleInputChange("rateType", value)}
                     >
@@ -180,6 +239,21 @@ export const LaborForm: React.FC<LaborFormProps> = ({ onAddResource }) => {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select 
+                    value={formData.status}
+                    onValueChange={value => handleInputChange("status", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Active">Active</SelectItem>
+                      <SelectItem value="Inactive">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               
@@ -204,11 +278,11 @@ export const LaborForm: React.FC<LaborFormProps> = ({ onAddResource }) => {
           </div>
           
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDialog(false)}>
+            <Button variant="outline" onClick={() => handleDialogChange(false)}>
               Cancel
             </Button>
             <Button onClick={handleSubmit}>
-              Add {resourceType}
+              {submitButtonText}
             </Button>
           </DialogFooter>
         </DialogContent>
