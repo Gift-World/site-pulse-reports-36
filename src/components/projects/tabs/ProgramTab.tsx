@@ -690,19 +690,13 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
                   
                   <div className="border rounded-md p-6">
                     <FileUploader
-                      accept={importType === "excel" ? ".xlsx,.xls" : importType === "msproject" ? ".mpp" : ".xer,.xml"}
+                      acceptedFileTypes={importType === "excel" ? ".xlsx,.xls" : importType === "msproject" ? ".mpp" : ".xer,.xml"}
                       maxFiles={1}
-                      onFilesAdded={handleProgramImport}
-                      icon={<Import className="h-10 w-10 text-muted-foreground" />}
-                      instruction={`Drag and drop your ${
+                      onFilesSelected={handleProgramImport}
+                      label={`Import ${
                         importType === "excel" ? "Excel spreadsheet" : 
                         importType === "msproject" ? "MS Project file" : 
                         "Primavera P6 export file"
-                      } here`}
-                      note={`Supported file types: ${
-                        importType === "excel" ? ".xlsx, .xls" : 
-                        importType === "msproject" ? ".mpp" : 
-                        ".xer, .xml"
                       }`}
                     />
                     
