@@ -1,137 +1,105 @@
 
-import React, { useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Upload, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import React, { useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { Upload, FileCheck, AlertCircle } from "lucide-react";
 
-interface FileUploaderProps {
+export interface FileUploaderProps {
   onFilesSelected: (files: File[]) => void;
+  acceptedFileTypes?: string;
   maxFiles?: number;
-  accept?: string;
-  className?: string;
+  label?: string;
 }
 
-export function FileUploader({
-  onFilesSelected,
-  maxFiles = 10,
-  accept,
-  className,
+export function FileUploader({ 
+  onFilesSelected, 
+  acceptedFileTypes = '.pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png',
+  maxFiles = 5,
+  label = 'Upload Files' 
 }: FileUploaderProps) {
   const [files, setFiles] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleClick = () => {
-    inputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = e.target.files;
-    if (!selectedFiles) return;
-
-    const filesToAdd: File[] = [];
-    const newPreviews: string[] = [...previews];
-
-    for (let i = 0; i < selectedFiles.length; i++) {
-      if (files.length + filesToAdd.length >= maxFiles) break;
-      
-      const file = selectedFiles[i];
-      filesToAdd.push(file);
-      
-      if (file.type.startsWith('image/')) {
-        const previewUrl = URL.createObjectURL(file);
-        newPreviews.push(previewUrl);
-      } else {
-        newPreviews.push('');
-      }
+  const [error, setError] = useState<string | null>(null);
+  
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    setError(null);
+    
+    if (maxFiles && acceptedFiles.length + files.length > maxFiles) {
+      setError(`You can only upload a maximum of ${maxFiles} files`);
+      return;
     }
     
-    const updatedFiles = [...files, ...filesToAdd];
+    const updatedFiles = [...files, ...acceptedFiles];
     setFiles(updatedFiles);
-    setPreviews(newPreviews);
     onFilesSelected(updatedFiles);
-    
-    // Reset the input
-    if (inputRef.current) {
-      inputRef.current.value = '';
-    }
+  }, [files, maxFiles, onFilesSelected]);
+  
+  const removeFile = (fileIndex: number) => {
+    const updatedFiles = files.filter((_, index) => index !== fileIndex);
+    setFiles(updatedFiles);
+    onFilesSelected(updatedFiles);
+    setError(null);
   };
-
-  const removeFile = (index: number) => {
-    const newFiles = [...files];
-    const newPreviews = [...previews];
-    
-    // Revoke object URL to prevent memory leaks
-    if (newPreviews[index]) {
-      URL.revokeObjectURL(newPreviews[index]);
-    }
-    
-    newFiles.splice(index, 1);
-    newPreviews.splice(index, 1);
-    
-    setFiles(newFiles);
-    setPreviews(newPreviews);
-    onFilesSelected(newFiles);
-  };
-
+  
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: acceptedFileTypes ? acceptedFileTypes.split(',').reduce((acc: any, type) => {
+      acc[type] = [];
+      return acc;
+    }, {}) : undefined
+  });
+  
   return (
-    <div className={cn("space-y-4", className)}>
-      <div 
-        className="border-2 border-dashed rounded-lg p-6 cursor-pointer hover:bg-muted/50 transition-colors"
-        onClick={handleClick}
+    <div className="w-full">
+      <div
+        {...getRootProps()}
+        className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition-colors
+          ${isDragActive ? 'border-construction-navy bg-construction-navy/5' : 'border-gray-200 hover:border-construction-navy/50 hover:bg-gray-50'}`}
       >
-        <div className="flex flex-col items-center justify-center gap-2 text-center">
-          <Upload className="h-10 w-10 text-muted-foreground" />
-          <p className="font-medium">Click to upload files</p>
-          <p className="text-sm text-muted-foreground">
-            {accept ? `Supports ${accept.replace('*', 'all')} files` : 'Upload any file'}
-          </p>
+        <input {...getInputProps()} />
+        <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-2" />
+        <p className="text-sm font-medium">{label}</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Drag & drop files here, or click to select files
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Accepted file types: {acceptedFileTypes}
+        </p>
+        {maxFiles && (
           <p className="text-xs text-muted-foreground">
             Maximum {maxFiles} files
           </p>
-        </div>
-        <input 
-          ref={inputRef}
-          type="file" 
-          multiple
-          accept={accept}
-          onChange={handleFileChange}
-          className="hidden"
-        />
+        )}
       </div>
       
+      {error && (
+        <div className="mt-2 flex items-center gap-2 text-red-500 text-sm">
+          <AlertCircle className="h-4 w-4" />
+          {error}
+        </div>
+      )}
+      
       {files.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {files.map((file, index) => (
-            <div key={index} className="relative group">
-              {file.type.startsWith('image/') && previews[index] ? (
-                <div className="aspect-video rounded-md overflow-hidden bg-muted">
-                  <img 
-                    src={previews[index]} 
-                    alt={file.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center aspect-video rounded-md bg-muted">
-                  <span className="text-sm font-medium truncate max-w-[90%] px-2">
-                    {file.name}
+        <div className="mt-4">
+          <p className="text-sm font-medium mb-2">Selected Files:</p>
+          <ul className="space-y-2">
+            {files.map((file, index) => (
+              <li key={index} className="flex items-center justify-between text-sm p-2 border rounded-md">
+                <div className="flex items-center">
+                  <FileCheck className="h-4 w-4 mr-2 text-green-500" />
+                  <span className="truncate max-w-[250px]">{file.name}</span>
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    ({(file.size / 1024).toFixed(0)} KB)
                   </span>
                 </div>
-              )}
-              <Button
-                variant="destructive"
-                size="icon"
-                className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeFile(index);
-                }}
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            </div>
-          ))}
+                <button
+                  type="button"
+                  onClick={() => removeFile(index)}
+                  className="text-red-500 hover:text-red-700 text-xs"
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

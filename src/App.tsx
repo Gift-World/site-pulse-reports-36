@@ -19,6 +19,9 @@ import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
 import Files from "./pages/Files";
 import Gallery from "./pages/Gallery";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import FAQ from "./pages/FAQ";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +46,9 @@ const App = () => (
             <Route path="/files" element={<Files />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/faq" element={<FAQ />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
