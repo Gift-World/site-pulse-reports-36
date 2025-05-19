@@ -1,15 +1,17 @@
-import React, { useRef } from "react";
+import React, { useRef, useContext } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartBar, Users, Clock, Shield, PieChart, CheckCircle, Book, List, Construction, Info, Building } from "lucide-react";
+import { ChartBar, Users, Clock, Shield, PieChart, CheckCircle, Book, List, Construction, Info, Building, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { HelpCenter } from "@/components/home/HelpCenter";
 import { SolutionsList } from "@/components/home/SolutionsList";
+import { LayoutContext } from "@/components/layout/Layout";
 
 const Home = () => {
   const navigate = useNavigate();
   const pricingRef = useRef<HTMLElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
+  const { toggleSidebar } = useContext(LayoutContext);
 
   const scrollToSection = (ref: React.RefObject<HTMLElement>) => {
     if (ref && ref.current) {
@@ -23,6 +25,17 @@ const Home = () => {
       <div className="relative text-center space-y-6 py-24 px-4">
         <div className="absolute inset-0 z-0 bg-[url('https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')] bg-cover bg-center opacity-10"></div>
         <div className="relative z-10">
+          {/* Navigation button */}
+          <Button 
+            variant="outline"
+            size="icon"
+            onClick={toggleSidebar}
+            className="absolute left-4 top-4 border-construction-navy text-construction-navy hover:bg-construction-navy hover:text-white"
+            aria-label="Open navigation menu"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
             <span className="text-construction-navy">Construct</span>Pulse
           </h1>
