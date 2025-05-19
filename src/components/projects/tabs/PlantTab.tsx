@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Project } from "@/types/project";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +13,8 @@ import {
   Truck, 
   Fuel, 
   BarChart3,
-  LineChart
+  LineChart,
+  Camera
 } from "lucide-react";
 import { 
   Dialog, 
@@ -27,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { FileUploader } from "@/components/reports/FileUploader";
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -58,6 +61,7 @@ export const PlantTab: React.FC<PlantTabProps> = ({ project }) => {
   const [readingType, setReadingType] = useState<"miles" | "hours">("miles");
   const [reading, setReading] = useState<string>("");
   const [fuelAdded, setFuelAdded] = useState<string>("");
+  const [equipmentPhoto, setEquipmentPhoto] = useState<File[]>([]);
   
   const fuelUsageData = [
     { name: 'May 1', 'Excavator': 15, 'Bulldozer': 20, 'Crane': 12 },
@@ -81,14 +85,19 @@ export const PlantTab: React.FC<PlantTabProps> = ({ project }) => {
   const handleOdometerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    const photoMessage = equipmentPhoto.length > 0 
+      ? ` with ${equipmentPhoto.length} photo(s)` 
+      : "";
+    
     toast({
       title: "Reading Recorded",
-      description: `${readingType === "miles" ? "Odometer" : "Hour meter"} reading of ${reading} for ${selectedEquipment} has been recorded.`
+      description: `${readingType === "miles" ? "Odometer" : "Hour meter"} reading of ${reading} for ${selectedEquipment} has been recorded${photoMessage}.`
     });
     
     setShowOdometerDialog(false);
     setReading("");
     setFuelAdded("");
+    setEquipmentPhoto([]);
   };
   
   const openOdometerDialog = (equipment: any) => {
@@ -102,6 +111,10 @@ export const PlantTab: React.FC<PlantTabProps> = ({ project }) => {
       title: "Equipment Report Generated",
       description: "Equipment usage and fuel consumption report has been created."
     });
+  };
+
+  const handlePhotoUpload = (files: File[]) => {
+    setEquipmentPhoto(files);
   };
 
   return (
@@ -268,6 +281,17 @@ export const PlantTab: React.FC<PlantTabProps> = ({ project }) => {
                         value={fuelAdded}
                         onChange={(e) => setFuelAdded(e.target.value)}
                       />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label>Equipment Photo</Label>
+                      <FileUploader
+                        onFilesSelected={handlePhotoUpload}
+                        maxFiles={1}
+                        acceptedFileTypes=".jpg,.jpeg,.png"
+                        label="Add Equipment Photo"
+                      />
+                      <p className="text-xs text-muted-foreground">Upload a current photo of the equipment</p>
                     </div>
                     
                     <div className="flex justify-end gap-2 pt-4">

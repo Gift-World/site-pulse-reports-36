@@ -20,7 +20,6 @@ import {
   MessageSquare,
   ChartBar, 
   ShieldAlert, 
-  ClipboardCheck, 
   FolderOpen, 
   Package,
   UserPlus,
@@ -49,11 +48,6 @@ const navItems = [
     path: "/team", 
     name: "Team", 
     icon: <Users className="h-5 w-5" /> 
-  },
-  { 
-    path: "/tasks", 
-    name: "Tasks", 
-    icon: <ClipboardCheck className="h-5 w-5" /> 
   },
   { 
     path: "/reports", 

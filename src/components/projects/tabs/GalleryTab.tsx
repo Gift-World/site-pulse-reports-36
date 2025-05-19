@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -17,8 +18,8 @@ const galleryItems = [
   {
     id: 1,
     type: "photo",
-    src: "/examples/card-example.png",
-    alt: "Excavation site",
+    src: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    alt: "Foundation Work - May 15",
     category: "progress",
   },
   {
@@ -31,15 +32,15 @@ const galleryItems = [
   {
     id: 3,
     type: "photo",
-    src: "/examples/card-example.png",
-    alt: "Steel beam installation",
+    src: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    alt: "Steel Frame Installation",
     category: "safety",
   },
   {
     id: 4,
     type: "photo",
-    src: "/examples/card-example.png",
-    alt: "Workers in safety gear",
+    src: "https://images.unsplash.com/photo-1531834685032-c34bf0d84c77?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    alt: "Safety inspection overview",
     category: "safety",
   },
   {
@@ -52,15 +53,15 @@ const galleryItems = [
   {
     id: 6,
     type: "photo",
-    src: "/examples/card-example.png",
-    alt: "Completed building facade",
+    src: "https://images.unsplash.com/photo-1621280336935-c1f7bf405dac?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    alt: "Wall Construction",
     category: "progress",
   },
   {
     id: 7,
     type: "photo",
-    src: "/examples/card-example.png",
-    alt: "Safety inspection",
+    src: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    alt: "Safety equipment inspection",
     category: "safety",
   },
   {
@@ -68,6 +69,34 @@ const galleryItems = [
     type: "video",
     src: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     alt: "Drone footage of site",
+    category: "all",
+  },
+  {
+    id: 9,
+    type: "photo",
+    src: "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    alt: "Fall Protection Inspection",
+    category: "safety",
+  },
+  {
+    id: 10,
+    type: "photo",
+    src: "https://images.unsplash.com/photo-1513828583688-c52646db42da?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    alt: "Drone Shot - Full Site",
+    category: "progress",
+  },
+  {
+    id: 11,
+    type: "photo",
+    src: "https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    alt: "Aerial Progress View",
+    category: "progress",
+  },
+  {
+    id: 12,
+    type: "photo",
+    src: "https://images.unsplash.com/photo-1603349136288-93d45f457a04?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    alt: "Site Planning Overview",
     category: "all",
   },
 ];
