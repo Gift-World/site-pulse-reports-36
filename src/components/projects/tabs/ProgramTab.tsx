@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Project } from "@/types/project";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,8 +19,13 @@ import {
   CheckCircle, 
   Clock, 
   AlertCircle, 
-  FileDown
+  FileDown,
+  FileText,
+  FileSpreadsheet,
+  Import,
+  ChartGantt
 } from "lucide-react";
+import { FileUploader } from "@/components/reports/FileUploader";
 
 interface ProgramTabProps {
   project: Project;
@@ -148,6 +152,92 @@ const getTasksForDate = (date: Date, tasks: any[]) => {
   });
 };
 
+// Critical path mock data
+const criticalPathTasks = [
+  {
+    id: 1,
+    name: "Site Preparation",
+    duration: "14 days",
+    startDate: "Feb 15, 2025",
+    endDate: "Feb 28, 2025",
+    status: "completed",
+    slack: "0 days",
+    isCritical: true,
+    previouslyNonCritical: false
+  },
+  {
+    id: 2,
+    name: "Foundation Work",
+    duration: "45 days",
+    startDate: "Feb 28, 2025",
+    endDate: "Apr 15, 2025",
+    status: "completed",
+    slack: "0 days",
+    isCritical: true,
+    previouslyNonCritical: false
+  },
+  {
+    id: 3,
+    name: "Structural Work",
+    duration: "118 days",
+    startDate: "Apr 20, 2025",
+    endDate: "Aug 15, 2025",
+    status: "inProgress",
+    slack: "0 days",
+    isCritical: true,
+    previouslyNonCritical: false
+  },
+  {
+    id: 4,
+    name: "Site Drainage Installation",
+    duration: "15 days",
+    startDate: "May 10, 2025",
+    endDate: "May 25, 2025",
+    status: "delayed",
+    slack: "0 days",
+    isCritical: true,
+    previouslyNonCritical: true,
+    criticalChange: "Became critical due to delays"
+  },
+  {
+    id: 5,
+    name: "Electrical Work",
+    duration: "76 days",
+    startDate: "Jun 1, 2025",
+    endDate: "Aug 15, 2025",
+    status: "notStarted",
+    slack: "0 days",
+    isCritical: true,
+    previouslyNonCritical: false
+  },
+  {
+    id: 7,
+    name: "Interior Finishes",
+    duration: "76 days",
+    startDate: "Aug 15, 2025",
+    endDate: "Oct 30, 2025",
+    status: "notStarted",
+    slack: "0 days",
+    isCritical: true,
+    previouslyNonCritical: false
+  }
+];
+
+const criticalPathChanges = [
+  {
+    title: "Site Drainage is now on Critical Path",
+    description: "The Site Drainage Installation has fallen behind schedule and is now on the critical path. This could potentially delay the overall project completion.",
+    impact: "negative",
+    recommendation: "Allocate additional resources to complete this task as soon as possible."
+  },
+  {
+    title: "Structural Work ahead of schedule",
+    description: "The Structural Work is progressing ahead of schedule, which provides some buffer for potential future delays.",
+    impact: "positive",
+    recommendation: "Maintain current pace and resource allocation."
+  }
+];
+
 export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
   const [viewMode, setViewMode] = useState("calendar");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -155,6 +245,8 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [taskViewMode, setTaskViewMode] = useState("day");
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
+  const [programTab, setProgramTab] = useState("calendar");
+  const [importType, setImportType] = useState<string>("excel");
 
   const daysOfWeek = getDaysOfWeek();
 
@@ -219,6 +311,25 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
     });
   };
 
+  // Function to handle program import
+  const handleProgramImport = (files: File[]) => {
+    if (files.length === 0) return;
+    
+    const file = files[0];
+    toast({
+      title: "Program Import Started",
+      description: `Importing ${file.name}...`
+    });
+    
+    // Simulate successful import after a delay
+    setTimeout(() => {
+      toast({
+        title: "Program Import Completed",
+        description: "Program of works has been successfully imported"
+      });
+    }, 2000);
+  };
+
   const getBadgeForStatus = (status: string) => {
     switch(status) {
       case "completed":
@@ -275,10 +386,12 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
         </div>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="calendar" value={viewMode} onValueChange={setViewMode} className="mb-6">
-          <TabsList>
+        <Tabs defaultValue="calendar" value={programTab} onValueChange={setProgramTab} className="mb-6">
+          <TabsList className="mb-4">
             <TabsTrigger value="calendar">Calendar View</TabsTrigger>
             <TabsTrigger value="timeline">Timeline View</TabsTrigger>
+            <TabsTrigger value="critical-path">Critical Path</TabsTrigger>
+            <TabsTrigger value="import">Import Program</TabsTrigger>
           </TabsList>
           
           <TabsContent value="calendar" className="space-y-4">
@@ -424,6 +537,193 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
                       </div>
                     </div>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="critical-path" className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Critical Path Analysis</CardTitle>
+                  <CardDescription>Comparison between original and current critical path</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-base font-medium mb-2">Key Issues</h3>
+                      {criticalPathChanges.map((change, index) => (
+                        <div key={index} className={`p-4 rounded-md mb-3 ${change.impact === 'negative' ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'}`}>
+                          <h4 className="font-medium">{change.title}</h4>
+                          <p className="text-sm mt-1">{change.description}</p>
+                          <div className="mt-2">
+                            <span className="text-sm font-medium">Recommendation: </span>
+                            <span className="text-sm">{change.recommendation}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Task Name</TableHead>
+                          <TableHead>Duration</TableHead>
+                          <TableHead>Start Date</TableHead>
+                          <TableHead>End Date</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Slack</TableHead>
+                          <TableHead>Changes</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {criticalPathTasks.map((task) => (
+                          <TableRow key={task.id}>
+                            <TableCell className="font-medium">{task.name}</TableCell>
+                            <TableCell>{task.duration}</TableCell>
+                            <TableCell>{task.startDate}</TableCell>
+                            <TableCell>{task.endDate}</TableCell>
+                            <TableCell>{getBadgeForStatus(task.status)}</TableCell>
+                            <TableCell>{task.slack}</TableCell>
+                            <TableCell>
+                              {task.previouslyNonCritical && (
+                                <Badge variant="destructive" className="whitespace-nowrap">
+                                  New to Critical Path
+                                </Badge>
+                              )}
+                              {task.criticalChange && (
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  {task.criticalChange}
+                                </div>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="border rounded-md p-4">
+                        <h3 className="text-base font-medium mb-2">Critical Path Visualization</h3>
+                        <div className="flex items-center justify-center h-52 bg-gray-100 rounded-md">
+                          <ChartGantt className="h-12 w-12 text-muted-foreground" />
+                          <span className="ml-2 text-muted-foreground">Interactive Gantt Chart</span>
+                        </div>
+                        <div className="mt-4 text-sm">
+                          <p>View the critical path in a visual timeline format.</p>
+                          <Button variant="outline" className="mt-2">
+                            Open Full Gantt Chart
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="border rounded-md p-4">
+                        <h3 className="text-base font-medium mb-2">Project Impact Analysis</h3>
+                        <div className="space-y-2">
+                          <div>
+                            <div className="flex justify-between mb-1 text-sm">
+                              <span>Original Completion Date:</span>
+                              <span className="font-medium">Oct 30, 2025</span>
+                            </div>
+                            <div className="flex justify-between mb-1 text-sm">
+                              <span>Current Projected Completion:</span>
+                              <span className="font-medium">Nov 12, 2025</span>
+                            </div>
+                            <div className="flex justify-between mb-1 text-sm">
+                              <span>Schedule Variance:</span>
+                              <span className="font-medium text-red-500">+13 days</span>
+                            </div>
+                          </div>
+                          
+                          <div className="pt-2 border-t">
+                            <h4 className="text-sm font-medium mb-1">Recommendations</h4>
+                            <ul className="text-sm list-disc pl-5 space-y-1">
+                              <li>Allocate additional resources to Site Drainage Installation</li>
+                              <li>Review resource allocation for upcoming critical tasks</li>
+                              <li>Schedule a coordination meeting with subcontractors</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="import" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Import Program of Works</CardTitle>
+                <CardDescription>Import your project schedule from various file formats</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Button 
+                      variant={importType === "excel" ? "default" : "outline"}
+                      className="justify-start"
+                      onClick={() => setImportType("excel")}
+                    >
+                      <FileSpreadsheet className="mr-2 h-4 w-4" />
+                      Microsoft Excel
+                    </Button>
+                    <Button 
+                      variant={importType === "msproject" ? "default" : "outline"}
+                      className="justify-start"
+                      onClick={() => setImportType("msproject")}
+                    >
+                      <FileText className="mr-2 h-4 w-4" />
+                      Microsoft Project
+                    </Button>
+                    <Button 
+                      variant={importType === "primavera" ? "default" : "outline"}
+                      className="justify-start"
+                      onClick={() => setImportType("primavera")}
+                    >
+                      <FileText className="mr-2 h-4 w-4" />
+                      Primavera P6
+                    </Button>
+                  </div>
+                  
+                  <div className="border rounded-md p-6">
+                    <FileUploader
+                      accept={importType === "excel" ? ".xlsx,.xls" : importType === "msproject" ? ".mpp" : ".xer,.xml"}
+                      maxFiles={1}
+                      onFilesAdded={handleProgramImport}
+                      icon={<Import className="h-10 w-10 text-muted-foreground" />}
+                      instruction={`Drag and drop your ${
+                        importType === "excel" ? "Excel spreadsheet" : 
+                        importType === "msproject" ? "MS Project file" : 
+                        "Primavera P6 export file"
+                      } here`}
+                      note={`Supported file types: ${
+                        importType === "excel" ? ".xlsx, .xls" : 
+                        importType === "msproject" ? ".mpp" : 
+                        ".xer, .xml"
+                      }`}
+                    />
+                    
+                    <div className="mt-6 text-sm text-muted-foreground">
+                      <h4 className="font-medium text-black mb-2">Import Guidelines</h4>
+                      <ul className="list-disc pl-5 space-y-1">
+                        <li>Make sure your file contains task names, durations, and dependencies</li>
+                        <li>For Excel imports, use the standard template format</li>
+                        <li>Maximum file size: 25MB</li>
+                        <li>Import may take a few minutes for large schedules</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="mt-6 flex justify-between">
+                      <Button variant="outline">Download Template</Button>
+                      <Button variant="default" className="ml-auto">
+                        <Import className="mr-2 h-4 w-4" />
+                        Process Import
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
