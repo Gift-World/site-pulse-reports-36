@@ -158,15 +158,6 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ project, setActiveTab 
                     {getStatusBadge(milestone.status)}
                   </div>
                 ))}
-                {project.milestones.length > 3 && (
-                  <Button 
-                    variant="ghost" 
-                    className="w-full" 
-                    onClick={() => setActiveTab("milestones")}
-                  >
-                    View All Milestones
-                  </Button>
-                )}
               </div>
             ) : (
               <div className="text-muted-foreground text-center py-4">
