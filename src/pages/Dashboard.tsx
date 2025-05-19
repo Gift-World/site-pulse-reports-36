@@ -13,7 +13,8 @@ import {
   ShieldCheck,
   ChartLine,
   Activity,
-  DollarSign
+  DollarSign,
+  ChartBar
 } from "lucide-react";
 import {
   AreaChart,
@@ -28,7 +29,8 @@ import {
   Legend,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  LabelList
 } from "recharts";
 
 // Sample data representing multiple projects
@@ -84,6 +86,13 @@ const overallProgress = Math.round(
   activeProjectsData.reduce((sum, project) => sum + project.progress, 0) / 
   (activeProjectsData.length || 1)
 );
+
+// Format project data for the horizontal bar chart
+const projectProgressData = projectsData.map(project => ({
+  name: project.name,
+  progress: project.progress,
+  status: project.status
+}));
 
 // Progress data for all projects over time
 const progressData = [
@@ -160,6 +169,16 @@ const recentActivities = [
     icon: Calendar
   }
 ];
+
+// Custom fill colors based on project status
+const getProjectBarFill = (status) => {
+  switch(status) {
+    case "Completed": return "#34A853";
+    case "In Progress": return "#1A73E8";
+    case "On Hold": return "#FF5722";
+    default: return "#9e9e9e";
+  }
+};
 
 const Dashboard = () => {
   return (
@@ -351,33 +370,33 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle>Overall Project Progress</CardTitle>
             <CardDescription>
-              Monthly cumulative progress across all active projects
+              Progress overview for all projects
             </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={progressData}
+                <BarChart
+                  layout="vertical"
+                  data={projectProgressData}
                   margin={{
                     top: 10,
                     right: 30,
-                    left: 0,
-                    bottom: 0,
+                    left: 70,
+                    bottom: 10,
                   }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Area
-                    type="monotone"
-                    dataKey="progress"
-                    stroke="#1A73E8"
-                    fill="#1A73E8"
-                    fillOpacity={0.3}
-                  />
-                </AreaChart>
+                  <XAxis type="number" domain={[0, 100]} tickFormatter={(value) => `${value}%`} />
+                  <YAxis type="category" dataKey="name" width={70} />
+                  <Tooltip formatter={(value) => [`${value}%`, 'Progress']} />
+                  <Bar dataKey="progress" name="Progress">
+                    {projectProgressData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={getProjectBarFill(entry.status)} />
+                    ))}
+                    <LabelList dataKey="progress" position="right" formatter={(value) => `${value}%`} />
+                  </Bar>
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
