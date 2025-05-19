@@ -22,6 +22,7 @@ import Gallery from "./pages/Gallery";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import FAQ from "./pages/FAQ";
+import Solutions from "./pages/Solutions";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/files" element={<Files />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/solutions" element={<Solutions />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/faq" element={<FAQ />} />
