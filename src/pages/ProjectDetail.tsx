@@ -31,10 +31,8 @@ const ProjectDetail = () => {
       <ProjectHeader project={project} />
       
       {project.status === "Completed" ? (
-        // Completed Project View
         <CompletedProjectView project={project} />
       ) : (
-        // In-Progress Project View
         <InProgressProjectView project={project} />
       )}
     </div>
