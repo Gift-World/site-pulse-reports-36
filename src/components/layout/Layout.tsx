@@ -12,17 +12,17 @@ export function Layout() {
   const isHomePage = location.pathname === "/";
   const isTermsPrivacyFaqPage = ["/terms-of-service", "/privacy-policy", "/faq"].includes(location.pathname);
   
-  // Always show the sidebar, regardless of page
-  const showSidebar = true;
+  // Don't show sidebar on home, terms, privacy, or FAQ pages
+  const showSidebar = !isHomePage && !isTermsPrivacyFaqPage;
   
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full overflow-hidden flex-col">
         <div className="flex flex-1 w-full overflow-hidden">
-          <MainSidebar />
+          {showSidebar && <MainSidebar />}
           <div className={`flex flex-1 flex-col overflow-hidden ${showSidebar ? "ml-16 md:ml-64" : ""}`}>
             <Header />
-            <main className={`flex-1 overflow-auto ${isHomePage || isTermsPrivacyFaqPage ? "p-0" : "p-4 md:p-6"}`}>
+            <main className={`flex-1 overflow-auto ${showSidebar ? "p-4 md:p-6" : "p-0"}`}>
               <Outlet />
             </main>
           </div>

@@ -58,7 +58,6 @@ export function InProgressProjectView({ project }: InProgressProjectViewProps) {
         </TabsContent>
         
         <TabsContent value="gallery" className="mt-0">
-          {/* Not passing project to GalleryTab since it doesn't accept this prop */}
           <GalleryTab />
         </TabsContent>
         
