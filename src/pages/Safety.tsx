@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -6,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const safetyStats = {
   score: 95,
@@ -13,6 +15,16 @@ const safetyStats = {
   nearMisses: 3,
   inspectionsDue: 2,
   daysWithoutIncident: 14
+};
+
+// Safety Officer information
+const safetyOfficer = {
+  name: "Robert Wilson",
+  title: "Safety Officer",
+  email: "robert.wilson@example.com",
+  phone: "(555) 987-6543",
+  avatar: "RW",
+  certification: "OSHA Certified Safety Professional"
 };
 
 const recentIncidents = [
@@ -85,6 +97,26 @@ const Safety = () => {
           </Button>
         </div>
       </div>
+
+      {/* Safety Officer Profile */}
+      <Card className="border-blue-100">
+        <CardContent className="p-6">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-16 w-16 border-2 border-blue-200">
+              <AvatarFallback className="bg-blue-200 text-blue-700">{safetyOfficer.avatar}</AvatarFallback>
+            </Avatar>
+            <div>
+              <h3 className="text-lg font-medium">{safetyOfficer.name}</h3>
+              <p className="text-sm text-blue-700 font-medium">{safetyOfficer.title}</p>
+              <div className="mt-1 text-sm text-muted-foreground">
+                <p>{safetyOfficer.email}</p>
+                <p>{safetyOfficer.phone}</p>
+                <p className="mt-1"><Badge variant="outline" className="bg-green-50">{safetyOfficer.certification}</Badge></p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-5">
         <Card className="md:col-span-3">

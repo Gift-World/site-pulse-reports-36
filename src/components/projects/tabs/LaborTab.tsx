@@ -35,6 +35,15 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }); // Start on Monday
   const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 }); // End on Sunday
   
+  // Labor Manager information
+  const laborManager = {
+    name: "Sarah Johnson",
+    title: "Labor Manager",
+    email: "sarah.johnson@example.com",
+    phone: "(555) 123-4567",
+    avatar: "SJ"
+  };
+  
   const [laborResources, setLaborResources] = useState<LaborResource[]>([
     {
       id: "1",
@@ -286,7 +295,6 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => handleEditResource(resource)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit
@@ -351,6 +359,23 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
         </div>
       </CardHeader>
       <CardContent>
+        {/* Labor Manager information */}
+        <div className="mb-6 border rounded-md p-4 bg-blue-50">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-16 w-16 border-2 border-blue-200">
+              <AvatarFallback className="bg-blue-200 text-blue-700">{laborManager.avatar}</AvatarFallback>
+            </Avatar>
+            <div>
+              <h3 className="text-lg font-medium">{laborManager.name}</h3>
+              <p className="text-sm text-blue-700 font-medium">{laborManager.title}</p>
+              <div className="mt-1 text-sm text-muted-foreground">
+                <p>{laborManager.email}</p>
+                <p>{laborManager.phone}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Week selector */}
         <div className="flex items-center justify-between mb-6 border rounded-md p-4 bg-gray-50">
           <Button variant="outline" size="sm" onClick={goToPreviousWeek}>

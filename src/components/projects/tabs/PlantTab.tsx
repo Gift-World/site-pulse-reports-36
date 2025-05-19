@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Project } from "@/types/project";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -43,6 +43,16 @@ interface PlantTabProps {
 }
 
 export const PlantTab: React.FC<PlantTabProps> = ({ project }) => {
+  // Equipment Manager information
+  const equipmentManager = {
+    name: "Marcus Thompson",
+    title: "Equipment Manager",
+    email: "marcus.thompson@example.com",
+    phone: "(555) 234-5678",
+    avatar: "MT",
+    experience: "15+ years in heavy equipment management"
+  };
+
   const [showOdometerDialog, setShowOdometerDialog] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState<string>("");
   const [readingType, setReadingType] = useState<"miles" | "hours">("miles");
@@ -112,6 +122,24 @@ export const PlantTab: React.FC<PlantTabProps> = ({ project }) => {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
+          {/* Equipment Manager information */}
+          <div className="border rounded-md p-4 bg-blue-50">
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16 border-2 border-blue-200">
+                <AvatarFallback className="bg-blue-200 text-blue-700">{equipmentManager.avatar}</AvatarFallback>
+              </Avatar>
+              <div>
+                <h3 className="text-lg font-medium">{equipmentManager.name}</h3>
+                <p className="text-sm text-blue-700 font-medium">{equipmentManager.title}</p>
+                <div className="mt-1 text-sm text-muted-foreground">
+                  <p>{equipmentManager.email}</p>
+                  <p>{equipmentManager.phone}</p>
+                  <p className="mt-1 text-xs italic">{equipmentManager.experience}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className="bg-gradient-to-br from-white to-secondary/20">
               <CardHeader className="pb-2">

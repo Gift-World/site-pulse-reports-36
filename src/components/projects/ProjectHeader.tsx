@@ -5,9 +5,6 @@ import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Project } from "@/types/project";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Trash2 } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
 
 interface ProjectHeaderProps {
   project: Project;
@@ -15,15 +12,6 @@ interface ProjectHeaderProps {
 
 export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ project }) => {
   const navigate = useNavigate();
-
-  const handleDeleteProject = () => {
-    // In a real app, this would call an API to delete the project
-    toast({
-      title: "Project Deleted",
-      description: `${project.name} has been successfully deleted.`
-    });
-    navigate("/projects");
-  };
 
   return (
     <div>
@@ -48,37 +36,6 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ project }) => {
           <p className="text-muted-foreground mt-1">
             {project.description}
           </p>
-        </div>
-        
-        <div className="flex gap-2">
-          {project.status !== "Completed" && (
-            <Button>
-              Edit Project
-            </Button>
-          )}
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Project
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete the project
-                  "{project.name}" and all of its associated data.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDeleteProject}>
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </div>
       </div>
     </div>
