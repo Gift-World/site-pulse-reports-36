@@ -11,7 +11,9 @@ import {
   AlertCircle,
   Calendar,
   ShieldCheck,
-  ChartLine
+  ChartLine,
+  Activity,
+  DollarSign
 } from "lucide-react";
 import {
   AreaChart,
@@ -29,25 +31,78 @@ import {
   Cell
 } from "recharts";
 
-const projectProgress = 68;
-
-const progressData = [
-  { name: "Week 1", completed: 10, planned: 12 },
-  { name: "Week 2", completed: 18, planned: 22 },
-  { name: "Week 3", completed: 25, planned: 30 },
-  { name: "Week 4", completed: 32, planned: 35 },
-  { name: "Week 5", completed: 45, planned: 50 },
-  { name: "Week 6", completed: 55, planned: 65 },
-  { name: "Week 7", completed: 68, planned: 75 },
+// Sample data representing multiple projects
+const projectsData = [
+  {
+    id: 1,
+    name: "Skyline Tower",
+    status: "In Progress",
+    progress: 75,
+    budget: { total: 450000, spent: 320000 },
+  },
+  {
+    id: 2,
+    name: "Harbor Bridge",
+    status: "In Progress",
+    progress: 45,
+    budget: { total: 350000, spent: 150000 },
+  },
+  {
+    id: 3,
+    name: "City Plaza",
+    status: "In Progress",
+    progress: 60,
+    budget: { total: 250000, spent: 180000 },
+  },
+  {
+    id: 4,
+    name: "Mountain Resort",
+    status: "On Hold",
+    progress: 30,
+    budget: { total: 180000, spent: 50000 },
+  },
+  {
+    id: 5,
+    name: "Central Park",
+    status: "Completed",
+    progress: 100,
+    budget: { total: 120000, spent: 115000 },
+  }
 ];
 
+// Calculate number of active projects
+const activeProjects = projectsData.filter(p => p.status === "In Progress").length;
+
+// Calculate total budget spent
+const totalBudgetSpent = projectsData.reduce((sum, project) => sum + project.budget.spent, 0);
+const totalBudget = projectsData.reduce((sum, project) => sum + project.budget.total, 0);
+const budgetSpentPercentage = Math.round((totalBudgetSpent / totalBudget) * 100);
+
+// Calculate overall progress across active projects
+const activeProjectsData = projectsData.filter(p => p.status === "In Progress");
+const overallProgress = Math.round(
+  activeProjectsData.reduce((sum, project) => sum + project.progress, 0) / 
+  (activeProjectsData.length || 1)
+);
+
+// Progress data for all projects over time
+const progressData = [
+  { month: "Jan", progress: 12 },
+  { month: "Feb", progress: 25 },
+  { month: "Mar", progress: 30 },
+  { month: "Apr", progress: 42 },
+  { month: "May", progress: 55 },
+  { month: "Jun", progress: 68 },
+  { month: "Jul", progress: overallProgress }
+];
+
+// Safety data across all sites
 const safetyData = [
-  { name: "Mon", incidents: 0, nearMisses: 1 },
-  { name: "Tue", incidents: 0, nearMisses: 0 },
-  { name: "Wed", incidents: 1, nearMisses: 2 },
-  { name: "Thu", incidents: 0, nearMisses: 1 },
-  { name: "Fri", incidents: 0, nearMisses: 0 },
-  { name: "Sat", incidents: 0, nearMisses: 0 },
+  { site: "Skyline Tower", incidents: 0, nearMisses: 2 },
+  { site: "Harbor Bridge", incidents: 1, nearMisses: 3 },
+  { site: "City Plaza", incidents: 0, nearMisses: 1 },
+  { site: "Mountain Resort", incidents: 0, nearMisses: 0 },
+  { site: "Central Park", incidents: 0, nearMisses: 0 },
 ];
 
 const taskStatusData = [
@@ -71,7 +126,7 @@ const budgetDistribution = [
 
 const safetyStats = [
   { name: "Safe Days", value: 36, color: "#34A853" },
-  { name: "Near Misses", value: 4, color: "#FBBC05" },
+  { name: "Near Misses", value: 6, color: "#FBBC05" },
   { name: "Incidents", value: 1, color: "#EA4335" }
 ];
 
@@ -119,22 +174,25 @@ const Dashboard = () => {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Tasks Progress</CardTitle>
-            <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="flex items-center">
               <div className="mr-4">
-                <div className="text-2xl font-bold">68%</div>
+                <div className="text-2xl font-bold">{activeProjects}</div>
                 <p className="text-xs text-muted-foreground">
-                  +2.5% from last week
+                  {activeProjects > 2 ? "+1 from last month" : "Same as last month"}
                 </p>
               </div>
               <div className="h-20 w-20">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={taskStatusData}
+                      data={[
+                        { name: "Active", value: activeProjects, color: "#1A73E8" },
+                        { name: "Other", value: projectsData.length - activeProjects, color: "#EEEEEE" }
+                      ]}
                       innerRadius={25}
                       outerRadius={35}
                       dataKey="value"
@@ -142,7 +200,10 @@ const Dashboard = () => {
                       endAngle={-270}
                       stroke="none"
                     >
-                      {taskStatusData.map((entry, index) => (
+                      {[
+                        { name: "Active", value: activeProjects, color: "#1A73E8" },
+                        { name: "Other", value: projectsData.length - activeProjects, color: "#EEEEEE" }
+                      ].map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -151,7 +212,7 @@ const Dashboard = () => {
               </div>
             </div>
             <Progress 
-              value={projectProgress} 
+              value={activeProjects / projectsData.length * 100} 
               className="mt-3 h-2 bg-secondary [&>div]:bg-construction-blue" 
             />
           </CardContent>
@@ -159,30 +220,31 @@ const Dashboard = () => {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Open Issues</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Budget Status</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="flex items-center">
               <div className="mr-4">
-                <div className="text-2xl font-bold">12</div>
+                <div className="text-2xl font-bold">${(totalBudgetSpent / 1000).toFixed(1)}K</div>
                 <p className="text-xs text-muted-foreground">
-                  5 high priority
+                  {budgetSpentPercentage}% of total budget
                 </p>
               </div>
               <div className="h-20 w-20">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={issuesByPriority}
+                      data={budgetDistribution}
                       dataKey="value"
                       nameKey="name"
                       cx="50%"
                       cy="50%"
                       outerRadius={35}
                       fill="#8884d8"
+                      stroke="none"
                     >
-                      {issuesByPriority.map((entry, index) => (
+                      {budgetDistribution.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -190,17 +252,10 @@ const Dashboard = () => {
                 </ResponsiveContainer>
               </div>
             </div>
-            <div className="mt-3 flex gap-1">
-              {issuesByPriority.map((item, index) => (
-                <div key={index} className="flex items-center">
-                  <div 
-                    className="h-2 w-2 rounded-full mr-1"
-                    style={{ backgroundColor: item.color }} 
-                  />
-                  <span className="text-xs text-muted-foreground mr-2">{item.name}</span>
-                </div>
-              ))}
-            </div>
+            <Progress 
+              value={budgetSpentPercentage} 
+              className="mt-3 h-2 bg-secondary [&>div]:bg-construction-orange" 
+            />
           </CardContent>
         </Card>
         
@@ -214,7 +269,7 @@ const Dashboard = () => {
               <div className="mr-4">
                 <div className="text-2xl font-bold">95%</div>
                 <p className="text-xs text-muted-foreground">
-                  1 incident this week
+                  {safetyData.reduce((sum, site) => sum + site.incidents, 0)} incidents total
                 </p>
               </div>
               <div className="h-20 w-20">
@@ -245,22 +300,25 @@ const Dashboard = () => {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Budget Status</CardTitle>
+            <CardTitle className="text-sm font-medium">Project Progress</CardTitle>
             <ChartLine className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="flex items-center">
               <div className="mr-4">
-                <div className="text-2xl font-bold">$1.2M</div>
+                <div className="text-2xl font-bold">{overallProgress}%</div>
                 <p className="text-xs text-muted-foreground">
-                  68% of budget used
+                  +5% from last month
                 </p>
               </div>
               <div className="h-20 w-20">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={budgetDistribution}
+                      data={[
+                        { name: "Completed", value: overallProgress, color: "#1A73E8" },
+                        { name: "Remaining", value: 100 - overallProgress, color: "#EEEEEE" }
+                      ]}
                       dataKey="value"
                       nameKey="name"
                       cx="50%"
@@ -269,7 +327,10 @@ const Dashboard = () => {
                       fill="#8884d8"
                       stroke="none"
                     >
-                      {budgetDistribution.map((entry, index) => (
+                      {[
+                        { name: "Completed", value: overallProgress, color: "#1A73E8" },
+                        { name: "Remaining", value: 100 - overallProgress, color: "#EEEEEE" }
+                      ].map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -278,8 +339,8 @@ const Dashboard = () => {
               </div>
             </div>
             <Progress 
-              value={68} 
-              className="mt-3 h-2 bg-secondary [&>div]:bg-construction-orange" 
+              value={overallProgress} 
+              className="mt-3 h-2 bg-secondary [&>div]:bg-construction-blue" 
             />
           </CardContent>
         </Card>
@@ -288,9 +349,9 @@ const Dashboard = () => {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">
           <CardHeader>
-            <CardTitle>Project Progress</CardTitle>
+            <CardTitle>Overall Project Progress</CardTitle>
             <CardDescription>
-              Weekly task completion vs. planned progress
+              Monthly cumulative progress across all active projects
             </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
@@ -306,20 +367,12 @@ const Dashboard = () => {
                   }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
+                  <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
                   <Area
                     type="monotone"
-                    dataKey="planned"
-                    stroke="#8884d8"
-                    fill="#8884d8"
-                    fillOpacity={0.1}
-                    strokeDasharray="5 5"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="completed"
+                    dataKey="progress"
                     stroke="#1A73E8"
                     fill="#1A73E8"
                     fillOpacity={0.3}
@@ -334,7 +387,7 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle>Safety Report</CardTitle>
             <CardDescription>
-              Weekly safety incidents and near misses
+              Safety incidents and near misses across all sites
             </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
@@ -350,7 +403,7 @@ const Dashboard = () => {
                   }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
+                  <XAxis dataKey="site" />
                   <YAxis />
                   <Tooltip />
                   <Legend />
