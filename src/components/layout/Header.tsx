@@ -1,9 +1,10 @@
 
-import React from "react";
+import React, { useContext } from "react";
 import { 
   Bell, 
   Search, 
-  Home
+  Home,
+  Menu
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -17,11 +18,19 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { LayoutContext } from "@/components/layout/Layout";
 
 export function Header() {
   const isMobile = useIsMobile();
   const { open } = useSidebar();
+  const { toggleSidebar } = useContext(LayoutContext);
+  const navigate = useNavigate();
+  
+  const handleMenuClick = () => {
+    toggleSidebar();
+    navigate("/dashboard");
+  };
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-background px-4 shadow-sm">
@@ -42,6 +51,16 @@ export function Header() {
           <Link to="/">
             <Home className="h-5 w-5" />
           </Link>
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          size="icon"
+          onClick={handleMenuClick}
+          className="border-construction-navy text-construction-navy hover:bg-construction-navy hover:text-white"
+          aria-label="Open navigation and go to dashboard"
+        >
+          <Menu className="h-5 w-5" />
         </Button>
         
         <Button variant="outline" size="icon" className="relative">
