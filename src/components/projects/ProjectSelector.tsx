@@ -52,7 +52,7 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-[60%] overflow-y-auto max-h-[85vh]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>

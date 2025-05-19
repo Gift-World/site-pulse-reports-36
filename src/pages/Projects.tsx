@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -391,7 +392,7 @@ const Projects = () => {
 
       {/* New Project Dialog */}
       <Dialog open={openNewProjectDialog} onOpenChange={setOpenNewProjectDialog}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-[60%] overflow-y-auto max-h-[85vh]">
           <DialogHeader>
             <DialogTitle>Create New Project</DialogTitle>
             <DialogDescription>
