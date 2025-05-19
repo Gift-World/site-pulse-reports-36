@@ -1,14 +1,15 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { FolderOpen, Plus, Users, Calendar, Clock } from "lucide-react";
+import { FolderOpen, Plus, Users, Calendar, Clock, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/types/project";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { NewProjectForm } from "@/components/projects/NewProjectForm";
+import { ProjectSelector } from "@/components/projects/ProjectSelector";
+import { toast } from "@/hooks/use-toast";
 
 const projects: Project[] = [
   {
@@ -255,6 +256,38 @@ const projects: Project[] = [
 const Projects = () => {
   const navigate = useNavigate();
   const [openNewProjectDialog, setOpenNewProjectDialog] = useState(false);
+  const [openEditProjectDialog, setOpenEditProjectDialog] = useState(false);
+  const [openDeleteProjectDialog, setOpenDeleteProjectDialog] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  
+  const activeProjects = projects.filter(p => p.status !== "Completed");
+  
+  const handleEditProject = (projectId: number) => {
+    setSelectedProjectId(projectId);
+    setOpenEditProjectDialog(false);
+    // In a real app, navigate to the edit form with the selected project ID
+    toast({
+      title: "Edit Project",
+      description: `Navigating to edit form for project #${projectId}`,
+    });
+  };
+  
+  const handleDeleteProject = (projectId: number) => {
+    setSelectedProjectId(projectId);
+    setOpenDeleteProjectDialog(false);
+    // In a real app, send a request to delete the project
+    toast({
+      title: "Delete Request Sent",
+      description: "Admin has been notified of your delete request.",
+    });
+    // Secondary confirmation toast
+    setTimeout(() => {
+      toast({
+        title: "Admin Alert",
+        description: `Delete request for project #${projectId} pending approval.`,
+      });
+    }, 1500);
+  };
   
   return (
     <div className="space-y-6">
@@ -265,10 +298,20 @@ const Projects = () => {
             Manage and monitor all your construction projects
           </p>
         </div>
-        <Button onClick={() => setOpenNewProjectDialog(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Project
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => setOpenNewProjectDialog(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Project
+          </Button>
+          <Button variant="outline" onClick={() => setOpenEditProjectDialog(true)}>
+            <Edit className="mr-2 h-4 w-4" />
+            Edit Project
+          </Button>
+          <Button variant="outline" onClick={() => setOpenDeleteProjectDialog(true)}>
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete Project
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -358,6 +401,31 @@ const Projects = () => {
           <NewProjectForm onComplete={() => setOpenNewProjectDialog(false)} />
         </DialogContent>
       </Dialog>
+
+      {/* Edit Project Selection Dialog */}
+      <ProjectSelector
+        open={openEditProjectDialog}
+        onOpenChange={setOpenEditProjectDialog}
+        title="Edit Project"
+        description="Select a project to edit"
+        projects={activeProjects}
+        onSelectProject={handleEditProject}
+        actionText="Edit Selected Project"
+        cancelText="Cancel"
+      />
+
+      {/* Delete Project Selection Dialog */}
+      <ProjectSelector
+        open={openDeleteProjectDialog}
+        onOpenChange={setOpenDeleteProjectDialog}
+        title="Delete Project"
+        description="Select a project to request deletion"
+        projects={projects}
+        onSelectProject={handleDeleteProject}
+        actionText="Request Deletion"
+        cancelText="Cancel"
+        variant="destructive"
+      />
     </div>
   );
 };
