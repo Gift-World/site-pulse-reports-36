@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Project } from "@/types/project";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,15 +9,32 @@ import { LaborForm, LaborResource } from "./LaborForm";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Download, FileSpreadsheet, FileText, MoreHorizontal, Pencil, Trash2, Upload } from "lucide-react";
+import { 
+  Download, 
+  FileSpreadsheet, 
+  FileText, 
+  MoreHorizontal, 
+  Pencil, 
+  Trash2, 
+  Upload,
+  ChevronLeft,
+  ChevronRight,
+  Calendar
+} from "lucide-react";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, isWithinInterval } from "date-fns";
 
 interface LaborTabProps {
   project: Project;
 }
 
 export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
+  // Current week state
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }); // Start on Monday
+  const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 }); // End on Sunday
+  
   const [laborResources, setLaborResources] = useState<LaborResource[]>([
     {
       id: "1",
@@ -54,9 +70,26 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
   
   const [editResource, setEditResource] = useState<LaborResource | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [showAddResourceDialog, setShowAddResourceDialog] = useState(false);
+
+  // Date navigation functions
+  const goToPreviousWeek = () => {
+    setCurrentDate(subWeeks(currentDate, 1));
+  };
+
+  const goToNextWeek = () => {
+    setCurrentDate(addWeeks(currentDate, 1));
+  };
+
+  const goToCurrentWeek = () => {
+    setCurrentDate(new Date());
+  };
+
+  const isCurrentWeek = format(weekStart, 'yyyy-MM-dd') === format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd');
 
   const handleAddResource = (resource: LaborResource) => {
     setLaborResources(prevResources => [...prevResources, resource]);
+    setShowAddResourceDialog(false);
   };
   
   const handleUpdateResource = (updatedResource: LaborResource) => {
@@ -312,10 +345,39 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <LaborForm onAddResource={handleAddResource} />
+          <Button onClick={() => setShowAddResourceDialog(true)}>
+            Add Resource
+          </Button>
         </div>
       </CardHeader>
       <CardContent>
+        {/* Week selector */}
+        <div className="flex items-center justify-between mb-6 border rounded-md p-4 bg-gray-50">
+          <Button variant="outline" size="sm" onClick={goToPreviousWeek}>
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            Previous Week
+          </Button>
+          
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-gray-600" />
+              <h3 className="font-medium text-lg">
+                {format(weekStart, 'MMM d')} - {format(weekEnd, 'MMM d, yyyy')}
+              </h3>
+            </div>
+            {!isCurrentWeek && (
+              <Button variant="link" size="sm" onClick={goToCurrentWeek} className="mt-1">
+                Return to Current Week
+              </Button>
+            )}
+          </div>
+          
+          <Button variant="outline" size="sm" onClick={goToNextWeek} disabled={isCurrentWeek}>
+            Next Week
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <h3 className="text-lg font-medium mb-3">Labor Distribution</h3>
@@ -601,9 +663,17 @@ export const LaborTab: React.FC<LaborTabProps> = ({ project }) => {
         </Tabs>
       </CardContent>
       
+      {/* Add Resource Dialog */}
+      <LaborForm 
+        onAddResource={handleAddResource}
+        isOpen={showAddResourceDialog}
+        onOpenChange={setShowAddResourceDialog}
+      />
+      
       {/* Edit Resource Dialog */}
       {editResource && (
         <LaborForm 
+          onAddResource={handleAddResource}
           onUpdateResource={handleUpdateResource}
           editingResource={editResource}
           isOpen={isEditDialogOpen}
