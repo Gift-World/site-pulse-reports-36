@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -750,7 +749,8 @@ export function ReportForm({ onSubmit, defaultValues, reportType }: ReportFormPr
           <FileUploader
             onFilesSelected={(files) => setPhotos(files)}
             maxFiles={5}
-            accept="image/*"
+            acceptedFileTypes=".jpg,.jpeg,.png,.gif"
+            label="Upload site photos"
           />
           <FormDescription>
             Upload up to 5 site photos (JPEG, PNG, etc.)
