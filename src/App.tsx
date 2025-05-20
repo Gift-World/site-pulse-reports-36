@@ -23,6 +23,7 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import FAQ from "./pages/FAQ";
 import Solutions from "./pages/Solutions";
+import AllMaterials from "./pages/AllMaterials";
 
 const App = () => {
   // Move the QueryClient initialization inside the component function
@@ -45,6 +46,7 @@ const App = () => {
               <Route path="/reports" element={<Reports />} />
               <Route path="/safety" element={<Safety />} />
               <Route path="/inventory" element={<Inventory />} />
+              <Route path="/materials" element={<AllMaterials />} />
               <Route path="/labor" element={<Labor />} />
               <Route path="/files" element={<Files />} />
               <Route path="/gallery" element={<Gallery />} />
