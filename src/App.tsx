@@ -24,39 +24,42 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import FAQ from "./pages/FAQ";
 import Solutions from "./pages/Solutions";
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/projects" element={<Projects />} />
-            <Route path="/projects/:id" element={<ProjectDetail />} />
-            <Route path="/team" element={<Team />} />
-            <Route path="/tasks" element={<Tasks />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/safety" element={<Safety />} />
-            <Route path="/inventory" element={<Inventory />} />
-            <Route path="/labor" element={<Labor />} />
-            <Route path="/files" element={<Files />} />
-            <Route path="/gallery" element={<Gallery />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/solutions" element={<Solutions />} />
-            <Route path="/terms-of-service" element={<TermsOfService />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/faq" element={<FAQ />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  // Move the QueryClient initialization inside the component function
+  const queryClient = new QueryClient();
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/projects" element={<Projects />} />
+              <Route path="/projects/:id" element={<ProjectDetail />} />
+              <Route path="/team" element={<Team />} />
+              <Route path="/tasks" element={<Tasks />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/safety" element={<Safety />} />
+              <Route path="/inventory" element={<Inventory />} />
+              <Route path="/labor" element={<Labor />} />
+              <Route path="/files" element={<Files />} />
+              <Route path="/gallery" element={<Gallery />} />
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/solutions" element={<Solutions />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/faq" element={<FAQ />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
