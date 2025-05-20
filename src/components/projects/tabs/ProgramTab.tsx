@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Project } from "@/types/project";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Calendar as CalendarIcon, 
   Plus, 
@@ -58,7 +60,7 @@ const taskStatuses = {
   onHold: { label: "On Hold", color: "bg-red-500" }
 };
 
-// Mock project tasks
+// Extended mock project tasks with more items for scrolling demonstration
 const projectTasks = [
   {
     id: 1,
@@ -139,6 +141,77 @@ const projectTasks = [
     status: "delayed",
     assignee: "Mark Wilson",
     completion: 15
+  },
+  // Additional tasks for scrolling demonstration
+  {
+    id: 9,
+    title: "HVAC Installation",
+    description: "Heating, ventilation, and air conditioning installation",
+    startDate: new Date(2025, 5, 15),
+    endDate: new Date(2025, 7, 10),
+    status: "notStarted",
+    assignee: "Jennifer Lopez",
+    completion: 0
+  },
+  {
+    id: 10,
+    title: "Exterior Landscaping",
+    description: "Site grading, planting, and hardscaping",
+    startDate: new Date(2025, 8, 1),
+    endDate: new Date(2025, 9, 15),
+    status: "notStarted",
+    assignee: "Michael Brown",
+    completion: 0
+  },
+  {
+    id: 11,
+    title: "Fire Protection Systems",
+    description: "Sprinklers and alarm installation",
+    startDate: new Date(2025, 6, 15),
+    endDate: new Date(2025, 7, 20),
+    status: "notStarted",
+    assignee: "Carlos Rodriguez",
+    completion: 0
+  },
+  {
+    id: 12,
+    title: "Elevator Installation",
+    description: "Installation and testing of elevators",
+    startDate: new Date(2025, 7, 10),
+    endDate: new Date(2025, 8, 25),
+    status: "notStarted",
+    assignee: "Sophia Chen",
+    completion: 0
+  },
+  {
+    id: 13,
+    title: "Security Systems",
+    description: "Installation of security cameras and access control",
+    startDate: new Date(2025, 9, 1),
+    endDate: new Date(2025, 9, 20),
+    status: "notStarted",
+    assignee: "James Wilson",
+    completion: 0
+  },
+  {
+    id: 14,
+    title: "Final Inspections",
+    description: "Building code compliance inspections",
+    startDate: new Date(2025, 10, 5),
+    endDate: new Date(2025, 10, 15),
+    status: "notStarted",
+    assignee: "Elizabeth Taylor",
+    completion: 0
+  },
+  {
+    id: 15,
+    title: "Commissioning",
+    description: "Systems testing and commissioning",
+    startDate: new Date(2025, 10, 15),
+    endDate: new Date(2025, 10, 25),
+    status: "notStarted",
+    assignee: "Daniel Jackson",
+    completion: 0
   }
 ];
 
@@ -477,20 +550,6 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
     }
   };
 
-  // Get title for upcoming tasks section based on selected timeframe
-  const getUpcomingTasksTitle = () => {
-    switch(upcomingTasksTimeframe) {
-      case "today":
-        return "Today's Tasks";
-      case "week":
-        return "This Week's Tasks";
-      case "month":
-        return "This Month's Tasks";
-      default:
-        return "Upcoming Tasks";
-    }
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -518,16 +577,16 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
         </div>
       </CardHeader>
       <CardContent>
-        {/* Tabs Section Now at the Top */}
+        {/* Tabs Section at the Top */}
         <Tabs defaultValue="calendar" value={programTab} onValueChange={setProgramTab} className="mb-6">
           <TabsList className="mb-4">
             <TabsTrigger value="calendar">Calendar View</TabsTrigger>
-            <TabsTrigger value="timeline">Timeline View</TabsTrigger>
+            <TabsTrigger value="timeline">Tasks</TabsTrigger>
             <TabsTrigger value="critical-path">Critical Path</TabsTrigger>
             <TabsTrigger value="import">Import Program</TabsTrigger>
           </TabsList>
           
-          {/* Upcoming Tasks Section Now Below Tabs */}
+          {/* Upcoming Tasks Section Below Tabs */}
           <Card className="mb-6">
             <CardHeader className="flex flex-row items-center justify-between">
               <div className="flex items-center gap-2">
@@ -549,45 +608,47 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
               </Button>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Task</TableHead>
-                    <TableHead>Start Date</TableHead>
-                    <TableHead>End Date</TableHead>
-                    <TableHead>Assignee</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {getUpcomingTasks().length > 0 ? (
-                    getUpcomingTasks().map(task => (
-                      <TableRow 
-                        key={task.id} 
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => handleTaskClick(task)}
-                      >
-                        <TableCell className="font-medium">{task.title}</TableCell>
-                        <TableCell>{new Date(task.startDate).toLocaleDateString()}</TableCell>
-                        <TableCell>{new Date(task.endDate).toLocaleDateString()}</TableCell>
-                        <TableCell>{task.assignee}</TableCell>
-                        <TableCell>{getBadgeForStatus(task.status)}</TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
+              <ScrollArea className="h-[300px]">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
-                        No tasks scheduled for this timeframe
-                      </TableCell>
+                      <TableHead>Task</TableHead>
+                      <TableHead>Start Date</TableHead>
+                      <TableHead>End Date</TableHead>
+                      <TableHead>Assignee</TableHead>
+                      <TableHead>Status</TableHead>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {getUpcomingTasks().length > 0 ? (
+                      getUpcomingTasks().map(task => (
+                        <TableRow 
+                          key={task.id} 
+                          className="cursor-pointer hover:bg-muted/50"
+                          onClick={() => handleTaskClick(task)}
+                        >
+                          <TableCell className="font-medium">{task.title}</TableCell>
+                          <TableCell>{new Date(task.startDate).toLocaleDateString()}</TableCell>
+                          <TableCell>{new Date(task.endDate).toLocaleDateString()}</TableCell>
+                          <TableCell>{task.assignee}</TableCell>
+                          <TableCell>{getBadgeForStatus(task.status)}</TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
+                          No tasks scheduled for this timeframe
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
             </CardContent>
           </Card>
 
           <TabsContent value="calendar" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
               <div className="w-full">
                 <Calendar
                   mode="single"
@@ -634,45 +695,6 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
                       <span className="text-sm">On Hold</span>
                     </div>
                   </div>
-                </div>
-              </div>
-              
-              <div className="border rounded-md p-4">
-                <h3 className="text-lg font-medium mb-3">
-                  {taskViewMode === "day" ? "Tasks for " + (selectedDate?.toLocaleDateString() || "Today") : 
-                   taskViewMode === "week" ? "This Week's Tasks" : "This Month's Tasks"}
-                </h3>
-                <div className="space-y-4">
-                  {getFilteredTasks().length > 0 ? (
-                    getFilteredTasks().map(task => (
-                      <div 
-                        key={task.id} 
-                        className={`border-l-4 ${taskStatuses[task.status as keyof typeof taskStatuses].color} border-l p-3 rounded-md cursor-pointer hover:bg-gray-50`}
-                        onClick={() => handleTaskClick(task)}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h4 className="font-medium">{task.title}</h4>
-                            <p className="text-sm text-muted-foreground">{task.description}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Clock className="h-3 w-3 text-muted-foreground" />
-                              <span className="text-xs text-muted-foreground">
-                                {new Date(task.startDate).toLocaleDateString()} - {new Date(task.endDate).toLocaleDateString()}
-                              </span>
-                            </div>
-                          </div>
-                          <div>
-                            {getBadgeForStatus(task.status)}
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <AlertCircle className="mx-auto h-8 w-8 mb-2" />
-                      <p>No tasks scheduled for this time period</p>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -1046,7 +1068,7 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
                               selected={field.value}
                               onSelect={field.onChange}
                               initialFocus
-                              className="p-3 pointer-events-auto"
+                              className={cn("p-3 pointer-events-auto")}
                             />
                           </PopoverContent>
                         </Popover>
@@ -1086,7 +1108,7 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
                               selected={field.value}
                               onSelect={field.onChange}
                               initialFocus
-                              className="p-3 pointer-events-auto"
+                              className={cn("p-3 pointer-events-auto")}
                             />
                           </PopoverContent>
                         </Popover>
