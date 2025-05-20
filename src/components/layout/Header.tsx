@@ -1,10 +1,10 @@
-
 import React, { useContext, useState } from "react";
 import { 
   Bell, 
   Search, 
   Home,
-  Menu
+  Menu,
+  Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -158,6 +158,12 @@ export function Header() {
           </PopoverContent>
         </Popover>
         
+        <Button variant="ghost" size="icon" asChild>
+          <Link to="/settings">
+            <Settings className="h-5 w-5" />
+          </Link>
+        </Button>
+        
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -177,11 +183,11 @@ export function Header() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              Profile
+            <DropdownMenuItem asChild>
+              <Link to="/settings">Settings</Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              Settings
+              Profile
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>

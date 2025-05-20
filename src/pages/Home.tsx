@@ -1,20 +1,80 @@
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartBar, Users, Clock, Shield, PieChart, CheckCircle, Book, List, Slack, Trello, Calendar, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { HelpCenter } from "@/components/home/HelpCenter";
 import { SolutionsList } from "@/components/home/SolutionsList";
+import { useCurrency } from "./Settings";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 const Home = () => {
   const navigate = useNavigate();
   const pricingRef = useRef<HTMLElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
+  const { currency, currencySymbol } = useCurrency();
+  const { toast } = useToast();
+  
+  const [subscribeEmail, setSubscribeEmail] = useState("");
+  const [subscribeDialogOpen, setSubscribeDialogOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState("");
 
   const scrollToSection = (ref: React.RefObject<HTMLElement>) => {
     if (ref && ref.current) {
       ref.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleSubscribe = () => {
+    if (!subscribeEmail) {
+      toast({
+        title: "Email Required",
+        description: "Please enter your email to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Thank you for subscribing!",
+      description: `We've received your request for the ${selectedPlan} plan. We'll contact you shortly.`,
+    });
+
+    setSubscribeDialogOpen(false);
+    setSubscribeEmail("");
+
+    if (selectedPlan !== "Free") {
+      navigate("/settings?tab=payment");
+    }
+  };
+
+  const handleGetStarted = (planTitle: string) => {
+    setSelectedPlan(planTitle);
+    setSubscribeDialogOpen(true);
+  };
+
+  const getCurrencyPrice = (usdPrice: string): string => {
+    const numericPrice = parseFloat(usdPrice.replace("$", ""));
+
+    switch(currency) {
+      case "EUR": return `€${(numericPrice * 0.91).toFixed(2)}`;
+      case "GBP": return `£${(numericPrice * 0.78).toFixed(2)}`;
+      case "JPY": return `¥${Math.round(numericPrice * 150)}`;
+      case "CAD": return `C$${(numericPrice * 1.34).toFixed(2)}`;
+      case "AUD": return `A$${(numericPrice * 1.5).toFixed(2)}`;
+      case "USD":
+      default: return `$${numericPrice.toFixed(2)}`;
     }
   };
 
@@ -186,7 +246,7 @@ const Home = () => {
             {[
               {
                 title: "Free",
-                price: "$0",
+                price: `${currencySymbol}0`,
                 description: "Perfect for small teams with a single project",
                 features: [
                   "1 active project",
@@ -198,7 +258,7 @@ const Home = () => {
               },
               {
                 title: "Basic",
-                price: "$39.99",
+                price: getCurrencyPrice("$39.99"),
                 description: "For growing construction businesses",
                 features: [
                   "Up to 5 active projects",
@@ -212,7 +272,7 @@ const Home = () => {
               },
               {
                 title: "Professional",
-                price: "$99",
+                price: getCurrencyPrice("$99"),
                 description: "Ideal for mid-sized construction companies",
                 features: [
                   "Up to 30 active projects",
@@ -229,7 +289,7 @@ const Home = () => {
               },
               {
                 title: "Enterprise",
-                price: "$199",
+                price: getCurrencyPrice("$199"),
                 description: "For large companies with complex requirements",
                 features: [
                   "Unlimited projects",
@@ -275,6 +335,7 @@ const Home = () => {
                   <Button 
                     className={plan.recommended ? "w-full bg-construction-navy hover:bg-construction-darkBlue" : "w-full"}
                     variant={plan.recommended ? "default" : "outline"}
+                    onClick={() => handleGetStarted(plan.title)}
                   >
                     Get Started
                   </Button>
@@ -298,12 +359,42 @@ const Home = () => {
           <Button 
             size="lg" 
             className="bg-white text-construction-navy hover:bg-white/90"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/settings")}
           >
             Get Started Today
           </Button>
         </div>
       </section>
+
+      {/* Email Collection Dialog */}
+      <Dialog open={subscribeDialogOpen} onOpenChange={setSubscribeDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Subscribe to {selectedPlan} Plan</DialogTitle>
+            <DialogDescription>
+              Enter your email to get started with our {selectedPlan} plan.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="subscribeEmail">Email</Label>
+              <Input
+                id="subscribeEmail"
+                placeholder="your.email@example.com"
+                type="email"
+                value={subscribeEmail}
+                onChange={(e) => setSubscribeEmail(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSubscribeDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubscribe}>Continue</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
