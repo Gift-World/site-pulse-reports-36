@@ -274,12 +274,17 @@ const Tasks = () => {
 
   const onSubmitTask = (data: TaskFormValues) => {
     // Determine project name if a project ID is provided
-    let projectName = "Random Task";
+    let projectName = undefined;
+    let projectId = undefined;
+    
     if (data.projectId) {
       const selectedProject = sampleProjects.find(p => p.id === data.projectId);
       if (selectedProject) {
         projectName = selectedProject.name;
+        projectId = selectedProject.id;
       }
+    } else if (data.projectId === undefined) {
+      projectName = "Random Task"; // Default for tasks with no project
     }
 
     const newTask: Task = {
@@ -293,7 +298,7 @@ const Tasks = () => {
       progress: data.status === "In Progress" ? 0 : data.status === "Completed" ? 100 : 0,
       startDate: format(data.startDate, "MMM d, yyyy"),
       endDate: data.endDate ? format(data.endDate, "MMM d, yyyy") : "",
-      projectId: data.projectId,
+      projectId: projectId,
       projectName: projectName
     };
 
