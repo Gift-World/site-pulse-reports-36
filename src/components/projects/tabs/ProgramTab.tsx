@@ -28,7 +28,9 @@ import {
   Import,
   ChartGantt,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Edit,
+  Trash2
 } from "lucide-react";
 import { FileUploader } from "@/components/reports/FileUploader";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -352,8 +354,12 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
   const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
   const daysOfWeek = getDaysOfWeek();
   const [upcomingTasksTimeframe, setUpcomingTasksTimeframe] = useState<string>("week");
+  const [showEditTaskDialog, setShowEditTaskDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState<any>(null);
+  const [taskToDelete, setTaskToDelete] = useState<any>(null);
 
-  // Form for new task
+  // Form for new/edit task
   const taskForm = useForm<z.infer<typeof TaskFormSchema>>({
     resolver: zodResolver(TaskFormSchema),
     defaultValues: {
@@ -506,6 +512,77 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
     });
   };
 
+  // Handler for editing task
+  const handleEditTask = (task: any) => {
+    setTaskToEdit(task);
+    
+    // Set form values
+    taskForm.reset({
+      title: task.title,
+      description: task.description,
+      startDate: new Date(task.startDate),
+      endDate: new Date(task.endDate),
+      assignee: task.assignee,
+      status: task.status,
+      priority: task.priority || "Medium",
+    });
+    
+    setShowEditTaskDialog(true);
+  };
+
+  // Handler for updating task after edit
+  const onSubmitEditTask = (data: z.infer<typeof TaskFormSchema>) => {
+    if (!taskToEdit) return;
+    
+    // Update task with new data
+    const updatedTasks = tasks.map(task => {
+      if (task.id === taskToEdit.id) {
+        return {
+          ...task,
+          title: data.title,
+          description: data.description,
+          startDate: data.startDate,
+          endDate: data.endDate,
+          assignee: data.assignee,
+          status: data.status,
+          priority: data.priority,
+          completion: data.status === "completed" ? 100 : 
+                     data.status === "notStarted" ? 0 : task.completion,
+        };
+      }
+      return task;
+    });
+    
+    setTasks(updatedTasks);
+    setShowEditTaskDialog(false);
+    taskForm.reset();
+    
+    toast({
+      title: "Task Updated",
+      description: `Task "${data.title}" has been updated`
+    });
+  };
+
+  // Handler for confirming task deletion
+  const handleDeleteTask = (task: any) => {
+    setTaskToDelete(task);
+    setShowDeleteDialog(true);
+  };
+
+  // Handler for deleting task
+  const confirmDeleteTask = () => {
+    if (!taskToDelete) return;
+    
+    const updatedTasks = tasks.filter(task => task.id !== taskToDelete.id);
+    setTasks(updatedTasks);
+    setShowDeleteDialog(false);
+    
+    toast({
+      title: "Task Deleted",
+      description: `Task "${taskToDelete.title}" has been deleted`
+    });
+  };
+
   // Get upcoming tasks based on selected timeframe
   const getUpcomingTasks = () => {
     const today = new Date();
@@ -602,10 +679,59 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={() => setShowNewTaskDialog(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Task
-              </Button>
+              <div className="flex gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit Task
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    {tasks.length > 0 ? (
+                      tasks.map(task => (
+                        <DropdownMenuItem 
+                          key={`edit-${task.id}`} 
+                          onClick={() => handleEditTask(task)}
+                        >
+                          {task.title}
+                        </DropdownMenuItem>
+                      ))
+                    ) : (
+                      <DropdownMenuItem disabled>No tasks available</DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="text-red-500 border-red-200 hover:bg-red-50">
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete Task
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    {tasks.length > 0 ? (
+                      tasks.map(task => (
+                        <DropdownMenuItem 
+                          key={`delete-${task.id}`} 
+                          onClick={() => handleDeleteTask(task)}
+                          className="text-red-500 hover:bg-red-50 focus:bg-red-50"
+                        >
+                          {task.title}
+                        </DropdownMenuItem>
+                      ))
+                    ) : (
+                      <DropdownMenuItem disabled>No tasks available</DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
+                <Button onClick={() => setShowNewTaskDialog(true)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Task
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <ScrollArea className="h-[300px]">
@@ -751,8 +877,26 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
                                 ></div>
                               </div>
                             </div>
-                            <div className="mt-4 text-right">
-                              <Button variant="outline" size="sm" onClick={() => handleTaskClick(task)}>
+                            <div className="mt-4 flex justify-end gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditTask(task);
+                                }}
+                              >
+                                <Edit className="mr-1 h-3 w-3" />
+                                Edit
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleTaskClick(task);
+                                }}
+                              >
                                 Update Status
                               </Button>
                             </div>
@@ -1199,7 +1343,234 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
             </Form>
           </DialogContent>
         </Dialog>
+        
+        {/* Edit Task Dialog */}
+        <Dialog open={showEditTaskDialog} onOpenChange={setShowEditTaskDialog}>
+          <DialogContent className="sm:max-w-[550px]">
+            <DialogHeader>
+              <DialogTitle>Edit Task</DialogTitle>
+            </DialogHeader>
+            <Form {...taskForm}>
+              <form onSubmit={taskForm.handleSubmit(onSubmitEditTask)} className="space-y-6">
+                <FormField
+                  control={taskForm.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Task Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter task name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={taskForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Task Description</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Enter task description" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={taskForm.control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Start Date</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a start date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
+                              className={cn("p-3 pointer-events-auto")}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={taskForm.control}
+                    name="endDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>End Date</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick an end date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
+                              className={cn("p-3 pointer-events-auto")}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={taskForm.control}
+                    name="assignee"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Assignee</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter assignee name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={taskForm.control}
+                    name="priority"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Priority</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select priority" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="High">High</SelectItem>
+                            <SelectItem value="Medium">Medium</SelectItem>
+                            <SelectItem value="Low">Low</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <FormField
+                  control={taskForm.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="notStarted">Not Started</SelectItem>
+                          <SelectItem value="inProgress">In Progress</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="delayed">Delayed</SelectItem>
+                          <SelectItem value="onHold">On Hold</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="flex justify-end gap-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => {
+                      setShowEditTaskDialog(false);
+                      taskForm.reset();
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit">Update Task</Button>
+                </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Delete Task Confirmation Dialog */}
+        <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Delete Task</DialogTitle>
+            </DialogHeader>
+            {taskToDelete && (
+              <div className="space-y-4">
+                <p>Are you sure you want to delete the following task?</p>
+                <div className="p-4 border rounded-md">
+                  <h3 className="font-medium">{taskToDelete.title}</h3>
+                  <p className="text-sm text-muted-foreground mt-1">{taskToDelete.description}</p>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button variant="destructive" onClick={confirmDeleteTask}>
+                    Delete Task
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
 };
+
