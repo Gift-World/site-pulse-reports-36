@@ -20,15 +20,6 @@ export const galleryData = [
     ]
   },
   {
-    id: "aerial-views",
-    name: "Aerial Views",
-    images: [
-      { id: 1, url: "https://images.unsplash.com/photo-1513828583688-c52646db42da?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3", title: "Drone Shot - Full Site - May 16", date: "May 16, 2025" },
-      { id: 2, url: "https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3", title: "Aerial Progress View - May 9", date: "May 9, 2025" },
-      { id: 3, url: "https://images.unsplash.com/photo-1603349136288-93d45f457a04?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3", title: "Site Planning Overview - May 3", date: "May 3, 2025" }
-    ]
-  },
-  {
     id: "material-deliveries",
     name: "Material Deliveries",
     images: [

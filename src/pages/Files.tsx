@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   FileText, 
   FilePlus, 
@@ -227,41 +228,45 @@ const Files = () => {
                   <CardHeader>
                     <CardTitle>{category.name}</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    {category.files.map((file) => (
-                      <div 
-                        key={file.id} 
-                        className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-md"
-                      >
-                        <div className="flex items-center gap-3 mb-3 sm:mb-0">
-                          <div className="p-2 rounded-md bg-muted">
-                            {getFileIcon(file.type)}
-                          </div>
-                          <div>
-                            <p className="font-medium">{file.name}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="outline" className="text-xs">
-                                {file.type.toUpperCase()}
-                              </Badge>
-                              <span className="text-xs text-muted-foreground">{file.size}</span>
-                              <span className="text-xs text-muted-foreground">Uploaded on {file.date}</span>
-                              <span className="text-xs text-muted-foreground">by {file.uploadedBy}</span>
+                  <CardContent>
+                    <ScrollArea className="h-[400px] pr-4">
+                      <div className="space-y-4">
+                        {category.files.map((file) => (
+                          <div 
+                            key={file.id} 
+                            className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-md"
+                          >
+                            <div className="flex items-center gap-3 mb-3 sm:mb-0">
+                              <div className="p-2 rounded-md bg-muted">
+                                {getFileIcon(file.type)}
+                              </div>
+                              <div>
+                                <p className="font-medium">{file.name}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <Badge variant="outline" className="text-xs">
+                                    {file.type.toUpperCase()}
+                                  </Badge>
+                                  <span className="text-xs text-muted-foreground">{file.size}</span>
+                                  <span className="text-xs text-muted-foreground">Uploaded on {file.date}</span>
+                                  <span className="text-xs text-muted-foreground">by {file.uploadedBy}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex gap-2 self-end sm:self-center">
+                              <Button variant="outline" size="sm">
+                                <Eye className="h-4 w-4 mr-1" /> View
+                              </Button>
+                              <Button variant="outline" size="sm">
+                                <Download className="h-4 w-4 mr-1" /> Download
+                              </Button>
+                              <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </div>
                           </div>
-                        </div>
-                        <div className="flex gap-2 self-end sm:self-center">
-                          <Button variant="outline" size="sm">
-                            <Eye className="h-4 w-4 mr-1" /> View
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Download className="h-4 w-4 mr-1" /> Download
-                          </Button>
-                          <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        ))}
                       </div>
-                    ))}
+                    </ScrollArea>
                   </CardContent>
                 </Card>
               </TabsContent>
