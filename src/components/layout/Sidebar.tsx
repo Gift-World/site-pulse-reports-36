@@ -27,17 +27,15 @@ import {
   Files,
   ClipboardCheck
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
-// Define a type for navigation items with notification count
+// Define a type for navigation items (removed notification count)
 interface NavItem {
   path: string;
   name: string;
   icon: React.ReactNode;
-  notifications?: number;
 }
 
-// Navigation items with notification counts where applicable
+// Navigation items (removed notification counts)
 const navItems: NavItem[] = [
   { 
     path: "/", 
@@ -47,8 +45,7 @@ const navItems: NavItem[] = [
   { 
     path: "/dashboard", 
     name: "Dashboard", 
-    icon: <ChartBar className="h-5 w-5" />,
-    notifications: 2
+    icon: <ChartBar className="h-5 w-5" />
   },
   { 
     path: "/projects", 
@@ -63,8 +60,7 @@ const navItems: NavItem[] = [
   { 
     path: "/tasks", 
     name: "Tasks", 
-    icon: <ClipboardCheck className="h-5 w-5" />,
-    notifications: 3
+    icon: <ClipboardCheck className="h-5 w-5" />
   },
   { 
     path: "/reports", 
@@ -74,8 +70,7 @@ const navItems: NavItem[] = [
   { 
     path: "/safety", 
     name: "Safety", 
-    icon: <ShieldAlert className="h-5 w-5" />,
-    notifications: 1
+    icon: <ShieldAlert className="h-5 w-5" />
   },
   { 
     path: "/inventory", 
@@ -95,8 +90,7 @@ const navItems: NavItem[] = [
   { 
     path: "/chat", 
     name: "Chat", 
-    icon: <MessageSquare className="h-5 w-5" />,
-    notifications: 5
+    icon: <MessageSquare className="h-5 w-5" />
   }
 ];
 
@@ -149,23 +143,7 @@ export function MainSidebar() {
                     >
                       {item.icon}
                       {!isCollapsed && (
-                        <>
-                          <span>{item.name}</span>
-                          {item.notifications && item.notifications > 0 && (
-                            <Badge 
-                              className="ml-auto bg-construction-red hover:bg-construction-red text-xs min-w-5 h-5 flex items-center justify-center"
-                            >
-                              {item.notifications}
-                            </Badge>
-                          )}
-                        </>
-                      )}
-                      {isCollapsed && item.notifications && item.notifications > 0 && (
-                        <Badge 
-                          className="absolute -top-1 -right-1 bg-construction-red hover:bg-construction-red text-xs min-w-4 h-4 flex items-center justify-center p-0 text-[10px]"
-                        >
-                          {item.notifications}
-                        </Badge>
+                        <span>{item.name}</span>
                       )}
                     </NavLink>
                   </SidebarMenuButton>
