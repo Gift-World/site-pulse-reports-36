@@ -31,7 +31,8 @@ const TaskImport: React.FC<TaskImportProps> = ({ onImport }) => {
       priority: "High",
       assignee: "John Doe",
       dueDate: "May 25, 2025",
-      progress: 0
+      progress: 0,
+      startDate: "May 15, 2025"
     },
     {
       id: 101,
@@ -41,7 +42,8 @@ const TaskImport: React.FC<TaskImportProps> = ({ onImport }) => {
       priority: "High",
       assignee: "John Doe",
       dueDate: "May 28, 2025",
-      progress: 0
+      progress: 0,
+      startDate: "May 26, 2025"
     },
     {
       id: 102,
@@ -51,7 +53,8 @@ const TaskImport: React.FC<TaskImportProps> = ({ onImport }) => {
       priority: "Medium",
       assignee: "Mike Johnson",
       dueDate: "June 2, 2025",
-      progress: 0
+      progress: 0,
+      startDate: "May 29, 2025"
     },
     {
       id: 103,
@@ -61,7 +64,8 @@ const TaskImport: React.FC<TaskImportProps> = ({ onImport }) => {
       priority: "High",
       assignee: "Mike Johnson",
       dueDate: "June 10, 2025",
-      progress: 0
+      progress: 0,
+      startDate: "June 3, 2025"
     },
     {
       id: 104,
@@ -71,7 +75,8 @@ const TaskImport: React.FC<TaskImportProps> = ({ onImport }) => {
       priority: "High",
       assignee: "Construction Team A",
       dueDate: "June 20, 2025",
-      progress: 0
+      progress: 0,
+      startDate: "June 11, 2025"
     }
   ];
   
