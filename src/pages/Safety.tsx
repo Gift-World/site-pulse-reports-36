@@ -10,6 +10,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { IncidentReportForm } from "@/components/safety/IncidentReportForm";
+import { SafetyReportForm } from "@/components/safety/SafetyReportForm";
+import { SafetyInspectionForm } from "@/components/safety/SafetyInspectionForm";
+import { SafetyBulletinForm } from "@/components/safety/SafetyBulletinForm";
+import { SafetyBulletinBoard } from "@/components/safety/SafetyBulletinBoard";
 
 const safetyStats = {
   score: 95,
@@ -80,6 +84,10 @@ const upcomingInspections = [
 
 const Safety = () => {
   const [incidentFormOpen, setIncidentFormOpen] = useState(false);
+  const [safetyReportFormOpen, setSafetyReportFormOpen] = useState(false);
+  const [inspectionFormOpen, setInspectionFormOpen] = useState(false);
+  const [bulletinFormOpen, setBulletinFormOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("incidents");
 
   return (
     <div className="space-y-6">
@@ -91,7 +99,7 @@ const Safety = () => {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => setSafetyReportFormOpen(true)}>
             <FileText className="mr-2 h-4 w-4" />
             Safety Reports
           </Button>
@@ -177,26 +185,27 @@ const Safety = () => {
               <ShieldAlert className="mr-2 h-4 w-4" />
               Report New Incident
             </Button>
-            <Button variant="outline" className="w-full justify-start">
+            <Button variant="outline" className="w-full justify-start" onClick={() => setSafetyReportFormOpen(true)}>
               <FileText className="mr-2 h-4 w-4" />
               Create Safety Report
             </Button>
-            <Button variant="outline" className="w-full justify-start">
+            <Button variant="outline" className="w-full justify-start" onClick={() => setInspectionFormOpen(true)}>
               <Clipboard className="mr-2 h-4 w-4" />
               Schedule Safety Inspection
             </Button>
-            <Button variant="outline" className="w-full justify-start">
+            <Button variant="outline" className="w-full justify-start" onClick={() => setBulletinFormOpen(true)}>
               <AlertCircle className="mr-2 h-4 w-4" />
-              Safety Bulletin
+              Create Safety Bulletin
             </Button>
           </CardContent>
         </Card>
       </div>
 
-      <Tabs defaultValue="incidents" className="space-y-4">
+      <Tabs defaultValue="incidents" className="space-y-4" value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="incidents">Recent Incidents</TabsTrigger>
           <TabsTrigger value="inspections">Upcoming Inspections</TabsTrigger>
+          <TabsTrigger value="bulletin">Safety Bulletin</TabsTrigger>
         </TabsList>
         <TabsContent value="incidents">
           <Card>
@@ -278,12 +287,30 @@ const Safety = () => {
             </CardFooter>
           </Card>
         </TabsContent>
+        <TabsContent value="bulletin">
+          <SafetyBulletinBoard />
+        </TabsContent>
       </Tabs>
 
-      {/* Incident Report Form Dialog */}
+      {/* Form Dialogs */}
       <IncidentReportForm 
         open={incidentFormOpen} 
         onOpenChange={setIncidentFormOpen} 
+      />
+      
+      <SafetyReportForm
+        open={safetyReportFormOpen}
+        onOpenChange={setSafetyReportFormOpen}
+      />
+      
+      <SafetyInspectionForm
+        open={inspectionFormOpen}
+        onOpenChange={setInspectionFormOpen}
+      />
+      
+      <SafetyBulletinForm
+        open={bulletinFormOpen}
+        onOpenChange={setBulletinFormOpen}
       />
     </div>
   );

@@ -179,7 +179,7 @@ export function ReportTemplateDialog() {
                 Generate Weekly Report
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[450px] max-h-[80vh]">
+            <DialogContent className="max-w-[450px] max-h-[80vh] w-[90vw]">
               <DialogHeader>
                 <DialogTitle>Generate Weekly Report</DialogTitle>
                 <DialogDescription>
@@ -240,7 +240,7 @@ export function ReportTemplateDialog() {
                 Generate Monthly Report
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[450px] max-h-[80vh]">
+            <DialogContent className="max-w-[450px] max-h-[80vh] w-[90vw]">
               <DialogHeader>
                 <DialogTitle>Generate Monthly Report</DialogTitle>
                 <DialogDescription>
@@ -305,14 +305,14 @@ export function ReportTemplateDialog() {
             </DialogContent>
           </Dialog>
         </div>
-        <DialogContent className="max-w-2xl sm:max-w-[60%] max-h-[80vh]">
+        <DialogContent className="max-w-[60%] max-h-[80vh] w-[90vw]">
           <DialogHeader>
             <DialogTitle>Create New Report</DialogTitle>
             <DialogDescription>
               Select a report type and fill in the details.
             </DialogDescription>
           </DialogHeader>
-          <ScrollArea className="h-[400px] pr-4">
+          <ScrollArea className="h-[500px] pr-4">
             <div className="mb-6">
               <label className="block text-sm font-medium mb-2">Report Type</label>
               <Select value={reportType} onValueChange={setReportType}>

@@ -33,8 +33,12 @@ const dailyReportSchema = z.object({
   weather: z.string().min(2, { message: "Weather conditions must be provided." }),
   workDone: z.string().min(10, { message: "Work description must be at least 10 characters." }),
   materialsIn: z.string().optional(),
-  materialsOut: z.string().optional(),
-  laborCount: z.string().min(1, { message: "Labor count must be provided." }),
+  materialsUsed: z.string().optional(),
+  skilledLabor: z.string().optional(),
+  unskilledLabor: z.string().optional(),
+  siteStaff: z.string().optional(),
+  subcontractorLabor: z.string().optional(),
+  otherLabor: z.string().optional(),
   comments: z.string().optional(),
 });
 
@@ -252,13 +256,13 @@ export function ReportForm({ onSubmit, defaultValues, reportType }: ReportFormPr
 
         <FormField
           control={form.control}
-          name="materialsOut"
+          name="materialsUsed"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Materials Out</FormLabel>
+              <FormLabel>Materials Used</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="List materials removed from site" 
+                  placeholder="List materials used on site" 
                   {...field} 
                 />
               </FormControl>
@@ -268,23 +272,71 @@ export function ReportForm({ onSubmit, defaultValues, reportType }: ReportFormPr
         />
       </div>
 
-      <FormField
-        control={form.control}
-        name="laborCount"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Labor Count</FormLabel>
-            <FormControl>
-              <Input 
-                type="number" 
-                placeholder="Number of workers on site" 
-                {...field} 
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <FormItem>
+        <FormLabel>Labor Count</FormLabel>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+          <div className="flex items-center gap-2">
+            <FormLabel className="w-32 text-sm font-normal">Skilled:</FormLabel>
+            <FormField
+              control={form.control}
+              name="skilledLabor"
+              render={({ field }) => (
+                <FormControl>
+                  <Input type="number" placeholder="0" {...field} className="w-20" />
+                </FormControl>
+              )}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <FormLabel className="w-32 text-sm font-normal">Unskilled:</FormLabel>
+            <FormField
+              control={form.control}
+              name="unskilledLabor"
+              render={({ field }) => (
+                <FormControl>
+                  <Input type="number" placeholder="0" {...field} className="w-20" />
+                </FormControl>
+              )}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <FormLabel className="w-32 text-sm font-normal">Site Staff:</FormLabel>
+            <FormField
+              control={form.control}
+              name="siteStaff"
+              render={({ field }) => (
+                <FormControl>
+                  <Input type="number" placeholder="0" {...field} className="w-20" />
+                </FormControl>
+              )}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <FormLabel className="w-32 text-sm font-normal">Subcontractors:</FormLabel>
+            <FormField
+              control={form.control}
+              name="subcontractorLabor"
+              render={({ field }) => (
+                <FormControl>
+                  <Input type="number" placeholder="0" {...field} className="w-20" />
+                </FormControl>
+              )}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <FormLabel className="w-32 text-sm font-normal">Others:</FormLabel>
+            <FormField
+              control={form.control}
+              name="otherLabor"
+              render={({ field }) => (
+                <FormControl>
+                  <Input type="number" placeholder="0" {...field} className="w-20" />
+                </FormControl>
+              )}
+            />
+          </div>
+        </div>
+      </FormItem>
 
       <FormField
         control={form.control}
