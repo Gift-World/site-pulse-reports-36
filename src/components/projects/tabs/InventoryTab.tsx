@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Project } from "@/types/project";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +9,8 @@ import {
   ArrowRightLeft, 
   BarChart4, 
   FileText,
-  Warehouse
+  Warehouse,
+  Truck
 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
@@ -33,6 +33,7 @@ import { toast } from "@/hooks/use-toast";
 import { MaterialRequestForm } from "@/components/inventory/MaterialRequestForm";
 import { useNavigate } from "react-router-dom";
 import { RequisitionForm } from "@/components/inventory/RequisitionForm";
+import { TransferRequestForm } from "@/components/inventory/TransferRequestForm";
 
 interface InventoryTabProps {
   project: Project;
@@ -313,6 +314,10 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
                     </TableBody>
                   </Table>
                 </div>
+                
+                <div className="text-center py-4 mt-4">
+                  <MaterialRequestForm />
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -324,7 +329,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
                   <CardTitle className="text-base">Material Transfers</CardTitle>
                   <CardDescription>Transfer requests between yard and site</CardDescription>
                 </div>
-                <Button onClick={transferMaterials}>Request Transfer</Button>
+                <TransferRequestForm />
               </CardHeader>
               <CardContent>
                 <Table>
@@ -468,9 +473,6 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
           </TabsContent>
         </Tabs>
         
-        <div className="text-center py-4 mt-4">
-          <MaterialRequestForm />
-        </div>
       </CardContent>
     </Card>
   );
