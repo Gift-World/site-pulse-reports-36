@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Project } from "@/types/project";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -464,12 +463,12 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
           
           <TabsContent value="calendar" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
+              <div className="w-full">
                 <Calendar
                   mode="single"
                   selected={selectedDate}
                   onSelect={setSelectedDate}
-                  className="rounded-md border"
+                  className="rounded-md border w-full"
                   modifiers={{
                     hasTask: (date) => dateHasTask(date)
                   }}
