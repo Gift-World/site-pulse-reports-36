@@ -2,7 +2,6 @@
 import React from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Task } from "@/types/task";
 
 interface TaskCalendarProps {
@@ -28,7 +27,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Upcoming Tasks</CardTitle>
+        <CardTitle>Calendar View</CardTitle>
       </CardHeader>
       <CardContent>
         <Calendar
