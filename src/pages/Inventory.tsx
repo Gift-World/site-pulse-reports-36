@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,8 +21,8 @@ import {
   HardDrive,
   Warehouse,
   Box,
-  Plant,
-  Inventory
+  Plane,
+  Package
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -350,11 +351,11 @@ const Inventory = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             <TabsList>
               <TabsTrigger value="inventory">
-                <Inventory className="h-4 w-4 mr-2" />
+                <Package className="h-4 w-4 mr-2" />
                 Inventory
               </TabsTrigger>
               <TabsTrigger value="equipment">
-                <Plant className="h-4 w-4 mr-2" />
+                <Plane className="h-4 w-4 mr-2" />
                 Plant
               </TabsTrigger>
               <TabsTrigger value="yard">
@@ -391,7 +392,7 @@ const Inventory = () => {
             <TabsContent value="equipment">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium">Plant</h3>
-                <Plant className="h-5 w-5 text-construction-blue" />
+                <Plane className="h-5 w-5 text-construction-blue" />
               </div>
               <Table>
                 <TableHeader>
