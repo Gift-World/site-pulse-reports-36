@@ -445,10 +445,6 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
               <FileDown className="mr-2 h-4 w-4" />
               Export
             </Button>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Task
-            </Button>
           </div>
         </div>
       </CardHeader>
