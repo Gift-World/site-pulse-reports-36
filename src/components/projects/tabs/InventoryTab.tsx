@@ -10,7 +10,8 @@ import {
   BarChart4, 
   FileText,
   Warehouse,
-  Truck
+  Truck,
+  Box
 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
@@ -34,6 +35,7 @@ import { MaterialRequestForm } from "@/components/inventory/MaterialRequestForm"
 import { useNavigate } from "react-router-dom";
 import { RequisitionForm } from "@/components/inventory/RequisitionForm";
 import { TransferRequestForm } from "@/components/inventory/TransferRequestForm";
+import { AddInventoryForm } from "@/components/inventory/AddInventoryForm";
 
 interface InventoryTabProps {
   project: Project;
@@ -410,9 +412,12 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
           
           <TabsContent value="yard" className="space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Main Yard Inventory</CardTitle>
-                <CardDescription>Central storage for all projects</CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-base">Main Yard Inventory</CardTitle>
+                  <CardDescription>Central storage for all projects</CardDescription>
+                </div>
+                <AddInventoryForm />
               </CardHeader>
               <CardContent>
                 <div className="text-sm text-muted-foreground mb-4">
@@ -425,8 +430,6 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
                       <TableHead>Item</TableHead>
                       <TableHead>Category</TableHead>
                       <TableHead>Quantity</TableHead>
-                      <TableHead>Restricted</TableHead>
-                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -434,37 +437,21 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
                       <TableCell>Steel Bars (12mm)</TableCell>
                       <TableCell>Construction Materials</TableCell>
                       <TableCell>250 pieces</TableCell>
-                      <TableCell><Badge variant="outline" className="bg-yellow-50 text-yellow-700">Yes</Badge></TableCell>
-                      <TableCell>
-                        <Button variant="outline" size="sm">Request</Button>
-                      </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>Portland Cement</TableCell>
                       <TableCell>Construction Materials</TableCell>
                       <TableCell>500 bags</TableCell>
-                      <TableCell><Badge variant="outline" className="bg-yellow-50 text-yellow-700">Yes</Badge></TableCell>
-                      <TableCell>
-                        <Button variant="outline" size="sm">Request</Button>
-                      </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>Scaffolding Sets</TableCell>
                       <TableCell>Equipment</TableCell>
                       <TableCell>10 sets</TableCell>
-                      <TableCell><Badge variant="outline" className="bg-yellow-50 text-yellow-700">Yes</Badge></TableCell>
-                      <TableCell>
-                        <Button variant="outline" size="sm">Request</Button>
-                      </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>Safety Helmets</TableCell>
                       <TableCell>Safety Equipment</TableCell>
                       <TableCell>50 pieces</TableCell>
-                      <TableCell><Badge variant="outline" className="bg-blue-50 text-blue-700">No</Badge></TableCell>
-                      <TableCell>
-                        <Button variant="outline" size="sm">Request</Button>
-                      </TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
@@ -472,7 +459,6 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
             </Card>
           </TabsContent>
         </Tabs>
-        
       </CardContent>
     </Card>
   );
