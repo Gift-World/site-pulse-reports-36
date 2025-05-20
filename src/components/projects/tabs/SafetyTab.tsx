@@ -13,10 +13,20 @@ import {
   FileText,
   Calendar,
   Download,
-  ShieldCheck
+  ShieldCheck,
+  FilePlus,
+  CalendarPlus,
+  Eye,
+  ClipboardList,
+  ClipboardCheck,
+  Plus
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { IncidentReportForm } from "@/components/safety/IncidentReportForm";
+import { InspectionScheduleForm } from "@/components/safety/InspectionScheduleForm";
+import { ObservationForm } from "@/components/safety/ObservationForm";
 
 interface SafetyTabProps {
   project: Project;
@@ -24,6 +34,9 @@ interface SafetyTabProps {
 
 export const SafetyTab: React.FC<SafetyTabProps> = ({ project }) => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [incidentFormOpen, setIncidentFormOpen] = useState(false);
+  const [inspectionFormOpen, setInspectionFormOpen] = useState(false);
+  const [observationFormOpen, setObservationFormOpen] = useState(false);
   
   const safetyData = [
     { name: 'Safe', value: 96, color: '#34A853' },
@@ -42,6 +55,46 @@ export const SafetyTab: React.FC<SafetyTabProps> = ({ project }) => {
     { type: "Near Miss", count: 5, color: "#FBBC04" },
     { type: "Minor Injury", count: 2, color: "#EA4335" },
     { type: "Major Incident", count: 0, color: "#C53929" },
+  ];
+  
+  // Sample safety observations data
+  const safetyObservations = [
+    {
+      date: "May 15, 2025",
+      type: "Near Miss",
+      description: "Unsecured tools on scaffolding",
+      status: "Resolved"
+    },
+    {
+      date: "May 12, 2025",
+      type: "Hazard",
+      description: "Incomplete safety railing on 3rd floor",
+      status: "Resolved"
+    },
+    {
+      date: "May 8, 2025",
+      type: "Good Practice",
+      description: "Team consistently using fall protection equipment",
+      status: "Noted"
+    },
+    {
+      date: "May 5, 2025",
+      type: "Hazard",
+      description: "Electrical cords creating trip hazard",
+      status: "Resolved"
+    },
+    {
+      date: "May 3, 2025",
+      type: "Near Miss",
+      description: "Material nearly fell during crane operation",
+      status: "Resolved"
+    },
+    {
+      date: "May 1, 2025",
+      type: "Good Practice",
+      description: "Daily toolbox talks being conducted consistently",
+      status: "Noted"
+    }
   ];
   
   const generateSafetyReport = () => {
@@ -71,15 +124,15 @@ export const SafetyTab: React.FC<SafetyTabProps> = ({ project }) => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList>
             <TabsTrigger value="overview">
-              <ShieldCheck className="h-4 w-4 mr-2" />
+              <Eye className="h-4 w-4 mr-2" />
               Overview
             </TabsTrigger>
             <TabsTrigger value="incidents">
-              <AlertTriangle className="h-4 w-4 mr-2" />
+              <ClipboardList className="h-4 w-4 mr-2" />
               Incidents
             </TabsTrigger>
             <TabsTrigger value="inspections">
-              <CheckCircle className="h-4 w-4 mr-2" />
+              <ClipboardCheck className="h-4 w-4 mr-2" />
               Inspections
             </TabsTrigger>
             <TabsTrigger value="reports">
@@ -179,40 +232,44 @@ export const SafetyTab: React.FC<SafetyTabProps> = ({ project }) => {
             </div>
             
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-base">Recent Safety Observations</CardTitle>
+                <Button size="sm" onClick={() => setObservationFormOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Observation
+                </Button>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>May 15, 2025</TableCell>
-                      <TableCell>Near Miss</TableCell>
-                      <TableCell>Unsecured tools on scaffolding</TableCell>
-                      <TableCell><Badge variant="outline" className="bg-green-50 text-green-700">Resolved</Badge></TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>May 12, 2025</TableCell>
-                      <TableCell>Hazard</TableCell>
-                      <TableCell>Incomplete safety railing on 3rd floor</TableCell>
-                      <TableCell><Badge variant="outline" className="bg-green-50 text-green-700">Resolved</Badge></TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>May 8, 2025</TableCell>
-                      <TableCell>Good Practice</TableCell>
-                      <TableCell>Team consistently using fall protection equipment</TableCell>
-                      <TableCell><Badge variant="outline" className="bg-blue-50 text-blue-700">Noted</Badge></TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
+                <ScrollArea className="h-[250px] pr-4">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Description</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {safetyObservations.map((observation, idx) => (
+                        <TableRow key={idx}>
+                          <TableCell>{observation.date}</TableCell>
+                          <TableCell>{observation.type}</TableCell>
+                          <TableCell>{observation.description}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" 
+                              className={observation.status === "Resolved" 
+                                ? "bg-green-50 text-green-700" 
+                                : "bg-blue-50 text-blue-700"
+                              }>
+                              {observation.status}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
               </CardContent>
             </Card>
           </TabsContent>
@@ -277,8 +334,8 @@ export const SafetyTab: React.FC<SafetyTabProps> = ({ project }) => {
                   </TableBody>
                 </Table>
                 <div className="mt-4 flex justify-end">
-                  <Button>
-                    <FileText className="mr-2 h-4 w-4" />
+                  <Button onClick={() => setIncidentFormOpen(true)}>
+                    <FilePlus className="mr-2 h-4 w-4" />
                     Report New Incident
                   </Button>
                 </div>
@@ -340,8 +397,8 @@ export const SafetyTab: React.FC<SafetyTabProps> = ({ project }) => {
                   </TableBody>
                 </Table>
                 <div className="mt-4 flex justify-end">
-                  <Button>
-                    <Calendar className="mr-2 h-4 w-4" />
+                  <Button onClick={() => setInspectionFormOpen(true)}>
+                    <CalendarPlus className="mr-2 h-4 w-4" />
                     Schedule Inspection
                   </Button>
                 </div>
@@ -421,6 +478,22 @@ export const SafetyTab: React.FC<SafetyTabProps> = ({ project }) => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Forms */}
+        <IncidentReportForm 
+          open={incidentFormOpen} 
+          onOpenChange={setIncidentFormOpen} 
+        />
+        
+        <InspectionScheduleForm 
+          open={inspectionFormOpen} 
+          onOpenChange={setInspectionFormOpen} 
+        />
+        
+        <ObservationForm 
+          open={observationFormOpen} 
+          onOpenChange={setObservationFormOpen} 
+        />
       </CardContent>
     </Card>
   );

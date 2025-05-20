@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { ShieldAlert, FileText, Clipboard, AlertCircle, Plus } from "lucide-react";
@@ -8,6 +8,8 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { IncidentReportForm } from "@/components/safety/IncidentReportForm";
 
 const safetyStats = {
   score: 95,
@@ -77,6 +79,8 @@ const upcomingInspections = [
 ];
 
 const Safety = () => {
+  const [incidentFormOpen, setIncidentFormOpen] = useState(false);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -91,7 +95,7 @@ const Safety = () => {
             <FileText className="mr-2 h-4 w-4" />
             Safety Reports
           </Button>
-          <Button>
+          <Button onClick={() => setIncidentFormOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Report Incident
           </Button>
@@ -133,11 +137,6 @@ const Safety = () => {
               <Progress 
                 value={safetyStats.score} 
                 className="h-2" 
-                indicatorClassName={
-                  safetyStats.score > 90 ? "bg-construction-green" : 
-                  safetyStats.score > 70 ? "bg-construction-blue" : 
-                  "bg-construction-orange"
-                }
               />
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -174,7 +173,7 @@ const Safety = () => {
             <CardDescription>Common safety tasks</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button variant="outline" className="w-full justify-start">
+            <Button variant="outline" className="w-full justify-start" onClick={() => setIncidentFormOpen(true)}>
               <ShieldAlert className="mr-2 h-4 w-4" />
               Report New Incident
             </Button>
@@ -208,31 +207,33 @@ const Safety = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {recentIncidents.map((incident) => (
-                  <div key={incident.id} className="border rounded-lg p-4">
-                    <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
-                      <div>
-                        <p className="font-medium">{incident.title}</p>
-                        <p className="text-sm text-muted-foreground">{incident.date}</p>
+              <ScrollArea className="h-[400px] pr-4">
+                <div className="space-y-4">
+                  {recentIncidents.map((incident) => (
+                    <div key={incident.id} className="border rounded-lg p-4">
+                      <div className="flex flex-wrap justify-between items-start gap-2 mb-2">
+                        <div>
+                          <p className="font-medium">{incident.title}</p>
+                          <p className="text-sm text-muted-foreground">{incident.date}</p>
+                        </div>
+                        <Badge 
+                          variant={
+                            incident.severity === "Low" ? "outline" :
+                            incident.severity === "Medium" ? "secondary" : "destructive"
+                          }
+                        >
+                          {incident.severity} Severity
+                        </Badge>
                       </div>
-                      <Badge 
-                        variant={
-                          incident.severity === "Low" ? "outline" :
-                          incident.severity === "Medium" ? "secondary" : "destructive"
-                        }
-                      >
-                        {incident.severity} Severity
-                      </Badge>
+                      <p className="text-sm mb-3">{incident.description}</p>
+                      <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
+                        <div>Location: {incident.location}</div>
+                        <div>Reported by: {incident.reported}</div>
+                      </div>
                     </div>
-                    <p className="text-sm mb-3">{incident.description}</p>
-                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
-                      <div>Location: {incident.location}</div>
-                      <div>Reported by: {incident.reported}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </ScrollArea>
             </CardContent>
             <CardFooter>
               <Button variant="outline" className="w-full">View All Incidents</Button>
@@ -278,6 +279,12 @@ const Safety = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Incident Report Form Dialog */}
+      <IncidentReportForm 
+        open={incidentFormOpen} 
+        onOpenChange={setIncidentFormOpen} 
+      />
     </div>
   );
 };
