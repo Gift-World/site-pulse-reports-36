@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -37,7 +37,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-const initialTasks: Task[] = [
+// Initial tasks will be loaded from localStorage or default to these
+const defaultTasks: Task[] = [
   {
     id: 1,
     title: "Complete foundation inspection for Building B",
@@ -46,7 +47,9 @@ const initialTasks: Task[] = [
     priority: "High",
     assignee: "David Lee",
     dueDate: "May 14, 2025",
-    progress: 100
+    progress: 100,
+    startDate: "May 10, 2025",
+    endDate: "May 14, 2025"
   },
   {
     id: 2,
@@ -56,7 +59,9 @@ const initialTasks: Task[] = [
     priority: "Medium",
     assignee: "Robert Wilson",
     dueDate: "May 18, 2025",
-    progress: 65
+    progress: 65,
+    startDate: "May 12, 2025",
+    endDate: ""
   },
   {
     id: 3,
@@ -66,7 +71,9 @@ const initialTasks: Task[] = [
     priority: "High",
     assignee: "Jennifer Chen",
     dueDate: "May 17, 2025",
-    progress: 30
+    progress: 30,
+    startDate: "May 15, 2025",
+    endDate: ""
   },
   {
     id: 4,
@@ -76,7 +83,9 @@ const initialTasks: Task[] = [
     priority: "Medium",
     assignee: "Emily Davis",
     dueDate: "May 20, 2025",
-    progress: 0
+    progress: 0,
+    startDate: "May 18, 2025",
+    endDate: ""
   },
   {
     id: 5,
@@ -86,7 +95,9 @@ const initialTasks: Task[] = [
     priority: "High",
     assignee: "Michael Robinson",
     dueDate: "May 15, 2025",
-    progress: 0
+    progress: 0,
+    startDate: "May 15, 2025",
+    endDate: ""
   },
   {
     id: 6,
@@ -96,7 +107,9 @@ const initialTasks: Task[] = [
     priority: "Low",
     assignee: "Sarah Johnson",
     dueDate: "May 22, 2025",
-    progress: 0
+    progress: 0,
+    startDate: "May 20, 2025",
+    endDate: ""
   }
 ];
 
@@ -153,12 +166,22 @@ const taskFormSchema = z.object({
   dueDate: z.date({
     required_error: "Due date is required",
   }),
+  startDate: z.date({
+    required_error: "Start date is required",
+  }),
+  endDate: z.date().optional(),
 });
 
 type TaskFormValues = z.infer<typeof taskFormSchema>;
 
 const Tasks = () => {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  // Load tasks from localStorage on initial render
+  const loadTasks = () => {
+    const savedTasks = localStorage.getItem("tasks");
+    return savedTasks ? JSON.parse(savedTasks) : defaultTasks;
+  };
+  
+  const [tasks, setTasks] = useState<Task[]>(loadTasks);
   const [statusFilter, setStatusFilter] = useState("all");
   const [assigneeFilter, setAssigneeFilter] = useState("all");
   const [assignModalOpen, setAssignModalOpen] = useState(false);
@@ -166,6 +189,11 @@ const Tasks = () => {
   const [showAddTaskDialog, setShowAddTaskDialog] = useState(false);
   
   const { toast } = useToast();
+  
+  // Save tasks to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
   
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
@@ -176,6 +204,8 @@ const Tasks = () => {
       priority: "Medium",
       assignee: "",
       dueDate: new Date(),
+      startDate: new Date(),
+      endDate: undefined,
     },
   });
 
@@ -195,24 +225,33 @@ const Tasks = () => {
   };
 
   const handleAssignTask = (taskId: number, assignee: string) => {
-    setTasks(tasks.map(task => 
+    const updatedTasks = tasks.map(task => 
       task.id === taskId ? { ...task, assignee } : task
-    ));
+    );
+    setTasks(updatedTasks);
+    // Update localStorage
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
   };
 
   const onSubmitTask = (data: TaskFormValues) => {
     const newTask: Task = {
-      id: Math.max(...tasks.map(task => task.id)) + 1,
+      id: Math.max(0, ...tasks.map(task => task.id)) + 1,
       title: data.title,
       description: data.description || "",
       status: data.status,
       priority: data.priority,
       assignee: data.assignee,
       dueDate: format(data.dueDate, "MMM d, yyyy"),
-      progress: data.status === "In Progress" ? 0 : data.status === "Completed" ? 100 : 0
+      progress: data.status === "In Progress" ? 0 : data.status === "Completed" ? 100 : 0,
+      startDate: format(data.startDate, "MMM d, yyyy"),
+      endDate: data.endDate ? format(data.endDate, "MMM d, yyyy") : ""
     };
 
-    setTasks([...tasks, newTask]);
+    const updatedTasks = [...tasks, newTask];
+    setTasks(updatedTasks);
+    // Update localStorage
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    
     setShowAddTaskDialog(false);
     form.reset();
 
@@ -322,6 +361,16 @@ const Tasks = () => {
                           </Button>
                         </div>
                         <div className="flex items-center text-sm">
+                          <span className="text-muted-foreground mr-1">Start:</span>
+                          <span>{task.startDate}</span>
+                        </div>
+                        {task.endDate && (
+                          <div className="flex items-center text-sm">
+                            <span className="text-muted-foreground mr-1">End:</span>
+                            <span>{task.endDate}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center text-sm">
                           <span className="text-muted-foreground mr-1">Due:</span>
                           <span>{task.dueDate}</span>
                         </div>
@@ -361,8 +410,11 @@ const Tasks = () => {
                           <CardContent className="p-4 pt-0 space-y-2">
                             <p className="text-sm text-muted-foreground">{task.description}</p>
                             <div className="flex items-center justify-between">
-                              <div className="text-xs text-muted-foreground">{task.dueDate}</div>
+                              <div className="text-xs text-muted-foreground">Start: {task.startDate}</div>
                               {getPriorityBadge(task.priority)}
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <div className="text-xs">Due: {task.dueDate}</div>
                             </div>
                             <div className="flex items-center justify-between">
                               <div className="text-xs">Assignee: {task.assignee}</div>
@@ -516,6 +568,72 @@ const Tasks = () => {
                   </FormItem>
                 )}
               />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Start Date <span className="text-destructive">*</span></FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                            >
+                              {field.value ? format(field.value, "PPP") : "Pick a date"}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="endDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>End Date (Optional)</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                            >
+                              {field.value ? format(field.value, "PPP") : "Pick a date"}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               
               <FormField
                 control={form.control}

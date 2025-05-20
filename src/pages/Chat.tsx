@@ -33,6 +33,7 @@ const Chat = () => {
   const [messageText, setMessageText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [contacts, setContacts] = useState(chatData.contacts);
+  const [messages, setMessages] = useState(chatData.messages);
 
   useEffect(() => {
     // Check if we have a team member to message
@@ -69,8 +70,15 @@ const Chat = () => {
 
   const handleSendMessage = () => {
     if (messageText.trim()) {
-      // In a real app, you would send the message to an API
-      console.log("Sending message:", messageText);
+      const newMessage = {
+        id: messages.length + 1,
+        senderId: 0, // Current user
+        text: messageText,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        date: "Today"
+      };
+      
+      setMessages([...messages, newMessage]);
       setMessageText("");
     }
   };
@@ -185,7 +193,7 @@ const Chat = () => {
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {chatData.messages.map((message) => {
+            {messages.map((message) => {
               const isUser = message.senderId === 0;
               return (
                 <div key={message.id} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>

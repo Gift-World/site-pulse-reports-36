@@ -8,4 +8,6 @@ export interface Task {
   assignee: string;
   dueDate: string;
   progress: number;
+  startDate: string;
+  endDate?: string;
 }
