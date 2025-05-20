@@ -7,7 +7,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { FileText, FilePlus, Download, Eye, Trash2, Search, FileArchive, FileCode, FileImage, FileSpreadsheet, UploadCloud } from "lucide-react";
+import { 
+  FileText, 
+  FilePlus, 
+  Download, 
+  Eye, 
+  Trash2, 
+  Search, 
+  FileArchive, 
+  FileCode, 
+  FileImage, 
+  FileSpreadsheet, 
+  UploadCloud,
+  Plus,
+  Image
+} from "lucide-react";
+
+// Import Gallery components and data
+import { galleryData } from "../components/gallery/GalleryData";
+import { GalleryView } from "../components/gallery/GalleryView";
 
 // Mock data for files
 const fileCategories = [
@@ -64,6 +82,13 @@ const getFileIcon = (type: string) => {
 
 const Files = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("documents"); // Main tab: "documents" or "gallery"
+  const [documentsTab, setDocumentsTab] = useState("drawings"); // Sub-tab for documents
+  const [selectedImage, setSelectedImage] = useState<any>(null);
+
+  const handleImageClick = (image: any) => {
+    setSelectedImage(image);
+  };
 
   return (
     <div className="space-y-6">
@@ -79,7 +104,7 @@ const Files = () => {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search files..."
+              placeholder={activeTab === "documents" ? "Search files..." : "Search photos..."}
               className="pl-8"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -88,40 +113,80 @@ const Files = () => {
           <Dialog>
             <DialogTrigger asChild>
               <Button className="bg-construction-navy hover:bg-construction-darkBlue">
-                <FilePlus className="mr-2 h-4 w-4" />
-                Upload File
+                {activeTab === "documents" ? (
+                  <>
+                    <FilePlus className="mr-2 h-4 w-4" />
+                    Upload File
+                  </>
+                ) : (
+                  <>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Upload Photos
+                  </>
+                )}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Upload New File</DialogTitle>
+                <DialogTitle>
+                  {activeTab === "documents" ? "Upload New File" : "Upload Photos"}
+                </DialogTitle>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="file-name">File Name</Label>
-                  <Input id="file-name" />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="category">Category</Label>
-                  <select 
-                    id="category" 
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <option value="">Select category</option>
-                    {fileCategories.map(category => (
-                      <option key={category.id} value={category.id}>{category.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="file">File</Label>
-                  <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                    <UploadCloud className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="mb-2 text-sm text-muted-foreground">Drag and drop your file here</p>
-                    <Input id="file" type="file" className="mx-auto" />
+              {activeTab === "documents" ? (
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="file-name">File Name</Label>
+                    <Input id="file-name" />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="category">Category</Label>
+                    <select 
+                      id="category" 
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="">Select category</option>
+                      {fileCategories.map(category => (
+                        <option key={category.id} value={category.id}>{category.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="file">File</Label>
+                    <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                      <UploadCloud className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                      <p className="mb-2 text-sm text-muted-foreground">Drag and drop your file here</p>
+                      <Input id="file" type="file" className="mx-auto" />
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="photo-title">Photo Title</Label>
+                    <Input id="photo-title" />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="gallery-category">Category</Label>
+                    <select 
+                      id="gallery-category" 
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="">Select category</option>
+                      {galleryData.map(category => (
+                        <option key={category.id} value={category.id}>{category.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="gallery-file">Photo</Label>
+                    <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                      <UploadCloud className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                      <p className="mb-2 text-sm text-muted-foreground">Drag and drop your images here</p>
+                      <Input id="gallery-file" type="file" className="mx-auto" accept="image/*" multiple />
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="flex justify-end gap-3">
                 <DialogTrigger asChild>
                   <Button variant="outline">Cancel</Button>
@@ -133,60 +198,86 @@ const Files = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="drawings" className="space-y-4">
-        <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {fileCategories.map((category) => (
-            <TabsTrigger key={category.id} value={category.id}>
-              {category.name}
-            </TabsTrigger>
-          ))}
+      <Tabs defaultValue="documents" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid grid-cols-2 md:w-[260px]">
+          <TabsTrigger value="documents">
+            <FileText className="h-4 w-4 mr-2" />
+            Documents
+          </TabsTrigger>
+          <TabsTrigger value="gallery">
+            <Image className="h-4 w-4 mr-2" />
+            Gallery
+          </TabsTrigger>
         </TabsList>
 
-        {fileCategories.map((category) => (
-          <TabsContent key={category.id} value={category.id} className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>{category.name}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {category.files.map((file) => (
-                  <div 
-                    key={file.id} 
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-md"
-                  >
-                    <div className="flex items-center gap-3 mb-3 sm:mb-0">
-                      <div className="p-2 rounded-md bg-muted">
-                        {getFileIcon(file.type)}
-                      </div>
-                      <div>
-                        <p className="font-medium">{file.name}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-xs">
-                            {file.type.toUpperCase()}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">{file.size}</span>
-                          <span className="text-xs text-muted-foreground">Uploaded on {file.date}</span>
-                          <span className="text-xs text-muted-foreground">by {file.uploadedBy}</span>
+        {/* Documents Tab Content */}
+        <TabsContent value="documents" className="space-y-4">
+          <Tabs defaultValue="drawings" value={documentsTab} onValueChange={setDocumentsTab}>
+            <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {fileCategories.map((category) => (
+                <TabsTrigger key={category.id} value={category.id}>
+                  {category.name}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            {fileCategories.map((category) => (
+              <TabsContent key={category.id} value={category.id} className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{category.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {category.files.map((file) => (
+                      <div 
+                        key={file.id} 
+                        className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-md"
+                      >
+                        <div className="flex items-center gap-3 mb-3 sm:mb-0">
+                          <div className="p-2 rounded-md bg-muted">
+                            {getFileIcon(file.type)}
+                          </div>
+                          <div>
+                            <p className="font-medium">{file.name}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="outline" className="text-xs">
+                                {file.type.toUpperCase()}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground">{file.size}</span>
+                              <span className="text-xs text-muted-foreground">Uploaded on {file.date}</span>
+                              <span className="text-xs text-muted-foreground">by {file.uploadedBy}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 self-end sm:self-center">
+                          <Button variant="outline" size="sm">
+                            <Eye className="h-4 w-4 mr-1" /> View
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Download className="h-4 w-4 mr-1" /> Download
+                          </Button>
+                          <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex gap-2 self-end sm:self-center">
-                      <Button variant="outline" size="sm">
-                        <Eye className="h-4 w-4 mr-1" /> View
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Download className="h-4 w-4 mr-1" /> Download
-                      </Button>
-                      <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        ))}
+                    ))}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </TabsContent>
+
+        {/* Gallery Tab Content */}
+        <TabsContent value="gallery" className="space-y-4">
+          <GalleryView 
+            galleryData={galleryData}
+            selectedImage={selectedImage}
+            onImageClick={handleImageClick}
+            setSelectedImage={setSelectedImage}
+          />
+        </TabsContent>
       </Tabs>
     </div>
   );

@@ -18,7 +18,6 @@ import Labor from "./pages/Labor";
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
 import Files from "./pages/Files";
-import Gallery from "./pages/Gallery";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import FAQ from "./pages/FAQ";
@@ -49,7 +48,6 @@ const App = () => {
               <Route path="/materials" element={<AllMaterials />} />
               <Route path="/labor" element={<Labor />} />
               <Route path="/files" element={<Files />} />
-              <Route path="/gallery" element={<Gallery />} />
               <Route path="/chat" element={<Chat />} />
               <Route path="/solutions" element={<Solutions />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />

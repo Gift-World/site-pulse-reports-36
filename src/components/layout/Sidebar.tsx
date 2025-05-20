@@ -1,4 +1,3 @@
-
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -25,7 +24,6 @@ import {
   UserPlus,
   Home,
   Files,
-  Image,
   ClipboardCheck
 } from "lucide-react";
 
@@ -79,11 +77,6 @@ const navItems = [
     path: "/files", 
     name: "Files", 
     icon: <Files className="h-5 w-5" /> 
-  },
-  { 
-    path: "/gallery", 
-    name: "Gallery", 
-    icon: <Image className="h-5 w-5" /> 
   },
   { 
     path: "/chat", 
