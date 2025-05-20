@@ -14,6 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const reportTypes = [
   {
@@ -64,6 +66,74 @@ const Reports = () => {
     from: new Date(),
     to: undefined,
   });
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [currentReport, setCurrentReport] = useState<{name: string; content?: string}>({name: ""});
+
+  const handleViewReport = (report: {id: number; name: string; date: string; project: string}) => {
+    // In a real app, you would fetch the report content from an API
+    const reportContent = generateSampleReportContent(report);
+    setCurrentReport({
+      name: report.name,
+      content: reportContent
+    });
+    setViewDialogOpen(true);
+  };
+
+  const handleDownloadReport = (report: {id: number; name: string; date: string; project: string}) => {
+    // In a real app, you would generate and download the actual file
+    // This is a simulation of a download
+    const reportContent = generateSampleReportContent(report);
+    const blob = new Blob([reportContent], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${report.name.replace(/\s+/g, "_")}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Report Downloaded",
+      description: `"${report.name}" has been downloaded.`
+    });
+  };
+
+  const generateSampleReportContent = (report: {id: number; name: string; date: string; project: string}) => {
+    return `# ${report.name}
+Project: ${report.project}
+Date: ${report.date}
+
+## Summary
+This is a sample report for demonstration purposes.
+
+## Project Progress
+- Foundation work: 100% complete
+- Structural framing: 75% complete
+- Electrical: 45% complete
+- Plumbing: 50% complete
+
+## Weather Conditions
+Clear skies, temperature 72°F, no precipitation
+
+## Labor Hours
+- Carpenters: 64 hours
+- Electricians: 32 hours
+- Plumbers: 40 hours
+- General Labor: 80 hours
+
+## Materials Used
+- Concrete: 12 cubic yards
+- Steel: 2.5 tons
+- Lumber: 1,200 board feet
+
+## Safety Incidents
+No incidents reported.
+
+## Notes
+Work progressing according to schedule. No major issues to report.
+`;
+  };
 
   return (
     <div className="space-y-6">
@@ -121,10 +191,18 @@ const Reports = () => {
                       </div>
                     </div>
                     <div className="flex gap-2 self-end sm:self-center">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleViewReport(report)}
+                      >
                         View
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleDownloadReport(report)}
+                      >
                         <Download className="h-4 w-4" />
                       </Button>
                     </div>
@@ -135,6 +213,35 @@ const Reports = () => {
           </TabsContent>
         ))}
       </Tabs>
+
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-[800px] max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>{currentReport.name}</DialogTitle>
+            <DialogDescription>
+              Report details
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="h-[500px] mt-4">
+            <div className="whitespace-pre-wrap font-mono text-sm p-4">
+              {currentReport.content}
+            </div>
+          </ScrollArea>
+          <div className="flex justify-end mt-4">
+            <Button 
+              variant="outline" 
+              onClick={() => handleDownloadReport({
+                id: 0,
+                name: currentReport.name,
+                date: "",
+                project: ""
+              })}
+            >
+              <Download className="h-4 w-4 mr-2" /> Download
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
