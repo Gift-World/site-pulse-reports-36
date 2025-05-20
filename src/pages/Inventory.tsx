@@ -19,7 +19,9 @@ import {
   PackageCheck,
   HardDrive,
   Warehouse,
-  Box
+  Box,
+  Plant,
+  Inventory
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -347,14 +349,18 @@ const Inventory = () => {
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             <TabsList>
-              <TabsTrigger value="inventory">Inventory</TabsTrigger>
-              <TabsTrigger value="equipment">Plant & Equipment</TabsTrigger>
+              <TabsTrigger value="inventory">
+                <Inventory className="h-4 w-4 mr-2" />
+                Inventory
+              </TabsTrigger>
+              <TabsTrigger value="equipment">
+                <Plant className="h-4 w-4 mr-2" />
+                Plant
+              </TabsTrigger>
               <TabsTrigger value="yard">
                 <Warehouse className="h-4 w-4 mr-2" />
                 Yard Inventory
               </TabsTrigger>
-              <TabsTrigger value="categories">Categories</TabsTrigger>
-              <TabsTrigger value="orders">Orders</TabsTrigger>
             </TabsList>
             <TabsContent value="inventory">
               <Table>
@@ -384,8 +390,8 @@ const Inventory = () => {
             </TabsContent>
             <TabsContent value="equipment">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium">Plant & Equipment</h3>
-                <HardDrive className="h-5 w-5 text-construction-blue" />
+                <h3 className="text-lg font-medium">Plant</h3>
+                <Plant className="h-5 w-5 text-construction-blue" />
               </div>
               <Table>
                 <TableHeader>
@@ -444,24 +450,6 @@ const Inventory = () => {
                   </Table>
                 </CardContent>
               </Card>
-            </TabsContent>
-            <TabsContent value="categories">
-              <div className="space-y-4">
-                {summaryStats.categoryCounts.map((category, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <p>{category.name}</p>
-                    <div className="flex items-center">
-                      <p className="mr-2 font-medium">{category.count} items</p>
-                      <Progress value={category.count / summaryStats.totalItems * 100} className="h-2 w-24" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-            <TabsContent value="orders">
-              <div className="p-8 text-center">
-                <p className="text-muted-foreground">No pending orders</p>
-              </div>
             </TabsContent>
           </Tabs>
         </CardContent>

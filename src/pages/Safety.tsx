@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -14,6 +13,7 @@ import { SafetyReportForm } from "@/components/safety/SafetyReportForm";
 import { SafetyInspectionForm } from "@/components/safety/SafetyInspectionForm";
 import { SafetyBulletinForm } from "@/components/safety/SafetyBulletinForm";
 import { SafetyBulletinBoard } from "@/components/safety/SafetyBulletinBoard";
+import { SafetyInspectionReportForm } from "@/components/safety/SafetyInspectionReportForm";
 
 const safetyStats = {
   score: 95,
@@ -86,6 +86,7 @@ const Safety = () => {
   const [incidentFormOpen, setIncidentFormOpen] = useState(false);
   const [safetyReportFormOpen, setSafetyReportFormOpen] = useState(false);
   const [inspectionFormOpen, setInspectionFormOpen] = useState(false);
+  const [inspectionReportFormOpen, setInspectionReportFormOpen] = useState(false);
   const [bulletinFormOpen, setBulletinFormOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("incidents");
 
@@ -192,6 +193,10 @@ const Safety = () => {
             <Button variant="outline" className="w-full justify-start" onClick={() => setInspectionFormOpen(true)}>
               <Clipboard className="mr-2 h-4 w-4" />
               Schedule Safety Inspection
+            </Button>
+            <Button variant="outline" className="w-full justify-start" onClick={() => setInspectionReportFormOpen(true)}>
+              <Clipboard className="mr-2 h-4 w-4" />
+              Submit Inspection Report
             </Button>
             <Button variant="outline" className="w-full justify-start" onClick={() => setBulletinFormOpen(true)}>
               <AlertCircle className="mr-2 h-4 w-4" />
@@ -306,6 +311,11 @@ const Safety = () => {
       <SafetyInspectionForm
         open={inspectionFormOpen}
         onOpenChange={setInspectionFormOpen}
+      />
+      
+      <SafetyInspectionReportForm
+        open={inspectionReportFormOpen}
+        onOpenChange={setInspectionReportFormOpen}
       />
       
       <SafetyBulletinForm
