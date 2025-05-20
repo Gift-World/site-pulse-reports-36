@@ -26,6 +26,13 @@ import {
   ChartGantt
 } from "lucide-react";
 import { FileUploader } from "@/components/reports/FileUploader";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { addDays, format } from "date-fns";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ProgramTabProps {
   project: Project;
@@ -238,6 +245,17 @@ const criticalPathChanges = [
   }
 ];
 
+// Task form schema validation
+const TaskFormSchema = z.object({
+  title: z.string().min(2, { message: "Task name is required" }),
+  description: z.string().min(2, { message: "Task description is required" }),
+  startDate: z.date({ required_error: "Start date is required" }),
+  endDate: z.date({ required_error: "End date is required" }),
+  assignee: z.string().min(2, { message: "Assignee is required" }),
+  status: z.enum(["notStarted", "inProgress", "completed", "delayed", "onHold"]),
+  priority: z.enum(["High", "Medium", "Low"]),
+});
+
 export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
   const [viewMode, setViewMode] = useState("calendar");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -247,8 +265,22 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [programTab, setProgramTab] = useState("calendar");
   const [importType, setImportType] = useState<string>("excel");
-
+  const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
   const daysOfWeek = getDaysOfWeek();
+
+  // Form for new task
+  const taskForm = useForm<z.infer<typeof TaskFormSchema>>({
+    resolver: zodResolver(TaskFormSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      startDate: new Date(),
+      endDate: addDays(new Date(), 7),
+      assignee: "",
+      status: "notStarted",
+      priority: "Medium",
+    },
+  });
 
   // Function to get tasks for the selected time period
   const getFilteredTasks = () => {
@@ -352,6 +384,40 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
       const taskStart = new Date(task.startDate).toISOString().split('T')[0];
       const taskEnd = new Date(task.endDate).toISOString().split('T')[0];
       return dateStr >= taskStart && dateStr <= taskEnd;
+    });
+  };
+
+  // Handler for creating new task
+  const onSubmitNewTask = (data: z.infer<typeof TaskFormSchema>) => {
+    // Generate a new task id
+    const newTaskId = Math.max(0, ...tasks.map(task => task.id)) + 1;
+    
+    // Calculate completion based on status
+    const completion = data.status === "completed" ? 100 : data.status === "notStarted" ? 0 : 0;
+    
+    // Create new task
+    const newTask = {
+      id: newTaskId,
+      title: data.title,
+      description: data.description,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      status: data.status,
+      assignee: data.assignee,
+      completion: completion,
+      priority: data.priority
+    };
+    
+    // Add task to state
+    setTasks([...tasks, newTask]);
+    
+    // Close dialog and reset form
+    setShowNewTaskDialog(false);
+    taskForm.reset();
+    
+    toast({
+      title: "Task Created",
+      description: `New task "${data.title}" has been created`
     });
   };
 
@@ -725,8 +791,12 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
         </Tabs>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">Upcoming Tasks (Next 7 Days)</CardTitle>
+            <Button onClick={() => setShowNewTaskDialog(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Task
+            </Button>
           </CardHeader>
           <CardContent>
             <Table>
@@ -881,6 +951,206 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
                 </div>
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+        
+        {/* New Task Dialog */}
+        <Dialog open={showNewTaskDialog} onOpenChange={setShowNewTaskDialog}>
+          <DialogContent className="sm:max-w-[550px]">
+            <DialogHeader>
+              <DialogTitle>Create New Task</DialogTitle>
+            </DialogHeader>
+            <Form {...taskForm}>
+              <form onSubmit={taskForm.handleSubmit(onSubmitNewTask)} className="space-y-6">
+                <FormField
+                  control={taskForm.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Task Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter task name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={taskForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Task Description</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Enter task description" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={taskForm.control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Start Date</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick a start date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
+                              className="p-3 pointer-events-auto"
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={taskForm.control}
+                    name="endDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>End Date</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>Pick an end date</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
+                              className="p-3 pointer-events-auto"
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={taskForm.control}
+                    name="assignee"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Assignee</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter assignee name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={taskForm.control}
+                    name="priority"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Priority</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select priority" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="High">High</SelectItem>
+                            <SelectItem value="Medium">Medium</SelectItem>
+                            <SelectItem value="Low">Low</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <FormField
+                  control={taskForm.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="notStarted">Not Started</SelectItem>
+                          <SelectItem value="inProgress">In Progress</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="delayed">Delayed</SelectItem>
+                          <SelectItem value="onHold">On Hold</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="flex justify-end gap-2">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => {
+                      setShowNewTaskDialog(false);
+                      taskForm.reset();
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit">Create Task</Button>
+                </div>
+              </form>
+            </Form>
           </DialogContent>
         </Dialog>
       </CardContent>
