@@ -38,6 +38,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Textarea } from "@/components/ui/textarea";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import TaskImport from "@/components/tasks/TaskImport";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ProgramTabProps {
   project: Project;
@@ -272,6 +278,7 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
   const [importType, setImportType] = useState<string>("excel");
   const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
   const daysOfWeek = getDaysOfWeek();
+  const [upcomingTasksTimeframe, setUpcomingTasksTimeframe] = useState<string>("week");
 
   // Form for new task
   const taskForm = useForm<z.infer<typeof TaskFormSchema>>({
@@ -426,6 +433,64 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
     });
   };
 
+  // Get upcoming tasks based on selected timeframe
+  const getUpcomingTasks = () => {
+    const today = new Date();
+    
+    switch(upcomingTasksTimeframe) {
+      case "today":
+        return tasks.filter(task => {
+          const taskStart = new Date(task.startDate);
+          const taskEnd = new Date(task.endDate);
+          return (
+            taskStart.toDateString() === today.toDateString() || 
+            taskEnd.toDateString() === today.toDateString() ||
+            (taskStart <= today && taskEnd >= today)
+          );
+        });
+      case "week":
+        const nextWeek = new Date();
+        nextWeek.setDate(today.getDate() + 7);
+        
+        return tasks.filter(task => {
+          const taskStart = new Date(task.startDate);
+          const taskEnd = new Date(task.endDate);
+          
+          return (taskStart >= today && taskStart <= nextWeek) || 
+                 (taskEnd >= today && taskEnd <= nextWeek) ||
+                 (taskStart <= today && taskEnd >= nextWeek);
+        });
+      case "month":
+        const nextMonth = new Date();
+        nextMonth.setMonth(today.getMonth() + 1);
+        
+        return tasks.filter(task => {
+          const taskStart = new Date(task.startDate);
+          const taskEnd = new Date(task.endDate);
+          
+          return (taskStart >= today && taskStart <= nextMonth) || 
+                 (taskEnd >= today && taskEnd <= nextMonth) ||
+                 (taskStart <= today && taskEnd >= nextMonth);
+        });
+      default:
+        return tasks;
+    }
+  };
+
+  // Get title for upcoming tasks section based on selected timeframe
+  const getUpcomingTasksTitle = () => {
+    switch(upcomingTasksTimeframe) {
+      case "today":
+        return "Today's Tasks";
+      case "week":
+        return "This Week's Tasks";
+      case "month":
+        return "This Month's Tasks";
+      default:
+        return "Upcoming Tasks";
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -465,7 +530,19 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
           {/* Upcoming Tasks Section Now Below Tabs */}
           <Card className="mb-6">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-base">Upcoming Tasks (Next 7 Days)</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-base">Upcoming Tasks</CardTitle>
+                <Select value={upcomingTasksTimeframe} onValueChange={setUpcomingTasksTimeframe}>
+                  <SelectTrigger className="h-8 w-[130px]">
+                    <SelectValue placeholder="Select timeframe" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="today">Today</SelectItem>
+                    <SelectItem value="week">This Week</SelectItem>
+                    <SelectItem value="month">This Month</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <Button onClick={() => setShowNewTaskDialog(true)}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add Task
@@ -483,20 +560,8 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {tasks
-                    .filter(task => {
-                      const today = new Date();
-                      const nextWeek = new Date();
-                      nextWeek.setDate(today.getDate() + 7);
-                      
-                      const taskStart = new Date(task.startDate);
-                      const taskEnd = new Date(task.endDate);
-                      
-                      return (taskStart >= today && taskStart <= nextWeek) || 
-                             (taskEnd >= today && taskEnd <= nextWeek) ||
-                             (taskStart <= today && taskEnd >= nextWeek);
-                    })
-                    .map(task => (
+                  {getUpcomingTasks().length > 0 ? (
+                    getUpcomingTasks().map(task => (
                       <TableRow 
                         key={task.id} 
                         className="cursor-pointer hover:bg-muted/50"
@@ -509,7 +574,13 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
                         <TableCell>{getBadgeForStatus(task.status)}</TableCell>
                       </TableRow>
                     ))
-                  }
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-4 text-muted-foreground">
+                        No tasks scheduled for this timeframe
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </CardContent>
