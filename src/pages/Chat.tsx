@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Users, Send, Paperclip, Search, Phone, Video } from "lucide-react";
+import { Users, Send, Paperclip, Search } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Mock data for chats
 const chatData = {
@@ -68,6 +69,18 @@ const Chat = () => {
     }
   }, []);
 
+  // Clear unread messages when opening a chat
+  useEffect(() => {
+    if (activeContact) {
+      const updatedContacts = contacts.map(contact => 
+        contact.id === activeContact.id 
+          ? { ...contact, unread: 0 }
+          : contact
+      );
+      setContacts(updatedContacts);
+    }
+  }, [activeContact]);
+
   const handleSendMessage = () => {
     if (messageText.trim()) {
       const newMessage = {
@@ -81,6 +94,15 @@ const Chat = () => {
       setMessages([...messages, newMessage]);
       setMessageText("");
     }
+  };
+
+  const handleAttachFile = () => {
+    // In a real app, this would open a file picker
+    console.log("Attach file button clicked");
+    // Implementation would typically involve a file input element
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.click();
   };
 
   const filteredContacts = contacts.filter(contact => 
@@ -110,7 +132,7 @@ const Chat = () => {
               />
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto">
+          <ScrollArea className="flex-1">
             {filteredContacts.map((contact) => (
               <div
                 key={contact.id}
@@ -147,7 +169,7 @@ const Chat = () => {
                 </div>
               </div>
             ))}
-          </div>
+          </ScrollArea>
         </div>
 
         {/* Chat Area */}
@@ -181,18 +203,10 @@ const Chat = () => {
                 </p>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="ghost" size="icon">
-                <Phone className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <Video className="h-5 w-5" />
-              </Button>
-            </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-br from-blue-50 via-white to-indigo-50">
             {messages.map((message) => {
               const isUser = message.senderId === 0;
               return (
@@ -205,7 +219,7 @@ const Chat = () => {
                       </Avatar>
                     )}
                     <div>
-                      <Card className={`${isUser ? 'bg-construction-navy text-white' : 'bg-muted'}`}>
+                      <Card className={`${isUser ? 'bg-construction-navy text-white shadow-lg' : 'bg-white shadow'}`}>
                         <CardContent className="p-3">
                           <p className="text-sm">{message.text}</p>
                         </CardContent>
@@ -219,9 +233,14 @@ const Chat = () => {
           </div>
 
           {/* Message Input */}
-          <div className="p-4 border-t">
+          <div className="p-4 border-t bg-white">
             <div className="flex gap-2">
-              <Button variant="ghost" size="icon">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleAttachFile}
+                className="hover:bg-muted"
+              >
                 <Paperclip className="h-5 w-5" />
               </Button>
               <Input
