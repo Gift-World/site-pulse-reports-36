@@ -1,11 +1,13 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Project } from "@/types/project";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { User, Building, Users, Calendar, Banknote, ClipboardCheck, Package, FileText } from "lucide-react";
+import { User, Building, Users, Calendar, Banknote, ClipboardCheck, Package, FileText, Pen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/hooks/use-toast";
 
 interface OverviewTabProps {
   project: Project;
@@ -13,6 +15,9 @@ interface OverviewTabProps {
 }
 
 export const OverviewTab: React.FC<OverviewTabProps> = ({ project, setActiveTab }) => {
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [notes, setNotes] = useState(project.notes || "");
+  
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "Completed":
@@ -26,6 +31,15 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ project, setActiveTab 
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
+  };
+
+  const handleSaveNotes = () => {
+    // In a real app, we would save this to the database
+    setIsEditingNotes(false);
+    toast({
+      title: "Notes Saved",
+      description: "Project notes have been updated."
+    });
   };
 
   return (
@@ -97,16 +111,45 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ project, setActiveTab 
             </div>
           </div>
           
-          {project.notes && (
+          {(notes || project.notes) && (
             <>
               <Separator className="my-6" />
               
               <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-2">Notes</h3>
-                <div className="flex items-start">
-                  <FileText className="h-4 w-4 mr-2 mt-1 text-construction-blue" />
-                  <p>{project.notes}</p>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-medium text-muted-foreground">Notes</h3>
+                  {!isEditingNotes ? (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setIsEditingNotes(true)}
+                      className="h-6 w-6 p-0"
+                    >
+                      <Pen className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={handleSaveNotes}
+                      className="text-xs"
+                    >
+                      Save
+                    </Button>
+                  )}
                 </div>
+                {!isEditingNotes ? (
+                  <div className="flex items-start">
+                    <FileText className="h-4 w-4 mr-2 mt-1 text-construction-blue" />
+                    <p>{notes}</p>
+                  </div>
+                ) : (
+                  <Textarea 
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="min-h-[100px]"
+                  />
+                )}
               </div>
             </>
           )}

@@ -29,7 +29,7 @@ export function InProgressProjectView({ project }: InProgressProjectViewProps) {
       <TabsList className="flex flex-wrap h-auto">
         <TabsTrigger value="overview">Overview</TabsTrigger>
         <TabsTrigger value="team">Team</TabsTrigger>
-        <TabsTrigger value="program">Program</TabsTrigger>
+        <TabsTrigger value="program">Tasks</TabsTrigger>
         <TabsTrigger value="inventory">Inventory</TabsTrigger>
         <TabsTrigger value="labor">Labor</TabsTrigger>
         <TabsTrigger value="plant">Plant</TabsTrigger>
