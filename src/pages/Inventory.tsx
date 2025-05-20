@@ -17,12 +17,15 @@ import {
   Filter,
   ArrowUpDown,
   PackageCheck,
-  HardDrive
+  HardDrive,
+  Warehouse,
+  Box
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AddInventoryForm } from "@/components/inventory/AddInventoryForm";
 
 interface InventoryItem {
   id: number;
@@ -149,6 +152,45 @@ const inventoryItems: InventoryItem[] = [
   }
 ];
 
+const yardInventoryItems = [
+  {
+    name: "Steel Bars (12mm)",
+    category: "Construction Materials",
+    quantity: 250,
+    unit: "pieces"
+  },
+  {
+    name: "Portland Cement",
+    category: "Construction Materials",
+    quantity: 500,
+    unit: "bags"
+  },
+  {
+    name: "Scaffolding Sets",
+    category: "Equipment",
+    quantity: 10,
+    unit: "sets"
+  },
+  {
+    name: "Safety Helmets",
+    category: "Safety Equipment",
+    quantity: 50,
+    unit: "pieces"
+  },
+  {
+    name: "Bricks (Standard)",
+    category: "Construction Materials",
+    quantity: 8000,
+    unit: "pieces"
+  },
+  {
+    name: "Wooden Planks",
+    category: "Carpentry",
+    quantity: 150,
+    unit: "pieces"
+  }
+];
+
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "In Stock":
@@ -189,6 +231,11 @@ const Inventory = () => {
     item.supplier.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredYardItems = yardInventoryItems.filter(item =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -198,10 +245,7 @@ const Inventory = () => {
             Manage your project materials, supplies, and equipment
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Item
-        </Button>
+        <AddInventoryForm />
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -305,6 +349,10 @@ const Inventory = () => {
             <TabsList>
               <TabsTrigger value="inventory">Inventory</TabsTrigger>
               <TabsTrigger value="equipment">Plant & Equipment</TabsTrigger>
+              <TabsTrigger value="yard">
+                <Warehouse className="h-4 w-4 mr-2" />
+                Yard Inventory
+              </TabsTrigger>
               <TabsTrigger value="categories">Categories</TabsTrigger>
               <TabsTrigger value="orders">Orders</TabsTrigger>
             </TabsList>
@@ -361,6 +409,41 @@ const Inventory = () => {
                   ))}
                 </TableBody>
               </Table>
+            </TabsContent>
+            <TabsContent value="yard">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle className="text-base">Main Yard Inventory</CardTitle>
+                    <CardDescription>Central storage for all projects</CardDescription>
+                  </div>
+                  <AddInventoryForm />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-sm text-muted-foreground mb-4">
+                    <p>The yard inventory is managed centrally. Critical items require admin approval for transfer or removal.</p>
+                  </div>
+                  
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Item</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Quantity</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredYardItems.map((item, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{item.name}</TableCell>
+                          <TableCell>{item.category}</TableCell>
+                          <TableCell>{item.quantity} {item.unit}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
             </TabsContent>
             <TabsContent value="categories">
               <div className="space-y-4">

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Project } from "@/types/project";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,7 +36,6 @@ import { MaterialRequestForm } from "@/components/inventory/MaterialRequestForm"
 import { useNavigate } from "react-router-dom";
 import { RequisitionForm } from "@/components/inventory/RequisitionForm";
 import { TransferRequestForm } from "@/components/inventory/TransferRequestForm";
-import { AddInventoryForm } from "@/components/inventory/AddInventoryForm";
 
 interface InventoryTabProps {
   project: Project;
@@ -75,11 +75,8 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
     navigate('/materials');
   };
   
-  const transferMaterials = () => {
-    toast({
-      title: "Transfer Request Created",
-      description: "Material transfer request has been submitted for approval."
-    });
+  const viewYardInventory = () => {
+    navigate('/inventory');
   };
   
   return (
@@ -116,10 +113,6 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
             <TabsTrigger value="transfer">
               <ArrowRightLeft className="h-4 w-4 mr-2" />
               Transfers
-            </TabsTrigger>
-            <TabsTrigger value="yard">
-              <Warehouse className="h-4 w-4 mr-2" />
-              Yard Inventory
             </TabsTrigger>
           </TabsList>
           
@@ -228,8 +221,12 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
                     </TableRow>
                   </TableBody>
                 </Table>
-                <div className="mt-4 flex justify-center">
+                <div className="mt-4 flex justify-center gap-4">
                   <Button onClick={viewAllMaterials}>View All Materials</Button>
+                  <Button variant="outline" onClick={viewYardInventory}>
+                    <Warehouse className="mr-2 h-4 w-4" />
+                    View Yard Inventory
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -406,55 +403,6 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
                     </TableBody>
                   </Table>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="yard" className="space-y-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="text-base">Main Yard Inventory</CardTitle>
-                  <CardDescription>Central storage for all projects</CardDescription>
-                </div>
-                <AddInventoryForm />
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground mb-4">
-                  <p>The yard inventory is managed centrally. Critical items require admin approval for transfer or removal.</p>
-                </div>
-                
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Item</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Quantity</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>Steel Bars (12mm)</TableCell>
-                      <TableCell>Construction Materials</TableCell>
-                      <TableCell>250 pieces</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Portland Cement</TableCell>
-                      <TableCell>Construction Materials</TableCell>
-                      <TableCell>500 bags</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Scaffolding Sets</TableCell>
-                      <TableCell>Equipment</TableCell>
-                      <TableCell>10 sets</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Safety Helmets</TableCell>
-                      <TableCell>Safety Equipment</TableCell>
-                      <TableCell>50 pieces</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
               </CardContent>
             </Card>
           </TabsContent>
