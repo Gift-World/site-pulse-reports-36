@@ -1,5 +1,5 @@
 
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { 
   Bell, 
   Search, 
@@ -20,16 +20,59 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Link, useNavigate } from "react-router-dom";
 import { LayoutContext } from "@/components/layout/Layout";
+import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+
+// Mock notifications data
+const notifications = [
+  {
+    id: 1,
+    title: "New Project Assigned",
+    message: "You have been assigned to Building A renovation",
+    time: "10 minutes ago",
+    read: false
+  },
+  {
+    id: 2,
+    title: "Safety Report Due",
+    message: "Weekly safety report for Project Skyline is due tomorrow",
+    time: "1 hour ago",
+    read: false
+  },
+  {
+    id: 3,
+    title: "Material Delivery",
+    message: "Concrete delivery scheduled for tomorrow at 9am",
+    time: "3 hours ago",
+    read: false
+  }
+];
 
 export function Header() {
   const isMobile = useIsMobile();
   const { open } = useSidebar();
   const { toggleSidebar } = useContext(LayoutContext);
   const navigate = useNavigate();
+  const [unreadCount, setUnreadCount] = useState(notifications.filter(n => !n.read).length);
+  const [notificationList, setNotificationList] = useState(notifications);
   
   const handleMenuClick = () => {
     toggleSidebar();
     navigate("/dashboard");
+  };
+  
+  const markAsRead = (id: number) => {
+    const updatedNotifications = notificationList.map(notification => 
+      notification.id === id ? { ...notification, read: true } : notification
+    );
+    setNotificationList(updatedNotifications);
+    setUnreadCount(updatedNotifications.filter(n => !n.read).length);
+  };
+  
+  const markAllAsRead = () => {
+    const updatedNotifications = notificationList.map(notification => ({ ...notification, read: true }));
+    setNotificationList(updatedNotifications);
+    setUnreadCount(0);
   };
 
   return (
@@ -63,12 +106,57 @@ export function Header() {
           <Menu className="h-5 w-5" />
         </Button>
         
-        <Button variant="outline" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-construction-red text-[10px] font-bold text-white flex items-center justify-center">
-            3
-          </span>
-        </Button>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-construction-red text-[10px] font-bold text-white flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-0">
+            <div className="p-3 flex justify-between items-center border-b">
+              <h2 className="font-medium text-sm">Notifications</h2>
+              {unreadCount > 0 && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={markAllAsRead}
+                  className="text-xs"
+                >
+                  Mark all as read
+                </Button>
+              )}
+            </div>
+            <div className="max-h-80 overflow-auto">
+              {notificationList.length > 0 ? (
+                notificationList.map(notification => (
+                  <div 
+                    key={notification.id} 
+                    className={`p-3 border-b last:border-0 hover:bg-muted cursor-pointer ${!notification.read ? 'bg-muted/30' : ''}`}
+                    onClick={() => markAsRead(notification.id)}
+                  >
+                    <div className="flex items-start gap-2">
+                      <div className={`h-2 w-2 mt-1.5 rounded-full ${!notification.read ? 'bg-construction-red' : 'bg-transparent'}`}></div>
+                      <div>
+                        <p className="font-medium text-sm">{notification.title}</p>
+                        <p className="text-xs text-muted-foreground">{notification.message}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 text-center text-sm text-muted-foreground">
+                  No notifications
+                </div>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

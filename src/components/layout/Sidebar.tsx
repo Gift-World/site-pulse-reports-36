@@ -1,3 +1,4 @@
+
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -26,8 +27,18 @@ import {
   Files,
   ClipboardCheck
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-const navItems = [
+// Define a type for navigation items with notification count
+interface NavItem {
+  path: string;
+  name: string;
+  icon: React.ReactNode;
+  notifications?: number;
+}
+
+// Navigation items with notification counts where applicable
+const navItems: NavItem[] = [
   { 
     path: "/", 
     name: "Home", 
@@ -36,7 +47,8 @@ const navItems = [
   { 
     path: "/dashboard", 
     name: "Dashboard", 
-    icon: <ChartBar className="h-5 w-5" /> 
+    icon: <ChartBar className="h-5 w-5" />,
+    notifications: 2
   },
   { 
     path: "/projects", 
@@ -51,7 +63,8 @@ const navItems = [
   { 
     path: "/tasks", 
     name: "Tasks", 
-    icon: <ClipboardCheck className="h-5 w-5" /> 
+    icon: <ClipboardCheck className="h-5 w-5" />,
+    notifications: 3
   },
   { 
     path: "/reports", 
@@ -61,7 +74,8 @@ const navItems = [
   { 
     path: "/safety", 
     name: "Safety", 
-    icon: <ShieldAlert className="h-5 w-5" /> 
+    icon: <ShieldAlert className="h-5 w-5" />,
+    notifications: 1
   },
   { 
     path: "/inventory", 
@@ -81,7 +95,8 @@ const navItems = [
   { 
     path: "/chat", 
     name: "Chat", 
-    icon: <MessageSquare className="h-5 w-5" /> 
+    icon: <MessageSquare className="h-5 w-5" />,
+    notifications: 5
   }
 ];
 
@@ -124,7 +139,7 @@ export function MainSidebar() {
                       to={item.path}
                       className={({ isActive }) =>
                         cn(
-                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors relative",
                           isActive 
                             ? "bg-white text-construction-navy" 
                             : "text-white hover:bg-white/10 hover:text-white"
@@ -133,7 +148,25 @@ export function MainSidebar() {
                       end={item.path === "/" || item.path === "/dashboard"}
                     >
                       {item.icon}
-                      {!isCollapsed && <span>{item.name}</span>}
+                      {!isCollapsed && (
+                        <>
+                          <span>{item.name}</span>
+                          {item.notifications && item.notifications > 0 && (
+                            <Badge 
+                              className="ml-auto bg-construction-red hover:bg-construction-red text-xs min-w-5 h-5 flex items-center justify-center"
+                            >
+                              {item.notifications}
+                            </Badge>
+                          )}
+                        </>
+                      )}
+                      {isCollapsed && item.notifications && item.notifications > 0 && (
+                        <Badge 
+                          className="absolute -top-1 -right-1 bg-construction-red hover:bg-construction-red text-xs min-w-4 h-4 flex items-center justify-center p-0 text-[10px]"
+                        >
+                          {item.notifications}
+                        </Badge>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
