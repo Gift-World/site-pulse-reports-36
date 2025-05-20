@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Project } from "@/types/project";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -454,59 +453,7 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
         </div>
       </CardHeader>
       <CardContent>
-        {/* Upcoming Tasks Section Moved to Top */}
-        <Card className="mb-6">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Upcoming Tasks (Next 7 Days)</CardTitle>
-            <Button onClick={() => setShowNewTaskDialog(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Task
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Task</TableHead>
-                  <TableHead>Start Date</TableHead>
-                  <TableHead>End Date</TableHead>
-                  <TableHead>Assignee</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {tasks
-                  .filter(task => {
-                    const today = new Date();
-                    const nextWeek = new Date();
-                    nextWeek.setDate(today.getDate() + 7);
-                    
-                    const taskStart = new Date(task.startDate);
-                    const taskEnd = new Date(task.endDate);
-                    
-                    return (taskStart >= today && taskStart <= nextWeek) || 
-                           (taskEnd >= today && taskEnd <= nextWeek) ||
-                           (taskStart <= today && taskEnd >= nextWeek);
-                  })
-                  .map(task => (
-                    <TableRow 
-                      key={task.id} 
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => handleTaskClick(task)}
-                    >
-                      <TableCell className="font-medium">{task.title}</TableCell>
-                      <TableCell>{new Date(task.startDate).toLocaleDateString()}</TableCell>
-                      <TableCell>{new Date(task.endDate).toLocaleDateString()}</TableCell>
-                      <TableCell>{task.assignee}</TableCell>
-                      <TableCell>{getBadgeForStatus(task.status)}</TableCell>
-                    </TableRow>
-                  ))
-                }
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-
+        {/* Tabs Section Now at the Top */}
         <Tabs defaultValue="calendar" value={programTab} onValueChange={setProgramTab} className="mb-6">
           <TabsList className="mb-4">
             <TabsTrigger value="calendar">Calendar View</TabsTrigger>
@@ -515,6 +462,59 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
             <TabsTrigger value="import">Import Program</TabsTrigger>
           </TabsList>
           
+          {/* Upcoming Tasks Section Now Below Tabs */}
+          <Card className="mb-6">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-base">Upcoming Tasks (Next 7 Days)</CardTitle>
+              <Button onClick={() => setShowNewTaskDialog(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Task
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Task</TableHead>
+                    <TableHead>Start Date</TableHead>
+                    <TableHead>End Date</TableHead>
+                    <TableHead>Assignee</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {tasks
+                    .filter(task => {
+                      const today = new Date();
+                      const nextWeek = new Date();
+                      nextWeek.setDate(today.getDate() + 7);
+                      
+                      const taskStart = new Date(task.startDate);
+                      const taskEnd = new Date(task.endDate);
+                      
+                      return (taskStart >= today && taskStart <= nextWeek) || 
+                             (taskEnd >= today && taskEnd <= nextWeek) ||
+                             (taskStart <= today && taskEnd >= nextWeek);
+                    })
+                    .map(task => (
+                      <TableRow 
+                        key={task.id} 
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => handleTaskClick(task)}
+                      >
+                        <TableCell className="font-medium">{task.title}</TableCell>
+                        <TableCell>{new Date(task.startDate).toLocaleDateString()}</TableCell>
+                        <TableCell>{new Date(task.endDate).toLocaleDateString()}</TableCell>
+                        <TableCell>{task.assignee}</TableCell>
+                        <TableCell>{getBadgeForStatus(task.status)}</TableCell>
+                      </TableRow>
+                    ))
+                  }
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
           <TabsContent value="calendar" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="w-full">
