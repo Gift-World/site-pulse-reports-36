@@ -1,7 +1,8 @@
+
 import React, { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartBar, Users, Clock, Shield, PieChart, CheckCircle, Book, List, Construction, Info, Building } from "lucide-react";
+import { ChartBar, Users, Clock, Shield, PieChart, CheckCircle, Book, List, Slack, Trello, Calendar, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { HelpCenter } from "@/components/home/HelpCenter";
 import { SolutionsList } from "@/components/home/SolutionsList";
@@ -190,18 +191,20 @@ const Home = () => {
                 features: [
                   "1 active project",
                   "Up to 5 team members",
-                  "Basic reporting",
-                  "5GB storage",
-                  "No email support"
+                  "Upload and share documents (limited to 1GB)",
+                  "Email notifications for tasks and updates",
+                  "5GB storage limit"
                 ]
               },
               {
                 title: "Basic",
-                price: "$29.99",
+                price: "$39.99",
                 description: "For growing construction businesses",
                 features: [
                   "Up to 5 active projects",
                   "10 team members",
+                  "Gantt chart view",
+                  "Calendar integration",
                   "Standard reporting",
                   "Email support",
                   "15GB file storage"
@@ -214,8 +217,11 @@ const Home = () => {
                 features: [
                   "Up to 30 active projects",
                   "30 team members",
-                  "Advanced reporting",
-                  "Priority support",
+                  "Gantt chart view",
+                  "Calendar integration",
+                  "Task automation & reminders",
+                  "Advanced reporting mechanisms",
+                  "Priority email support",
                   "50GB file storage",
                   "Custom reports"
                 ],
@@ -228,8 +234,13 @@ const Home = () => {
                 features: [
                   "Unlimited projects",
                   "Unlimited team members",
-                  "Custom reports",
-                  "Dedicated account manager",
+                  "Gantt chart view",
+                  "Calendar integration",
+                  "Task automation & reminders",
+                  "Slack integration",
+                  "Trello integration",
+                  "Custom advanced reports",
+                  "Priority support",
                   "100GB file storage",
                   "API access",
                   "Advanced analytics"
@@ -256,7 +267,7 @@ const Home = () => {
                   <ul className="space-y-2">
                     {plan.features.map((feature, idx) => (
                       <li key={idx} className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-construction-navy" />
+                        <CheckCircle className="h-4 w-4 text-construction-navy flex-shrink-0" />
                         <span>{feature}</span>
                       </li>
                     ))}
