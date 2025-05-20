@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +17,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { HeroSection } from "@/components/home/HeroSection";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -81,34 +81,7 @@ const Home = () => {
   return (
     <div className="space-y-12">
       {/* Hero Section with Construction Background */}
-      <div className="relative text-center space-y-6 py-24 px-4">
-        <div className="absolute inset-0 z-0 bg-[url('https://images.unsplash.com/photo-1487958449943-2429e8be8625?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')] bg-cover bg-center opacity-10"></div>
-        <div className="relative z-10">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-            <span className="text-construction-navy">Construct</span>Pulse
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mt-6">
-            The all-in-one construction management platform that puts your projects on autopilot
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
-            <Button 
-              size="lg" 
-              className="bg-construction-navy hover:bg-construction-darkBlue"
-              onClick={() => scrollToSection(pricingRef)}
-            >
-              Get Started
-            </Button>
-            <SolutionsList>
-              <Button 
-                size="lg" 
-                variant="outline"
-              >
-                Learn More
-              </Button>
-            </SolutionsList>
-          </div>
-        </div>
-      </div>
+      <HeroSection onScrollToPricing={() => scrollToSection(pricingRef)} />
 
       {/* Why ConstructPulse */}
       <div ref={featuresRef}>
@@ -184,32 +157,32 @@ const Home = () => {
             {[
               { 
                 title: "Real-time Dashboard", 
-                description: "Get a bird's-eye view of all your project metrics and KPIs in one place",
+                description: "Our comprehensive dashboard gives project managers instant visibility into every aspect of their construction projects. Track KPIs, monitor progress against timeline and budget, and identify potential issues before they impact your schedule. With customizable views and interactive charts, you can focus on the metrics that matter most to your team and stakeholders.",
                 icon: <ChartBar className="h-5 w-5" />
               },
               { 
                 title: "Team Management", 
-                description: "Easily organize your crew, assign roles and track performance",
+                description: "Transform how you manage your construction workforce with our powerful team management tools. Effortlessly assign team members to specific tasks, track individual and crew performance, and optimize resource allocation across multiple projects. Our communication features ensure everyone stays connected, reducing delays and improving accountability throughout your construction operations.",
                 icon: <Users className="h-5 w-5" />
               },
               { 
                 title: "Task Scheduling", 
-                description: "Create, assign, and track tasks with our intuitive interface",
+                description: "Take control of your construction schedule with our advanced task management system. Create dependencies between tasks, set critical paths, and automatically adjust timelines when changes occur. Our intelligent scheduling algorithms help identify resource conflicts before they happen, while automated notifications keep your entire team informed about upcoming work and potential delays.",
                 icon: <Clock className="h-5 w-5" />
               },
               { 
                 title: "Safety Compliance", 
-                description: "Ensure your site meets all safety regulations and standards",
+                description: "Ensure your construction sites meet all safety regulations with our comprehensive compliance tools. Conduct digital safety inspections, document hazards, and track incident reports all from one centralized platform. Our system automatically generates safety documentation for regulatory submissions and provides instant access to safety records during site inspections or audits.",
                 icon: <Shield className="h-5 w-5" />
               },
               { 
                 title: "Inventory Control", 
-                description: "Track materials, equipment, and procurement in real-time",
+                description: "Eliminate material shortages and reduce waste with our powerful inventory management system. Track materials from procurement to installation, monitor equipment usage across job sites, and automatically generate purchase orders when supplies run low. Our analytics help identify opportunities to negotiate better pricing with suppliers and optimize your procurement strategy.",
                 icon: <PieChart className="h-5 w-5" />
               },
               { 
                 title: "Report Generation", 
-                description: "Generate professional reports with just a few clicks",
+                description: "Transform raw construction data into actionable insights with our sophisticated reporting engine. Create customized reports for different stakeholders - detailed technical reports for project managers, financial summaries for executives, and progress updates for clients. Schedule automatic report distribution and export in multiple formats including PDF, Excel, and interactive web dashboards.",
                 icon: <CheckCircle className="h-5 w-5" />
               },
             ].map((feature, index) => (
@@ -221,7 +194,7 @@ const Home = () => {
                   <CardTitle>{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription>{feature.description}</CardDescription>
+                  <CardDescription className="text-sm">{feature.description}</CardDescription>
                 </CardContent>
               </Card>
             ))}
