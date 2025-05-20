@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,6 +32,40 @@ const Chat = () => {
   const [activeContact, setActiveContact] = useState(chatData.contacts[1]);
   const [messageText, setMessageText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [contacts, setContacts] = useState(chatData.contacts);
+
+  useEffect(() => {
+    // Check if we have a team member to message
+    const chatWithMember = sessionStorage.getItem("chatWithMember");
+    
+    if (chatWithMember) {
+      const memberData = JSON.parse(chatWithMember);
+      
+      // Check if contact already exists
+      const existingContact = contacts.find(c => c.name === memberData.name);
+      
+      if (existingContact) {
+        // Use existing contact
+        setActiveContact(existingContact);
+      } else {
+        // Create new contact
+        const newContact = {
+          id: contacts.length + 1,
+          name: memberData.name,
+          role: memberData.role,
+          avatar: memberData.initials,
+          online: true,
+          unread: 0
+        };
+        
+        setContacts(prev => [newContact, ...prev]);
+        setActiveContact(newContact);
+      }
+      
+      // Clear the stored data after using it
+      sessionStorage.removeItem("chatWithMember");
+    }
+  }, []);
 
   const handleSendMessage = () => {
     if (messageText.trim()) {
@@ -41,7 +75,7 @@ const Chat = () => {
     }
   };
 
-  const filteredContacts = chatData.contacts.filter(contact => 
+  const filteredContacts = contacts.filter(contact => 
     contact.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 

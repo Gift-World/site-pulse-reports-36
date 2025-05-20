@@ -106,6 +106,16 @@ const Team = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedMember, setSelectedMember] = useState<typeof teamMembers[0] | null>(null);
+  const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
+  const [newMember, setNewMember] = useState({
+    name: "",
+    role: "",
+    email: "",
+    phone: "",
+    department: "",
+    bio: "",
+    projects: [] as number[]
+  });
 
   // Filter members based on selected project
   const filteredMembers = selectedProject === "all" 
@@ -166,6 +176,65 @@ const Team = () => {
     }
   };
 
+  // Add new team member
+  const handleAddMember = () => {
+    if (!newMember.name || !newMember.email || !newMember.role) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const initials = newMember.name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase();
+
+    const newTeamMember = {
+      id: Math.max(...teamMembersList.map(m => m.id)) + 1,
+      name: newMember.name,
+      role: newMember.role,
+      email: newMember.email,
+      avatar: "/placeholder.svg",
+      initials: initials,
+      projects: newMember.projects,
+      phone: newMember.phone,
+      department: newMember.department,
+      bio: newMember.bio
+    };
+
+    setTeamMembersList([...teamMembersList, newTeamMember]);
+    setShowAddMemberDialog(false);
+    setNewMember({
+      name: "",
+      role: "",
+      email: "",
+      phone: "",
+      department: "",
+      bio: "",
+      projects: []
+    });
+
+    toast({
+      title: "Team member added",
+      description: `${newMember.name} has been added to the team.`,
+    });
+  };
+
+  // Toggle project selection for new member
+  const toggleProjectSelection = (projectId: number) => {
+    setNewMember(prev => {
+      if (prev.projects.includes(projectId)) {
+        return { ...prev, projects: prev.projects.filter(id => id !== projectId) };
+      } else {
+        return { ...prev, projects: [...prev.projects, projectId] };
+      }
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -175,7 +244,7 @@ const Team = () => {
             Manage all team members in your projects/organization
           </p>
         </div>
-        <Button>
+        <Button onClick={() => setShowAddMemberDialog(true)}>
           <UserPlus className="mr-2 h-4 w-4" />
           Add Team Member
         </Button>
@@ -484,6 +553,116 @@ const Team = () => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Add Team Member Dialog */}
+      <Dialog open={showAddMemberDialog} onOpenChange={setShowAddMemberDialog}>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader>
+            <DialogTitle>Add New Team Member</DialogTitle>
+            <DialogDescription>
+              Fill in the details to add a new team member.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="new-name" className="text-right">
+                Name *
+              </Label>
+              <Input
+                id="new-name"
+                value={newMember.name}
+                onChange={(e) => setNewMember({...newMember, name: e.target.value})}
+                className="col-span-3"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="new-role" className="text-right">
+                Role *
+              </Label>
+              <Input
+                id="new-role"
+                value={newMember.role}
+                onChange={(e) => setNewMember({...newMember, role: e.target.value})}
+                className="col-span-3"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="new-email" className="text-right">
+                Email *
+              </Label>
+              <Input
+                id="new-email"
+                type="email"
+                value={newMember.email}
+                onChange={(e) => setNewMember({...newMember, email: e.target.value})}
+                className="col-span-3"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="new-phone" className="text-right">
+                Phone
+              </Label>
+              <Input
+                id="new-phone"
+                value={newMember.phone}
+                onChange={(e) => setNewMember({...newMember, phone: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="new-department" className="text-right">
+                Department
+              </Label>
+              <Input
+                id="new-department"
+                value={newMember.department}
+                onChange={(e) => setNewMember({...newMember, department: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="new-bio" className="text-right pt-2">
+                Bio
+              </Label>
+              <Textarea
+                id="new-bio"
+                value={newMember.bio}
+                onChange={(e) => setNewMember({...newMember, bio: e.target.value})}
+                className="col-span-3"
+                rows={3}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="new-projects" className="text-right">
+                Projects
+              </Label>
+              <div className="col-span-3 flex flex-wrap gap-2">
+                {projects.map(project => (
+                  <Badge 
+                    key={project.id} 
+                    variant={newMember.projects.includes(project.id) ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => toggleProjectSelection(project.id)}
+                  >
+                    {project.name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddMemberDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddMember}>
+              Add Team Member
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
