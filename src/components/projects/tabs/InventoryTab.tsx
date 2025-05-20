@@ -30,12 +30,16 @@ import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { DateRange } from "react-day-picker";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
+import { MaterialRequestForm } from "@/components/inventory/MaterialRequestForm";
+import { useNavigate } from "react-router-dom";
+import { RequisitionForm } from "@/components/inventory/RequisitionForm";
 
 interface InventoryTabProps {
   project: Project;
 }
 
 export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
+  const navigate = useNavigate();
   const materialsUsage = [
     { name: 'Concrete', planned: 450, actual: 420 },
     { name: 'Steel', planned: 200, actual: 180 },
@@ -64,11 +68,8 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
     });
   };
   
-  const createRequisition = () => {
-    toast({
-      title: "Material Requisition Created",
-      description: "A new material requisition form has been prepared."
-    });
+  const viewAllMaterials = () => {
+    navigate('/materials');
   };
   
   const transferMaterials = () => {
@@ -225,7 +226,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
                   </TableBody>
                 </Table>
                 <div className="mt-4 flex justify-center">
-                  <Button>View All Materials</Button>
+                  <Button onClick={viewAllMaterials}>View All Materials</Button>
                 </div>
               </CardContent>
             </Card>
@@ -238,7 +239,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
                   <CardTitle className="text-base">Weekly Requisitions</CardTitle>
                   <CardDescription>Material and labor requests</CardDescription>
                 </div>
-                <Button onClick={createRequisition}>Create Requisition</Button>
+                <RequisitionForm />
               </CardHeader>
               <CardContent>
                 <Table>
@@ -468,7 +469,7 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
         </Tabs>
         
         <div className="text-center py-4 mt-4">
-          <Button>Request Additional Materials</Button>
+          <MaterialRequestForm />
         </div>
       </CardContent>
     </Card>
