@@ -24,7 +24,9 @@ import {
   FileText,
   FileSpreadsheet,
   Import,
-  ChartGantt
+  ChartGantt,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { FileUploader } from "@/components/reports/FileUploader";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -34,6 +36,8 @@ import { z } from "zod";
 import { addDays, format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import TaskImport from "@/components/tasks/TaskImport";
 
 interface ProgramTabProps {
   project: Project;
@@ -556,49 +560,59 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
                   <div className="absolute left-[-8px] top-[32px] h-full w-0.5 bg-border"></div>
                   
                   {tasks.map((task, index) => (
-                    <div key={task.id} className="relative pb-8 cursor-pointer" onClick={() => handleTaskClick(task)}>
-                      <div className={`absolute left-[-16px] top-0 h-8 w-8 rounded-full ${taskStatuses[task.status as keyof typeof taskStatuses].color} flex items-center justify-center`}>
-                        {task.status === "completed" ? 
-                          <CheckCircle className="h-5 w-5 text-white" /> : 
-                          <span className="text-white font-bold">{index + 1}</span>
-                        }
-                      </div>
-                      <div className="border rounded-md p-4 ml-2">
-                        <div className="flex justify-between flex-wrap gap-2">
-                          <div>
-                            <h3 className="font-medium">{task.title}</h3>
+                    <Collapsible key={task.id} className="relative pb-8">
+                      <div className="flex items-start">
+                        <div className={`absolute left-[-16px] top-0 h-8 w-8 rounded-full ${taskStatuses[task.status as keyof typeof taskStatuses].color} flex items-center justify-center`}>
+                          {task.status === "completed" ? 
+                            <CheckCircle className="h-5 w-5 text-white" /> : 
+                            <span className="text-white font-bold">{index + 1}</span>
+                          }
+                        </div>
+                        <div className="border rounded-md p-4 ml-2 w-full">
+                          <CollapsibleTrigger className="flex justify-between w-full cursor-pointer">
+                            <div className="flex-1">
+                              <h3 className="font-medium">{task.title}</h3>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {getBadgeForStatus(task.status)}
+                              <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
+                            </div>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="pt-2 mt-2 border-t">
                             <p className="text-sm text-muted-foreground">{task.description}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {getBadgeForStatus(task.status)}
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2 text-sm">
-                          <div className="flex items-center gap-1">
-                            <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span>{new Date(task.startDate).toLocaleDateString()} - {new Date(task.endDate).toLocaleDateString()}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground">Assigned to:</span>
-                            <span>{task.assignee}</span>
-                          </div>
-                        </div>
-                        <div className="mt-2">
-                          <div className="text-xs text-muted-foreground mb-1">Progress: {task.completion}%</div>
-                          <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full ${
-                                task.status === "completed" ? "bg-green-500" : 
-                                task.status === "inProgress" ? "bg-construction-blue" :
-                                task.status === "delayed" ? "bg-yellow-500" :
-                                task.status === "onHold" ? "bg-red-500" : "bg-muted-foreground"
-                              }`} 
-                              style={{ width: `${task.completion}%` }}
-                            ></div>
-                          </div>
+                            <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2 text-sm">
+                              <div className="flex items-center gap-1">
+                                <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                                <span>{new Date(task.startDate).toLocaleDateString()} - {new Date(task.endDate).toLocaleDateString()}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <span className="text-muted-foreground">Assigned to:</span>
+                                <span>{task.assignee}</span>
+                              </div>
+                            </div>
+                            <div className="mt-2">
+                              <div className="text-xs text-muted-foreground mb-1">Progress: {task.completion}%</div>
+                              <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                                <div 
+                                  className={`h-full ${
+                                    task.status === "completed" ? "bg-green-500" : 
+                                    task.status === "inProgress" ? "bg-construction-blue" :
+                                    task.status === "delayed" ? "bg-yellow-500" :
+                                    task.status === "onHold" ? "bg-red-500" : "bg-muted-foreground"
+                                  }`} 
+                                  style={{ width: `${task.completion}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                            <div className="mt-4 text-right">
+                              <Button variant="outline" size="sm" onClick={() => handleTaskClick(task)}>
+                                Update Status
+                              </Button>
+                            </div>
+                          </CollapsibleContent>
                         </div>
                       </div>
-                    </div>
+                    </Collapsible>
                   ))}
                 </div>
               </CardContent>
@@ -717,73 +731,13 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
           </TabsContent>
           
           <TabsContent value="import" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Import Program of Works</CardTitle>
-                <CardDescription>Import your project schedule from various file formats</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Button 
-                      variant={importType === "excel" ? "default" : "outline"}
-                      className="justify-start"
-                      onClick={() => setImportType("excel")}
-                    >
-                      <FileSpreadsheet className="mr-2 h-4 w-4" />
-                      Microsoft Excel
-                    </Button>
-                    <Button 
-                      variant={importType === "msproject" ? "default" : "outline"}
-                      className="justify-start"
-                      onClick={() => setImportType("msproject")}
-                    >
-                      <FileText className="mr-2 h-4 w-4" />
-                      Microsoft Project
-                    </Button>
-                    <Button 
-                      variant={importType === "primavera" ? "default" : "outline"}
-                      className="justify-start"
-                      onClick={() => setImportType("primavera")}
-                    >
-                      <FileText className="mr-2 h-4 w-4" />
-                      Primavera P6
-                    </Button>
-                  </div>
-                  
-                  <div className="border rounded-md p-6">
-                    <FileUploader
-                      acceptedFileTypes={importType === "excel" ? ".xlsx,.xls" : importType === "msproject" ? ".mpp" : ".xer,.xml"}
-                      maxFiles={1}
-                      onFilesSelected={handleProgramImport}
-                      label={`Import ${
-                        importType === "excel" ? "Excel spreadsheet" : 
-                        importType === "msproject" ? "MS Project file" : 
-                        "Primavera P6 export file"
-                      }`}
-                    />
-                    
-                    <div className="mt-6 text-sm text-muted-foreground">
-                      <h4 className="font-medium text-black mb-2">Import Guidelines</h4>
-                      <ul className="list-disc pl-5 space-y-1">
-                        <li>Make sure your file contains task names, durations, and dependencies</li>
-                        <li>For Excel imports, use the standard template format</li>
-                        <li>Maximum file size: 25MB</li>
-                        <li>Import may take a few minutes for large schedules</li>
-                      </ul>
-                    </div>
-                    
-                    <div className="mt-6 flex justify-between">
-                      <Button variant="outline">Download Template</Button>
-                      <Button variant="default" className="ml-auto">
-                        <Import className="mr-2 h-4 w-4" />
-                        Process Import
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <TaskImport onImport={(importedTasks) => {
+              // Handle the imported tasks
+              toast({
+                title: "Tasks Imported",
+                description: `${importedTasks.length} tasks have been imported.`
+              });
+            }} />
           </TabsContent>
         </Tabs>
 
