@@ -21,9 +21,9 @@ const reportTypes = [
     name: "Daily Reports",
     description: "Site activity, progress, and safety reports from each day",
     reports: [
-      { id: 1, name: "Daily Site Report - May 16, 2025", date: "May 16, 2025", project: "Highrise Apartments" },
-      { id: 2, name: "Daily Site Report - May 15, 2025", date: "May 15, 2025", project: "Highrise Apartments" },
-      { id: 3, name: "Daily Site Report - May 14, 2025", date: "May 14, 2025", project: "Office Complex" }
+      { id: 1, name: "Daily Site Report for Highrise Apartments - May 16, 2025", date: "May 16, 2025", project: "Highrise Apartments" },
+      { id: 2, name: "Daily Site Report for Highrise Apartments - May 15, 2025", date: "May 15, 2025", project: "Highrise Apartments" },
+      { id: 3, name: "Daily Site Report for Office Complex - May 14, 2025", date: "May 14, 2025", project: "Office Complex" }
     ]
   },
   {
@@ -31,9 +31,9 @@ const reportTypes = [
     name: "Weekly Reports",
     description: "Consolidated weekly summaries of project progress",
     reports: [
-      { id: 1, name: "Weekly Progress Report - May 10-16, 2025", date: "May 16, 2025", project: "Highrise Apartments" },
-      { id: 2, name: "Weekly Progress Report - May 3-9, 2025", date: "May 9, 2025", project: "Office Complex" },
-      { id: 3, name: "Weekly Progress Report - Apr 26-May 2, 2025", date: "May 2, 2025", project: "Residential Development" }
+      { id: 1, name: "Weekly Progress Report for Highrise Apartments - May 10-16, 2025", date: "May 16, 2025", project: "Highrise Apartments" },
+      { id: 2, name: "Weekly Progress Report for Office Complex - May 3-9, 2025", date: "May 9, 2025", project: "Office Complex" },
+      { id: 3, name: "Weekly Progress Report for Residential Development - Apr 26-May 2, 2025", date: "May 2, 2025", project: "Residential Development" }
     ]
   },
   {
@@ -41,9 +41,9 @@ const reportTypes = [
     name: "Monthly Reports",
     description: "Detailed monthly project status and financial reports",
     reports: [
-      { id: 1, name: "Monthly Project Report - April 2025", date: "May 1, 2025", project: "All Projects" },
-      { id: 2, name: "Monthly Project Report - March 2025", date: "April 1, 2025", project: "All Projects" },
-      { id: 3, name: "Monthly Project Report - February 2025", date: "March 1, 2025", project: "All Projects" }
+      { id: 1, name: "Monthly Project Report for Highrise Apartments - April 2025", date: "May 1, 2025", project: "Highrise Apartments" },
+      { id: 2, name: "Monthly Project Report for Office Complex - March 2025", date: "April 1, 2025", project: "Office Complex" },
+      { id: 3, name: "Monthly Project Report for Residential Development - February 2025", date: "March 1, 2025", project: "Residential Development" }
     ]
   },
   {
@@ -51,9 +51,9 @@ const reportTypes = [
     name: "Safety Reports",
     description: "Safety incident reports, assessments and audits",
     reports: [
-      { id: 1, name: "Weekly Safety Audit - May 10-16, 2025", date: "May 16, 2025", project: "All Projects" },
-      { id: 2, name: "Safety Incident Report - May 13, 2025", date: "May 13, 2025", project: "Office Complex" },
-      { id: 3, name: "Monthly Safety Assessment - April 2025", date: "May 1, 2025", project: "All Projects" }
+      { id: 1, name: "Weekly Safety Audit for All Projects - May 10-16, 2025", date: "May 16, 2025", project: "All Projects" },
+      { id: 2, name: "Safety Incident Report for Office Complex - May 13, 2025", date: "May 13, 2025", project: "Office Complex" },
+      { id: 3, name: "Monthly Safety Assessment for Highrise Apartments - April 2025", date: "May 1, 2025", project: "Highrise Apartments" }
     ]
   }
 ];
@@ -64,20 +64,6 @@ const Reports = () => {
     from: new Date(),
     to: undefined,
   });
-
-  const generateWeeklyReport = () => {
-    toast({
-      title: "Weekly Report Generated",
-      description: "Weekly report has been created from the daily reports.",
-    });
-  };
-
-  const generateMonthlyReport = () => {
-    toast({
-      title: "Monthly Report Generated",
-      description: "Monthly report has been created from the daily reports.",
-    });
-  };
 
   return (
     <div className="space-y-6">
@@ -114,28 +100,6 @@ const Reports = () => {
                     <CardTitle>{type.name}</CardTitle>
                     <CardDescription>{type.description}</CardDescription>
                   </div>
-                  
-                  {type.id === "weekly" && (
-                    <Button 
-                      variant="outline" 
-                      className="flex items-center"
-                      onClick={generateWeeklyReport}
-                    >
-                      <ArrowDown className="mr-2 h-4 w-4" />
-                      Generate Weekly Report
-                    </Button>
-                  )}
-                  
-                  {type.id === "monthly" && (
-                    <Button 
-                      variant="outline" 
-                      className="flex items-center"
-                      onClick={generateMonthlyReport}
-                    >
-                      <ArrowDown className="mr-2 h-4 w-4" />
-                      Generate Monthly Report
-                    </Button>
-                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
