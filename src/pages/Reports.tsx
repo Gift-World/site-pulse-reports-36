@@ -1,21 +1,12 @@
-
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, Download, Plus, Calendar, Image, ArrowDown } from "lucide-react";
-import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { DateRange } from "react-day-picker";
-import { ReportTemplateDialog } from "@/components/reports/ReportTemplateDialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { ReportHeader } from "@/components/reports/ReportHeader";
+import { ReportList } from "@/components/reports/ReportList";
+import { ReportViewDialog } from "@/components/reports/ReportViewDialog";
+import { generateSampleReportContent, downloadReport } from "@/components/reports/ReportUtils";
 import { toast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 const reportTypes = [
   {
@@ -81,17 +72,11 @@ const Reports = () => {
 
   const handleDownloadReport = (report: {id: number; name: string; date: string; project: string}) => {
     // In a real app, you would generate and download the actual file
-    // This is a simulation of a download
     const reportContent = generateSampleReportContent(report);
-    const blob = new Blob([reportContent], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${report.name.replace(/\s+/g, "_")}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    downloadReport({
+      name: report.name,
+      content: reportContent
+    });
     
     toast({
       title: "Report Downloaded",
@@ -99,59 +84,12 @@ const Reports = () => {
     });
   };
 
-  const generateSampleReportContent = (report: {id: number; name: string; date: string; project: string}) => {
-    return `# ${report.name}
-Project: ${report.project}
-Date: ${report.date}
-
-## Summary
-This is a sample report for demonstration purposes.
-
-## Project Progress
-- Foundation work: 100% complete
-- Structural framing: 75% complete
-- Electrical: 45% complete
-- Plumbing: 50% complete
-
-## Weather Conditions
-Clear skies, temperature 72°F, no precipitation
-
-## Labor Hours
-- Carpenters: 64 hours
-- Electricians: 32 hours
-- Plumbers: 40 hours
-- General Labor: 80 hours
-
-## Materials Used
-- Concrete: 12 cubic yards
-- Steel: 2.5 tons
-- Lumber: 1,200 board feet
-
-## Safety Incidents
-No incidents reported.
-
-## Notes
-Work progressing according to schedule. No major issues to report.
-`;
-  };
-
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Reports</h1>
-          <p className="text-muted-foreground">
-            Create, view and download project reports
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <DateRangePicker
-            dateRange={dateRange}
-            onDateRangeChange={setDateRange}
-          />
-          <ReportTemplateDialog />
-        </div>
-      </div>
+      <ReportHeader 
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
+      />
 
       <Tabs defaultValue="daily" className="space-y-4" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -173,75 +111,34 @@ Work progressing according to schedule. No major issues to report.
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {type.reports.map((report) => (
-                  <div 
-                    key={report.id} 
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-md"
-                  >
-                    <div className="flex items-center gap-3 mb-3 sm:mb-0">
-                      <div className="p-2 rounded-md bg-muted">
-                        <FileText className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{report.name}</p>
-                        <div className="flex items-center gap-4">
-                          <p className="text-xs text-muted-foreground">Generated on {report.date}</p>
-                          <p className="text-xs text-muted-foreground">Project: {report.project}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 self-end sm:self-center">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleViewReport(report)}
-                      >
-                        View
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleDownloadReport(report)}
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                <ReportList 
+                  reports={type.reports}
+                  onViewReport={handleViewReport}
+                  onDownloadReport={handleDownloadReport}
+                />
               </CardContent>
             </Card>
           </TabsContent>
         ))}
       </Tabs>
 
-      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-        <DialogContent className="max-w-[800px] max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle>{currentReport.name}</DialogTitle>
-            <DialogDescription>
-              Report details
-            </DialogDescription>
-          </DialogHeader>
-          <ScrollArea className="h-[500px] mt-4">
-            <div className="whitespace-pre-wrap font-mono text-sm p-4">
-              {currentReport.content}
-            </div>
-          </ScrollArea>
-          <div className="flex justify-end mt-4">
-            <Button 
-              variant="outline" 
-              onClick={() => handleDownloadReport({
-                id: 0,
-                name: currentReport.name,
-                date: "",
-                project: ""
-              })}
-            >
-              <Download className="h-4 w-4 mr-2" /> Download
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ReportViewDialog
+        open={viewDialogOpen}
+        onOpenChange={setViewDialogOpen}
+        report={currentReport}
+        onDownload={() => {
+          if (currentReport.content) {
+            downloadReport({
+              name: currentReport.name,
+              content: currentReport.content
+            });
+            toast({
+              title: "Report Downloaded",
+              description: `"${currentReport.name}" has been downloaded.`
+            });
+          }
+        }}
+      />
     </div>
   );
 };

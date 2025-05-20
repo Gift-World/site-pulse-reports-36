@@ -20,11 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ProjectSelector } from "@/components/projects/ProjectSelector";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { WeeklyReportDialog } from "./WeeklyReportDialog";
+import { MonthlyReportDialog } from "./MonthlyReportDialog";
 import { Project } from "@/types/project";
 
 export function ReportTemplateDialog() {
@@ -32,12 +30,6 @@ export function ReportTemplateDialog() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [weeklyDialogOpen, setWeeklyDialogOpen] = useState(false);
   const [monthlyDialogOpen, setMonthlyDialogOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<string>("");
-  const [weeklyProjectSelectorOpen, setWeeklyProjectSelectorOpen] = useState(false);
-  const [monthlyProjectSelectorOpen, setMonthlyProjectSelectorOpen] = useState(false);
-  const [weeklyFormat, setWeeklyFormat] = useState("pdf");
-  const [monthlyFormat, setMonthlyFormat] = useState("pdf");
-  const [monthlySource, setMonthlySource] = useState("daily");
   
   // Sample projects data with all required Project properties
   const sampleProjects: Project[] = [
@@ -89,47 +81,6 @@ export function ReportTemplateDialog() {
     });
     setDialogOpen(false);
   };
-
-  const generateWeeklyReport = () => {
-    if (!selectedProject) {
-      toast({
-        title: "Project selection required",
-        description: "Please select a project to generate a weekly report.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    toast({
-      title: "Weekly Report Generated",
-      description: `Weekly report for ${selectedProject} has been created in ${weeklyFormat.toUpperCase()} format.`,
-    });
-    setWeeklyDialogOpen(false);
-    setSelectedProject("");
-    setWeeklyFormat("pdf");
-  };
-
-  const generateMonthlyReport = () => {
-    if (!selectedProject) {
-      toast({
-        title: "Project selection required",
-        description: "Please select a project to generate a monthly report.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    const sourceText = monthlySource === "daily" ? "daily reports" : "weekly reports";
-    
-    toast({
-      title: "Monthly Report Generated",
-      description: `Monthly report for ${selectedProject} has been created from ${sourceText} in ${monthlyFormat.toUpperCase()} format.`,
-    });
-    setMonthlyDialogOpen(false);
-    setSelectedProject("");
-    setMonthlyFormat("pdf");
-    setMonthlySource("daily");
-  };
   
   const getReportTitle = (type: string) => {
     switch(type) {
@@ -140,22 +91,6 @@ export function ReportTemplateDialog() {
       case "meeting": return "Meeting Minutes";
       default: return "Report";
     }
-  };
-
-  const handleWeeklyProjectSelect = (projectId: number) => {
-    const project = sampleProjects.find(p => p.id === projectId);
-    if (project) {
-      setSelectedProject(project.name);
-    }
-    setWeeklyProjectSelectorOpen(false);
-  };
-
-  const handleMonthlyProjectSelect = (projectId: number) => {
-    const project = sampleProjects.find(p => p.id === projectId);
-    if (project) {
-      setSelectedProject(project.name);
-    }
-    setMonthlyProjectSelectorOpen(false);
   };
 
   return (
@@ -169,141 +104,35 @@ export function ReportTemplateDialog() {
             </Button>
           </DialogTrigger>
           
-          <Dialog open={weeklyDialogOpen} onOpenChange={setWeeklyDialogOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="border-construction-navy text-construction-navy hover:bg-construction-navy hover:text-white"
-              >
-                <FileDown className="mr-2 h-4 w-4" />
-                Generate Weekly Report
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-[450px] max-h-[80vh] w-[90vw]">
-              <DialogHeader>
-                <DialogTitle>Generate Weekly Report</DialogTitle>
-                <DialogDescription>
-                  Generate a consolidated weekly report from daily reports.
-                </DialogDescription>
-              </DialogHeader>
-              
-              <ScrollArea className="h-[300px] pr-4">
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="project">Project</Label>
-                    <div className="flex gap-2 items-center">
-                      <Input 
-                        id="project" 
-                        value={selectedProject} 
-                        placeholder="Select a project"
-                        readOnly
-                        className="flex-1"
-                      />
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setWeeklyProjectSelectorOpen(true)}
-                      >
-                        Select
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    <Label>Report Format</Label>
-                    <RadioGroup value={weeklyFormat} onValueChange={setWeeklyFormat}>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="pdf" id="weekly-pdf" />
-                        <Label htmlFor="weekly-pdf">PDF</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="word" id="weekly-word" />
-                        <Label htmlFor="weekly-word">Word Document</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                </div>
-              </ScrollArea>
-              
-              <DialogFooter>
-                <Button onClick={generateWeeklyReport}>Generate Report</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <WeeklyReportDialog
+            open={weeklyDialogOpen}
+            onOpenChange={setWeeklyDialogOpen}
+            projects={sampleProjects}
+          />
           
-          <Dialog open={monthlyDialogOpen} onOpenChange={setMonthlyDialogOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="border-construction-navy text-construction-navy hover:bg-construction-navy hover:text-white"
-              >
-                <FileDown className="mr-2 h-4 w-4" />
-                Generate Monthly Report
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-[450px] max-h-[80vh] w-[90vw]">
-              <DialogHeader>
-                <DialogTitle>Generate Monthly Report</DialogTitle>
-                <DialogDescription>
-                  Generate a consolidated monthly report.
-                </DialogDescription>
-              </DialogHeader>
-              
-              <ScrollArea className="h-[300px] pr-4">
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="monthly-project">Project</Label>
-                    <div className="flex gap-2 items-center">
-                      <Input 
-                        id="monthly-project" 
-                        value={selectedProject} 
-                        placeholder="Select a project"
-                        readOnly
-                        className="flex-1"
-                      />
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setMonthlyProjectSelectorOpen(true)}
-                      >
-                        Select
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    <Label>Source Reports</Label>
-                    <RadioGroup value={monthlySource} onValueChange={setMonthlySource}>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="daily" id="monthly-daily" />
-                        <Label htmlFor="monthly-daily">Aggregate from Daily Reports</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="weekly" id="monthly-weekly" />
-                        <Label htmlFor="monthly-weekly">Aggregate from Weekly Reports</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                  
-                  <div className="grid gap-2">
-                    <Label>Report Format</Label>
-                    <RadioGroup value={monthlyFormat} onValueChange={setMonthlyFormat}>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="pdf" id="monthly-format-pdf" />
-                        <Label htmlFor="monthly-format-pdf">PDF</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="word" id="monthly-format-word" />
-                        <Label htmlFor="monthly-format-word">Word Document</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                </div>
-              </ScrollArea>
-              
-              <DialogFooter>
-                <Button onClick={generateMonthlyReport}>Generate Report</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <MonthlyReportDialog
+            open={monthlyDialogOpen}
+            onOpenChange={setMonthlyDialogOpen}
+            projects={sampleProjects}
+          />
+          
+          <Button 
+            variant="outline" 
+            className="border-construction-navy text-construction-navy hover:bg-construction-navy hover:text-white"
+            onClick={() => setWeeklyDialogOpen(true)}
+          >
+            <FileDown className="mr-2 h-4 w-4" />
+            Generate Weekly Report
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="border-construction-navy text-construction-navy hover:bg-construction-navy hover:text-white"
+            onClick={() => setMonthlyDialogOpen(true)}
+          >
+            <FileDown className="mr-2 h-4 w-4" />
+            Generate Monthly Report
+          </Button>
         </div>
         <DialogContent className="max-w-[60%] max-h-[80vh] w-[90vw]">
           <DialogHeader>
@@ -335,29 +164,6 @@ export function ReportTemplateDialog() {
           </ScrollArea>
         </DialogContent>
       </Dialog>
-      
-      {/* Project Selectors as separate dialogs */}
-      <ProjectSelector
-        open={weeklyProjectSelectorOpen}
-        onOpenChange={setWeeklyProjectSelectorOpen}
-        title="Select Project for Weekly Report"
-        description="Choose a project to generate a weekly report for."
-        projects={sampleProjects}
-        onSelectProject={handleWeeklyProjectSelect}
-        actionText="Select Project"
-        cancelText="Cancel"
-      />
-      
-      <ProjectSelector
-        open={monthlyProjectSelectorOpen}
-        onOpenChange={setMonthlyProjectSelectorOpen}
-        title="Select Project for Monthly Report"
-        description="Choose a project to generate a monthly report for."
-        projects={sampleProjects}
-        onSelectProject={handleMonthlyProjectSelect}
-        actionText="Select Project"
-        cancelText="Cancel"
-      />
     </>
   );
 }
