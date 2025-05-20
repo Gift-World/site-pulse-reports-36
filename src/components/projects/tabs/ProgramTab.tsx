@@ -1,10 +1,8 @@
-
 import React, { useState } from "react";
 import { Project } from "@/types/project";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -349,7 +347,7 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [taskViewMode, setTaskViewMode] = useState("day");
   const [showUpdateDialog, setShowUpdateDialog] = useState(false);
-  const [programTab, setProgramTab] = useState("calendar");
+  const [programTab, setProgramTab] = useState("timeline");
   const [importType, setImportType] = useState<string>("excel");
   const [showNewTaskDialog, setShowNewTaskDialog] = useState(false);
   const daysOfWeek = getDaysOfWeek();
@@ -655,9 +653,8 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
       </CardHeader>
       <CardContent>
         {/* Tabs Section at the Top */}
-        <Tabs defaultValue="calendar" value={programTab} onValueChange={setProgramTab} className="mb-6">
+        <Tabs defaultValue="timeline" value={programTab} onValueChange={setProgramTab} className="mb-6">
           <TabsList className="mb-4">
-            <TabsTrigger value="calendar">Calendar View</TabsTrigger>
             <TabsTrigger value="timeline">Tasks</TabsTrigger>
             <TabsTrigger value="critical-path">Critical Path</TabsTrigger>
             <TabsTrigger value="import">Import Program</TabsTrigger>
@@ -772,59 +769,6 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
               </ScrollArea>
             </CardContent>
           </Card>
-
-          <TabsContent value="calendar" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-              <div className="w-full">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  className="rounded-md border w-full"
-                  modifiers={{
-                    hasTask: (date) => dateHasTask(date)
-                  }}
-                  modifiersClassNames={{
-                    hasTask: "bg-construction-blue/20 font-bold relative before:absolute before:bottom-0 before:left-1/2 before:-translate-x-1/2 before:h-1 before:w-1 before:rounded-full before:bg-construction-blue"
-                  }}
-                  components={{
-                    DayContent: ({ date }) => {
-                      const hasTask = dateHasTask(date);
-                      return (
-                        <div className="relative w-full h-full flex items-center justify-center">
-                          {date.getDate()}
-                          {hasTask && (
-                            <span className="absolute -top-1 -right-1 flex h-2 w-2 items-center justify-center rounded-full bg-construction-blue"></span>
-                          )}
-                        </div>
-                      );
-                    }
-                  }}
-                />
-                <div className="mt-4 space-y-2">
-                  <h4 className="text-sm font-medium">Legend:</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="flex items-center gap-2">
-                      <div className="h-3 w-3 rounded-full bg-construction-blue"></div>
-                      <span className="text-sm">Active tasks</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="h-3 w-3 rounded-full bg-green-500"></div>
-                      <span className="text-sm">Completed</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
-                      <span className="text-sm">Delayed</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="h-3 w-3 rounded-full bg-red-500"></div>
-                      <span className="text-sm">On Hold</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
           
           <TabsContent value="timeline" className="space-y-4">
             <Card>
@@ -910,7 +854,7 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
             </Card>
           </TabsContent>
           
-          <TabsContent value="critical-path" className="space-y-6">
+          <TabsContent value="critical-path" className="space-y-4">
             <div className="grid grid-cols-1 gap-6">
               <Card>
                 <CardHeader>
@@ -1021,7 +965,7 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
             </div>
           </TabsContent>
           
-          <TabsContent value="import" className="space-y-6">
+          <TabsContent value="import" className="space-y-4">
             <TaskImport onImport={(importedTasks) => {
               // Handle the imported tasks
               toast({
@@ -1573,4 +1517,3 @@ export const ProgramTab: React.FC<ProgramTabProps> = ({ project }) => {
     </Card>
   );
 };
-
