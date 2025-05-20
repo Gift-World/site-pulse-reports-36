@@ -565,7 +565,7 @@ const Tasks = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Random Task (No Project)</SelectItem>
+                        <SelectItem value="none">Random Task (No Project)</SelectItem>
                         {sampleProjects.map(project => (
                           <SelectItem key={project.id} value={project.id.toString()}>
                             {project.name}
