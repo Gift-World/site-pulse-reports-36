@@ -10,4 +10,6 @@ export interface Task {
   progress: number;
   startDate: string;
   endDate?: string;
+  projectId?: number;
+  projectName?: string;
 }

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +11,8 @@ import {
   XCircle,
   Filter,
   UserPlus,
-  CalendarIcon
+  CalendarIcon,
+  Building
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -23,6 +25,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Task } from "@/types/task";
+import { Project } from "@/types/project";
 import TaskAssignmentModal from "@/components/tasks/TaskAssignmentModal";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -36,6 +39,40 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+// Sample projects for the select dropdown
+const sampleProjects: Project[] = [
+  {
+    id: 1,
+    name: "Building A Construction",
+    description: "15-story residential building project",
+    status: "In Progress",
+    progress: 45,
+    team: 12,
+    dueDate: "December 20, 2025",
+    location: "Downtown"
+  },
+  {
+    id: 2,
+    name: "Building B Construction",
+    description: "Commercial shopping complex project",
+    status: "Planning",
+    progress: 15,
+    team: 8,
+    dueDate: "August 10, 2026",
+    location: "Westside"
+  },
+  {
+    id: 3,
+    name: "Bridge Renovation",
+    description: "Historical bridge renovation project",
+    status: "In Progress",
+    progress: 30,
+    team: 18,
+    dueDate: "July 5, 2025",
+    location: "Riverfront"
+  }
+];
 
 // Initial tasks will be loaded from localStorage or default to these
 const defaultTasks: Task[] = [
@@ -163,6 +200,7 @@ const taskFormSchema = z.object({
   status: z.enum(["Pending", "In Progress", "Completed", "Overdue"]),
   priority: z.enum(["Low", "Medium", "High"]),
   assignee: z.string().min(1, "Assignee is required"),
+  projectId: z.number().optional(),
   dueDate: z.date({
     required_error: "Due date is required",
   }),
@@ -203,6 +241,7 @@ const Tasks = () => {
       status: "Pending",
       priority: "Medium",
       assignee: "",
+      projectId: undefined,
       dueDate: new Date(),
       startDate: new Date(),
       endDate: undefined,
@@ -234,6 +273,15 @@ const Tasks = () => {
   };
 
   const onSubmitTask = (data: TaskFormValues) => {
+    // Determine project name if a project ID is provided
+    let projectName = "Random Task";
+    if (data.projectId) {
+      const selectedProject = sampleProjects.find(p => p.id === data.projectId);
+      if (selectedProject) {
+        projectName = selectedProject.name;
+      }
+    }
+
     const newTask: Task = {
       id: Math.max(0, ...tasks.map(task => task.id)) + 1,
       title: data.title,
@@ -244,7 +292,9 @@ const Tasks = () => {
       dueDate: format(data.dueDate, "MMM d, yyyy"),
       progress: data.status === "In Progress" ? 0 : data.status === "Completed" ? 100 : 0,
       startDate: format(data.startDate, "MMM d, yyyy"),
-      endDate: data.endDate ? format(data.endDate, "MMM d, yyyy") : ""
+      endDate: data.endDate ? format(data.endDate, "MMM d, yyyy") : "",
+      projectId: data.projectId,
+      projectName: projectName
     };
 
     const updatedTasks = [...tasks, newTask];
@@ -340,6 +390,12 @@ const Tasks = () => {
                           <div>
                             <p className="font-medium">{task.title}</p>
                             <p className="text-sm text-muted-foreground">{task.description}</p>
+                            {task.projectName && (
+                              <p className="text-xs text-muted-foreground flex items-center mt-1">
+                                <Building className="h-3 w-3 mr-1" />
+                                {task.projectName}
+                              </p>
+                            )}
                           </div>
                         </div>
                         <div className="flex flex-wrap gap-2">
@@ -483,6 +539,35 @@ const Tasks = () => {
                     <FormControl>
                       <Textarea placeholder="Enter task description" {...field} />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="projectId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Associated Project</FormLabel>
+                    <Select 
+                      onValueChange={(value) => field.onChange(value ? parseInt(value) : undefined)} 
+                      defaultValue={field.value?.toString()}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Project (optional)" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">Random Task (No Project)</SelectItem>
+                        {sampleProjects.map(project => (
+                          <SelectItem key={project.id} value={project.id.toString()}>
+                            {project.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
