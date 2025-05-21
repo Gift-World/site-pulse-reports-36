@@ -11,6 +11,8 @@ interface InventoryTabsProps {
   inventoryItems: InventoryItem[];
   yardInventoryItems: YardInventoryItem[];
   searchQuery: string;
+  selectedSite: string;
+  selectedStatus: string;
 }
 
 export const InventoryTabs: React.FC<InventoryTabsProps> = ({ 
@@ -18,13 +20,17 @@ export const InventoryTabs: React.FC<InventoryTabsProps> = ({
   setActiveTab, 
   inventoryItems, 
   yardInventoryItems,
-  searchQuery 
+  searchQuery,
+  selectedSite,
+  selectedStatus
 }) => {
-  // Filter the items based on search query
+  // Filter the items based on search query, site and status
   const filteredItems = inventoryItems.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.supplier.toLowerCase().includes(searchQuery.toLowerCase())
+    (item.site?.toLowerCase() || "").includes(searchQuery.toLowerCase())) &&
+    (selectedSite === "All Sites" || item.site === selectedSite) &&
+    (selectedStatus === "All" || item.status === selectedStatus)
   );
 
   const filteredYardItems = yardInventoryItems.filter(item =>
@@ -54,7 +60,7 @@ export const InventoryTabs: React.FC<InventoryTabsProps> = ({
       </TabsList>
       
       <TabsContent value="inventory">
-        <InventoryTable items={regularItems} />
+        <InventoryTable items={regularItems} maxHeight="500px" />
       </TabsContent>
       
       <TabsContent value="equipment">
@@ -62,7 +68,7 @@ export const InventoryTabs: React.FC<InventoryTabsProps> = ({
           <h3 className="text-lg font-medium">Plant</h3>
           <Plane className="h-5 w-5 text-construction-blue" />
         </div>
-        <InventoryTable items={plantItems} isPlant={true} />
+        <InventoryTable items={plantItems} isPlant={true} maxHeight="500px" />
       </TabsContent>
       
       <TabsContent value="yard">

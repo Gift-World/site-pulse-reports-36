@@ -15,10 +15,22 @@ import {
   FileDown, 
   Filter,
   ArrowUpDown,
+  FileExcel,
+  FilePdf
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger,
+  DropdownMenuGroup
+} from "@/components/ui/dropdown-menu";
+import { useNotifications } from "@/hooks/use-notifications";
 
 interface MaterialItem {
   id: number;
@@ -28,6 +40,7 @@ interface MaterialItem {
   unit: string;
   status: "In Stock" | "Low Stock" | "Out of Stock" | "On Order";
   supplier: string;
+  site?: string;
   cost: number;
   lastUpdated: string;
 }
@@ -219,6 +232,7 @@ const getStatusBadge = (status: string) => {
 const AllMaterials = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const { addNotification } = useNotifications();
   
   const filteredItems = materialItems.filter(item =>
     (item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -229,6 +243,15 @@ const AllMaterials = () => {
 
   // Extract unique categories for filtering
   const categories = Array.from(new Set(materialItems.map(item => item.category)));
+
+  const handleExport = (format: "excel" | "pdf") => {
+    const formatName = format === "excel" ? "Excel" : "PDF";
+    addNotification({
+      title: `Materials Exported as ${formatName}`,
+      message: `Your materials data has been exported as a ${formatName} file.`,
+      type: "system"
+    });
+  };
 
   return (
     <div className="space-y-6 p-6">
@@ -279,10 +302,26 @@ const AllMaterials = () => {
                 </Button>
               ))}
             </div>
-            <Button variant="outline">
-              <FileDown className="mr-2 h-4 w-4" />
-              Export
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <FileDown className="mr-2 h-4 w-4" />
+                  Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuLabel>Export Format</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleExport("excel")}>
+                  <FileExcel className="mr-2 h-4 w-4" />
+                  Export as Excel
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExport("pdf")}>
+                  <FilePdf className="mr-2 h-4 w-4" />
+                  Export as PDF
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </CardHeader>
         <CardContent>
@@ -300,7 +339,7 @@ const AllMaterials = () => {
                   <TableHead>Quantity</TableHead>
                   <TableHead>Unit</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Supplier</TableHead>
+                  <TableHead>Site</TableHead>
                   <TableHead>Last Updated</TableHead>
                   <TableHead className="text-right">Cost per Unit</TableHead>
                 </TableRow>
@@ -313,7 +352,7 @@ const AllMaterials = () => {
                     <TableCell>{item.quantity}</TableCell>
                     <TableCell>{item.unit}</TableCell>
                     <TableCell>{getStatusBadge(item.status)}</TableCell>
-                    <TableCell>{item.supplier}</TableCell>
+                    <TableCell>{item.site || item.supplier}</TableCell>
                     <TableCell>{item.lastUpdated}</TableCell>
                     <TableCell className="text-right">${item.cost.toFixed(2)}</TableCell>
                   </TableRow>

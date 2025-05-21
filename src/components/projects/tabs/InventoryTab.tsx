@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Project } from "@/types/project";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +11,9 @@ import {
   FileText,
   Warehouse,
   Truck,
-  Box
+  Box,
+  FileExcel,
+  FilePdf
 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
@@ -36,6 +37,15 @@ import { MaterialRequestForm } from "@/components/inventory/MaterialRequestForm"
 import { useNavigate } from "react-router-dom";
 import { RequisitionForm } from "@/components/inventory/RequisitionForm";
 import { TransferRequestForm } from "@/components/inventory/TransferRequestForm";
+import { useNotifications } from "@/hooks/use-notifications";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 interface InventoryTabProps {
   project: Project;
@@ -43,6 +53,8 @@ interface InventoryTabProps {
 
 export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
   const navigate = useNavigate();
+  const { addNotification } = useNotifications();
+  
   const materialsUsage = [
     { name: 'Concrete', planned: 450, actual: 420 },
     { name: 'Steel', planned: 200, actual: 180 },
@@ -64,10 +76,12 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
     to: undefined,
   });
   
-  const generateInventoryReport = () => {
-    toast({
-      title: "Inventory Report Generated",
-      description: `Inventory report for ${project.name} has been created.`
+  const generateInventoryReport = (format: "excel" | "pdf") => {
+    const formatName = format === "excel" ? "Excel" : "PDF";
+    addNotification({
+      title: `Inventory Report Generated`,
+      message: `Inventory report for ${project.name} has been created as ${formatName}.`,
+      type: "system"
     });
   };
   
@@ -92,10 +106,26 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
               dateRange={dateRange}
               onDateRangeChange={setDateRange}
             />
-            <Button variant="outline" onClick={generateInventoryReport}>
-              <FileDown className="mr-2 h-4 w-4" />
-              Generate Report
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <FileDown className="mr-2 h-4 w-4" />
+                  Generate Report
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <DropdownMenuLabel>Report Format</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => generateInventoryReport("excel")}>
+                  <FileExcel className="mr-2 h-4 w-4" />
+                  Generate Excel Report
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => generateInventoryReport("pdf")}>
+                  <FilePdf className="mr-2 h-4 w-4" />
+                  Generate PDF Report
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </CardHeader>

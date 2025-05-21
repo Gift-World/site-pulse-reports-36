@@ -1,4 +1,3 @@
-
 import { InventoryItem } from "./InventoryTable";
 import { YardInventoryItem } from "./YardInventoryTable";
 
@@ -11,6 +10,7 @@ export const inventoryItems: InventoryItem[] = [
     unit: "Bags",
     status: "In Stock",
     supplier: "BuilderSupply Co.",
+    site: "Main Site",
     cost: 12.5,
     lastUpdated: "May 14, 2025"
   },
@@ -22,6 +22,7 @@ export const inventoryItems: InventoryItem[] = [
     unit: "Pieces",
     status: "In Stock",
     supplier: "MetalWorks Industries",
+    site: "North Site",
     cost: 8.75,
     lastUpdated: "May 12, 2025"
   },
@@ -33,6 +34,7 @@ export const inventoryItems: InventoryItem[] = [
     unit: "Pieces",
     status: "In Stock",
     supplier: "ClayWorks Ltd.",
+    site: "East Site",
     cost: 0.75,
     lastUpdated: "May 10, 2025"
   },
@@ -44,6 +46,7 @@ export const inventoryItems: InventoryItem[] = [
     unit: "Pieces",
     status: "Low Stock",
     supplier: "PlumbParts Inc.",
+    site: "Main Site",
     cost: 15.25,
     lastUpdated: "May 13, 2025"
   },
@@ -55,6 +58,7 @@ export const inventoryItems: InventoryItem[] = [
     unit: "Rolls",
     status: "Out of Stock",
     supplier: "ElectroSupply Ltd.",
+    site: "West Site",
     cost: 85.50,
     lastUpdated: "May 8, 2025"
   },
@@ -66,6 +70,7 @@ export const inventoryItems: InventoryItem[] = [
     unit: "Gallons",
     status: "In Stock",
     supplier: "ColorMax Paints",
+    site: "South Site",
     cost: 28.99,
     lastUpdated: "May 11, 2025"
   },
@@ -77,6 +82,7 @@ export const inventoryItems: InventoryItem[] = [
     unit: "Sets",
     status: "On Order",
     supplier: "WoodWorks Co.",
+    site: "Main Site",
     cost: 120.00,
     lastUpdated: "May 15, 2025"
   },
@@ -88,6 +94,7 @@ export const inventoryItems: InventoryItem[] = [
     unit: "Units",
     status: "In Stock",
     supplier: "ConstructionEquip Inc.",
+    site: "East Site",
     cost: 1200.00,
     lastUpdated: "May 10, 2025"
   },
@@ -99,6 +106,7 @@ export const inventoryItems: InventoryItem[] = [
     unit: "Sets",
     status: "In Stock",
     supplier: "ScaffoldPro Systems",
+    site: "North Site",
     cost: 3500.00,
     lastUpdated: "May 5, 2025"
   },
@@ -110,8 +118,45 @@ export const inventoryItems: InventoryItem[] = [
     unit: "Unit",
     status: "On Order",
     supplier: "HeavyMachinery Ltd.",
+    site: "West Site",
     cost: 45000.00,
     lastUpdated: "May 16, 2025"
+  },
+  {
+    id: 11,
+    name: "Portland Cement",
+    category: "Construction Materials",
+    quantity: 85,
+    unit: "Bags",
+    status: "Low Stock",
+    supplier: "BuilderSupply Co.",
+    site: "South Site",
+    cost: 12.5,
+    lastUpdated: "May 14, 2025"
+  },
+  {
+    id: 12,
+    name: "Steel Reinforcement (10mm)",
+    category: "Construction Materials",
+    quantity: 300,
+    unit: "Pieces",
+    status: "In Stock",
+    supplier: "MetalWorks Industries",
+    site: "West Site",
+    cost: 7.25,
+    lastUpdated: "May 13, 2025"
+  },
+  {
+    id: 13,
+    name: "Safety Harnesses",
+    category: "Safety Equipment",
+    quantity: 12,
+    unit: "Units",
+    status: "Low Stock",
+    supplier: "SafetyFirst Co.",
+    site: "Main Site",
+    cost: 89.99,
+    lastUpdated: "May 12, 2025"
   }
 ];
 
@@ -168,3 +213,7 @@ export const summaryStats = {
     { name: "Plant & Equipment", count: 3 }
   ]
 };
+
+export const sites = ["All Sites", "Main Site", "North Site", "South Site", "East Site", "West Site"];
+
+export const statuses = ["All", "In Stock", "Low Stock", "Out of Stock", "On Order"];
