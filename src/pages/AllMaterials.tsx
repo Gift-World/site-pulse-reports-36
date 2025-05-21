@@ -15,7 +15,8 @@ import {
   Filter,
   ArrowUpDown,
   FileSpreadsheet,
-  File
+  File,
+  Plus
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,8 @@ import {
   DropdownMenuGroup
 } from "@/components/ui/dropdown-menu";
 import { useNotifications } from "@/hooks/use-notifications";
+import { useInventory } from "@/contexts/InventoryContext";
+import { AddInventoryForm } from "@/components/inventory/AddInventoryForm";
 
 interface MaterialItem {
   id: number;
@@ -232,8 +235,9 @@ const AllMaterials = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const { addNotification } = useNotifications();
+  const { inventoryItems } = useInventory();
   
-  const filteredItems = materialItems.filter(item =>
+  const filteredItems = inventoryItems.filter(item =>
     (item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.supplier.toLowerCase().includes(searchQuery.toLowerCase())) &&
@@ -241,7 +245,7 @@ const AllMaterials = () => {
   );
 
   // Extract unique categories for filtering
-  const categories = Array.from(new Set(materialItems.map(item => item.category)));
+  const categories = Array.from(new Set(inventoryItems.map(item => item.category)));
 
   const handleExport = (format: "excel" | "pdf") => {
     const formatName = format === "excel" ? "Excel" : "PDF";
@@ -261,9 +265,12 @@ const AllMaterials = () => {
             Complete inventory of materials and supplies
           </p>
         </div>
-        <Button variant="outline" onClick={() => window.history.back()}>
-          Back to Project
-        </Button>
+        <div className="flex gap-2">
+          <AddInventoryForm inventoryType="inventory" />
+          <Button variant="outline" onClick={() => window.history.back()}>
+            Back to Project
+          </Button>
+        </div>
       </div>
       
       <Card>

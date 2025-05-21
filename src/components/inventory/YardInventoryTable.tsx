@@ -23,7 +23,7 @@ export const YardInventoryTable: React.FC<YardInventoryTableProps> = ({ items })
           <CardTitle className="text-base">Main Yard Inventory</CardTitle>
           <CardDescription>Central storage for all projects</CardDescription>
         </div>
-        <AddInventoryForm />
+        <AddInventoryForm inventoryType="yard" />
       </CardHeader>
       <CardContent>
         <div className="text-sm text-muted-foreground mb-4">

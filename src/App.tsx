@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,6 +23,7 @@ import FAQ from "./pages/FAQ";
 import Solutions from "./pages/Solutions";
 import AllMaterials from "./pages/AllMaterials";
 import Settings, { CurrencyProvider } from "./pages/Settings";
+import { InventoryProvider } from "./contexts/InventoryContext";
 
 const App = () => {
   // Move the QueryClient initialization inside the component function
@@ -35,31 +35,33 @@ const App = () => {
         <CurrencyProvider>
           <Toaster />
           <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route element={<Layout />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/projects" element={<Projects />} />
-                <Route path="/projects/:id" element={<ProjectDetail />} />
-                <Route path="/team" element={<Team />} />
-                <Route path="/tasks" element={<Tasks />} />
-                <Route path="/reports" element={<Reports />} />
-                <Route path="/safety" element={<Safety />} />
-                <Route path="/inventory" element={<Inventory />} />
-                <Route path="/materials" element={<AllMaterials />} />
-                <Route path="/labor" element={<Labor />} />
-                <Route path="/files" element={<Files />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/solutions" element={<Solutions />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/terms-of-service" element={<TermsOfService />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/faq" element={<FAQ />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <InventoryProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route element={<Layout />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/projects" element={<Projects />} />
+                  <Route path="/projects/:id" element={<ProjectDetail />} />
+                  <Route path="/team" element={<Team />} />
+                  <Route path="/tasks" element={<Tasks />} />
+                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/safety" element={<Safety />} />
+                  <Route path="/inventory" element={<Inventory />} />
+                  <Route path="/materials" element={<AllMaterials />} />
+                  <Route path="/labor" element={<Labor />} />
+                  <Route path="/files" element={<Files />} />
+                  <Route path="/chat" element={<Chat />} />
+                  <Route path="/solutions" element={<Solutions />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/terms-of-service" element={<TermsOfService />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/faq" element={<FAQ />} />
+                </Route>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </InventoryProvider>
         </CurrencyProvider>
       </TooltipProvider>
     </QueryClientProvider>

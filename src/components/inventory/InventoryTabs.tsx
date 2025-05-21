@@ -2,14 +2,14 @@
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InventoryTable, InventoryItem } from "@/components/inventory/InventoryTable";
-import { YardInventoryTable, YardInventoryItem } from "@/components/inventory/YardInventoryTable";
+import { YardInventoryTable } from "@/components/inventory/YardInventoryTable";
 import { Plane, Package, Warehouse } from "lucide-react";
+import { useInventory } from "@/contexts/InventoryContext";
+import { AddInventoryForm } from "./AddInventoryForm";
 
 interface InventoryTabsProps {
   activeTab: string;
   setActiveTab: (value: string) => void;
-  inventoryItems: InventoryItem[];
-  yardInventoryItems: YardInventoryItem[];
   searchQuery: string;
   selectedSite: string;
   selectedStatus: string;
@@ -18,12 +18,12 @@ interface InventoryTabsProps {
 export const InventoryTabs: React.FC<InventoryTabsProps> = ({ 
   activeTab, 
   setActiveTab, 
-  inventoryItems, 
-  yardInventoryItems,
   searchQuery,
   selectedSite,
   selectedStatus
 }) => {
+  const { inventoryItems, yardInventoryItems } = useInventory();
+  
   // Filter the items based on search query, site and status
   const filteredItems = inventoryItems.filter(item =>
     (item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -60,13 +60,17 @@ export const InventoryTabs: React.FC<InventoryTabsProps> = ({
       </TabsList>
       
       <TabsContent value="inventory">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-medium">Materials</h3>
+          <AddInventoryForm inventoryType="inventory" />
+        </div>
         <InventoryTable items={regularItems} maxHeight="500px" />
       </TabsContent>
       
       <TabsContent value="equipment">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium">Plant</h3>
-          <Plane className="h-5 w-5 text-construction-blue" />
+          <AddInventoryForm inventoryType="plant" />
         </div>
         <InventoryTable items={plantItems} isPlant={true} maxHeight="500px" />
       </TabsContent>

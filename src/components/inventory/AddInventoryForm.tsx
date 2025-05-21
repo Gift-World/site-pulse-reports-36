@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,49 +22,63 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { Plus, Box } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { useInventory } from "@/contexts/InventoryContext";
+import { sites } from "./InventoryData";
 
 interface FormValues {
   itemName: string;
   category: string;
   quantity: string;
   unit: string;
+  site: string;
   restricted: "yes" | "no";
 }
 
-export const AddInventoryForm = () => {
+interface AddInventoryFormProps {
+  inventoryType?: "inventory" | "plant" | "yard";
+}
+
+export const AddInventoryForm: React.FC<AddInventoryFormProps> = ({ inventoryType = "yard" }) => {
+  const [open, setOpen] = useState(false);
+  const { addInventoryItem } = useInventory();
+  
   const form = useForm<FormValues>({
     defaultValues: {
       itemName: "",
-      category: "",
+      category: inventoryType === "plant" ? "Plant & Equipment" : "",
       quantity: "",
       unit: "pieces",
+      site: "Main Site",
       restricted: "no",
     }
   });
 
   const onSubmit = (data: FormValues) => {
-    console.log("Form submitted:", data);
-    toast({
-      title: "Inventory Added",
-      description: `${data.quantity} ${data.unit} of ${data.itemName} added to yard inventory.`
-    });
+    addInventoryItem({
+      name: data.itemName,
+      category: data.category,
+      quantity: parseInt(data.quantity) || 0,
+      unit: data.unit,
+      site: data.site
+    }, inventoryType);
+    
     form.reset();
+    setOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
-          Add Inventory
+          Add {inventoryType === "plant" ? "Equipment" : inventoryType === "yard" ? "Yard Inventory" : "Inventory"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Add New Yard Inventory</DialogTitle>
+          <DialogTitle>Add New {inventoryType === "plant" ? "Plant & Equipment" : inventoryType === "yard" ? "Yard Inventory" : "Inventory"}</DialogTitle>
           <DialogDescription>
-            Add new materials or equipment to the central yard inventory.
+            Add new {inventoryType === "plant" ? "equipment" : "materials"} to the {inventoryType === "yard" ? "central yard" : "project"} inventory.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -96,13 +110,19 @@ export const AddInventoryForm = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Construction Materials">Construction Materials</SelectItem>
-                      <SelectItem value="Plumbing">Plumbing</SelectItem>
-                      <SelectItem value="Electrical">Electrical</SelectItem>
-                      <SelectItem value="Finishing">Finishing</SelectItem>
-                      <SelectItem value="Carpentry">Carpentry</SelectItem>
-                      <SelectItem value="Equipment">Plant & Equipment</SelectItem>
-                      <SelectItem value="Safety Equipment">Safety Equipment</SelectItem>
+                      {inventoryType === "plant" ? (
+                        <SelectItem value="Plant & Equipment">Plant & Equipment</SelectItem>
+                      ) : (
+                        <>
+                          <SelectItem value="Construction Materials">Construction Materials</SelectItem>
+                          <SelectItem value="Plumbing">Plumbing</SelectItem>
+                          <SelectItem value="Electrical">Electrical</SelectItem>
+                          <SelectItem value="Finishing">Finishing</SelectItem>
+                          <SelectItem value="Carpentry">Carpentry</SelectItem>
+                          {inventoryType !== "yard" && <SelectItem value="Plant & Equipment">Plant & Equipment</SelectItem>}
+                          <SelectItem value="Safety Equipment">Safety Equipment</SelectItem>
+                        </>
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -151,6 +171,33 @@ export const AddInventoryForm = () => {
                 )}
               />
             </div>
+            
+            {inventoryType !== "yard" && (
+              <FormField
+                control={form.control}
+                name="site"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Site</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select site" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {sites.filter(site => site !== "All Sites").map((site) => (
+                          <SelectItem key={site} value={site}>
+                            {site}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             
             <DialogFooter className="pt-4">
               <Button type="submit">Add to Inventory</Button>

@@ -5,7 +5,7 @@ import { InventoryHeader } from "@/components/inventory/InventoryHeader";
 import { InventorySummary } from "@/components/inventory/InventorySummary";
 import { InventorySearch } from "@/components/inventory/InventorySearch";
 import { InventoryTabs } from "@/components/inventory/InventoryTabs";
-import { inventoryItems, yardInventoryItems, summaryStats, sites, statuses } from "@/components/inventory/InventoryData";
+import { summaryStats, sites, statuses } from "@/components/inventory/InventoryData";
 
 const Inventory = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,8 +41,6 @@ const Inventory = () => {
           <InventoryTabs
             activeTab={activeTab}
             setActiveTab={setActiveTab}
-            inventoryItems={inventoryItems}
-            yardInventoryItems={yardInventoryItems}
             searchQuery={searchQuery}
             selectedSite={selectedSite}
             selectedStatus={selectedStatus}
