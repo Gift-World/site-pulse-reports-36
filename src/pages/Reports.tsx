@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,6 +8,7 @@ import { ReportList } from "@/components/reports/ReportList";
 import { ReportViewDialog } from "@/components/reports/ReportViewDialog";
 import { generateSampleReportContent, downloadReport } from "@/components/reports/ReportUtils";
 import { toast } from "@/hooks/use-toast";
+import { useNotifications } from "@/hooks/use-notifications";
 
 const reportTypes = [
   {
@@ -59,6 +61,7 @@ const Reports = () => {
   });
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [currentReport, setCurrentReport] = useState<{name: string; content?: string}>({name: ""});
+  const { addNotification } = useNotifications();
 
   const handleViewReport = (report: {id: number; name: string; date: string; project: string}) => {
     // In a real app, you would fetch the report content from an API
@@ -68,6 +71,13 @@ const Reports = () => {
       content: reportContent
     });
     setViewDialogOpen(true);
+    
+    // Add notification for viewed report
+    addNotification({
+      title: "Report Viewed",
+      message: `You viewed "${report.name}"`,
+      type: "report"
+    });
   };
 
   const handleDownloadReport = (report: {id: number; name: string; date: string; project: string}) => {
@@ -81,6 +91,13 @@ const Reports = () => {
     toast({
       title: "Report Downloaded",
       description: `"${report.name}" has been downloaded.`
+    });
+    
+    // Add notification for downloaded report
+    addNotification({
+      title: "Report Downloaded",
+      message: `You downloaded "${report.name}"`,
+      type: "report"
     });
   };
 
@@ -132,9 +149,17 @@ const Reports = () => {
               name: currentReport.name,
               content: currentReport.content
             });
+            
             toast({
               title: "Report Downloaded",
               description: `"${currentReport.name}" has been downloaded.`
+            });
+            
+            // Add notification for downloaded report from the viewer
+            addNotification({
+              title: "Report Downloaded",
+              message: `You downloaded "${currentReport.name}"`,
+              type: "report"
             });
           }
         }}

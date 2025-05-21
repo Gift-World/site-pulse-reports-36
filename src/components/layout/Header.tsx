@@ -1,4 +1,5 @@
-import React, { useContext, useState } from "react";
+
+import React, { useContext } from "react";
 import { 
   Bell, 
   Search, 
@@ -22,57 +23,23 @@ import { Link, useNavigate } from "react-router-dom";
 import { LayoutContext } from "@/components/layout/Layout";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-
-// Mock notifications data
-const notifications = [
-  {
-    id: 1,
-    title: "New Project Assigned",
-    message: "You have been assigned to Building A renovation",
-    time: "10 minutes ago",
-    read: false
-  },
-  {
-    id: 2,
-    title: "Safety Report Due",
-    message: "Weekly safety report for Project Skyline is due tomorrow",
-    time: "1 hour ago",
-    read: false
-  },
-  {
-    id: 3,
-    title: "Material Delivery",
-    message: "Concrete delivery scheduled for tomorrow at 9am",
-    time: "3 hours ago",
-    read: false
-  }
-];
+import { useNotifications } from "@/hooks/use-notifications";
 
 export function Header() {
   const isMobile = useIsMobile();
   const { open } = useSidebar();
   const { toggleSidebar } = useContext(LayoutContext);
   const navigate = useNavigate();
-  const [unreadCount, setUnreadCount] = useState(notifications.filter(n => !n.read).length);
-  const [notificationList, setNotificationList] = useState(notifications);
+  const { 
+    notifications, 
+    unreadCount, 
+    markAsRead, 
+    markAllAsRead 
+  } = useNotifications();
   
   const handleMenuClick = () => {
     toggleSidebar();
     navigate("/dashboard");
-  };
-  
-  const markAsRead = (id: number) => {
-    const updatedNotifications = notificationList.map(notification => 
-      notification.id === id ? { ...notification, read: true } : notification
-    );
-    setNotificationList(updatedNotifications);
-    setUnreadCount(updatedNotifications.filter(n => !n.read).length);
-  };
-  
-  const markAllAsRead = () => {
-    const updatedNotifications = notificationList.map(notification => ({ ...notification, read: true }));
-    setNotificationList(updatedNotifications);
-    setUnreadCount(0);
   };
 
   return (
@@ -132,8 +99,8 @@ export function Header() {
               )}
             </div>
             <div className="max-h-80 overflow-auto">
-              {notificationList.length > 0 ? (
-                notificationList.map(notification => (
+              {notifications.length > 0 ? (
+                notifications.map(notification => (
                   <div 
                     key={notification.id} 
                     className={`p-3 border-b last:border-0 hover:bg-muted cursor-pointer ${!notification.read ? 'bg-muted/30' : ''}`}

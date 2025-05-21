@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Users, Send, Paperclip, Search } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useNotifications } from "@/hooks/use-notifications";
 
 // Mock data for chats
 const chatData = {
@@ -35,6 +36,7 @@ const Chat = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [contacts, setContacts] = useState(chatData.contacts);
   const [messages, setMessages] = useState(chatData.messages);
+  const { addNotification } = useNotifications();
 
   useEffect(() => {
     // Check if we have a team member to message
@@ -81,6 +83,47 @@ const Chat = () => {
     }
   }, [activeContact]);
 
+  // Simulate receiving a message every 30 seconds (for demo purposes)
+  useEffect(() => {
+    const simulateIncomingMessage = () => {
+      // Only simulate messages occasionally
+      if (Math.random() > 0.7) {
+        // Pick a random contact
+        const randomContactIndex = Math.floor(Math.random() * contacts.length);
+        const sender = contacts[randomContactIndex];
+        
+        if (sender.id !== activeContact.id) {
+          // Update the contacts with unread count
+          const updatedContacts = contacts.map(c => 
+            c.id === sender.id ? { ...c, unread: c.unread + 1 } : c
+          );
+          setContacts(updatedContacts);
+          
+          // Send a notification for the new message
+          addNotification({
+            title: `New message from ${sender.name}`,
+            message: sender.isGroup ? "New message in group chat" : "You received a new direct message",
+            type: "chat"
+          });
+        } else {
+          // Add to current conversation
+          const newMessage = {
+            id: messages.length + 1,
+            senderId: sender.id,
+            text: "This is a simulated incoming message for testing purposes.",
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            date: "Today"
+          };
+          
+          setMessages(prev => [...prev, newMessage]);
+        }
+      }
+    };
+    
+    const interval = setInterval(simulateIncomingMessage, 30000);
+    return () => clearInterval(interval);
+  }, [contacts, activeContact, messages, addNotification]);
+
   const handleSendMessage = () => {
     if (messageText.trim()) {
       const newMessage = {
@@ -93,6 +136,23 @@ const Chat = () => {
       
       setMessages([...messages, newMessage]);
       setMessageText("");
+      
+      // Simulate reply after a delay (for demo purposes)
+      if (Math.random() > 0.3) {
+        setTimeout(() => {
+          const replyMessage = {
+            id: messages.length + 2,
+            senderId: activeContact.id,
+            text: `This is an automatic reply from ${activeContact.name}.`,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            date: "Today"
+          };
+          
+          setMessages(prev => [...prev, replyMessage]);
+          
+          // Don't show notification for active contact's messages
+        }, 2000 + Math.random() * 3000);
+      }
     }
   };
 
@@ -108,6 +168,19 @@ const Chat = () => {
   const filteredContacts = contacts.filter(contact => 
     contact.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Function to handle clicking on a contact
+  const handleContactClick = (contact: any) => {
+    setActiveContact(contact);
+    
+    // If the contact has unread messages, clear them
+    if (contact.unread > 0) {
+      const updatedContacts = contacts.map(c => 
+        c.id === contact.id ? { ...c, unread: 0 } : c
+      );
+      setContacts(updatedContacts);
+    }
+  };
 
   return (
     <div className="h-[calc(100vh-11rem)] flex flex-col">
@@ -137,7 +210,7 @@ const Chat = () => {
               <div
                 key={contact.id}
                 className={`p-3 flex items-center gap-3 cursor-pointer hover:bg-muted ${activeContact.id === contact.id ? 'bg-muted' : ''}`}
-                onClick={() => setActiveContact(contact)}
+                onClick={() => handleContactClick(contact)}
               >
                 <div className="relative">
                   <Avatar>
