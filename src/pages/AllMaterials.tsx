@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,8 +14,8 @@ import {
   FileDown, 
   Filter,
   ArrowUpDown,
-  FileExcel,
-  FilePdf
+  FileSpreadsheet,
+  File
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -313,11 +312,11 @@ const AllMaterials = () => {
                 <DropdownMenuLabel>Export Format</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => handleExport("excel")}>
-                  <FileExcel className="mr-2 h-4 w-4" />
+                  <FileSpreadsheet className="mr-2 h-4 w-4" />
                   Export as Excel
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleExport("pdf")}>
-                  <FilePdf className="mr-2 h-4 w-4" />
+                  <File className="mr-2 h-4 w-4" />
                   Export as PDF
                 </DropdownMenuItem>
               </DropdownMenuContent>

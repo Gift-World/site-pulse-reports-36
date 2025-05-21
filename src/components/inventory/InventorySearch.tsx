@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Filter, FileDown, FileExcel, FilePdf } from "lucide-react";
+import { Search, Filter, FileDown, FileSpreadsheet, File } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -102,11 +102,11 @@ export const InventorySearch: React.FC<InventorySearchProps> = ({
           <DropdownMenuLabel>Export Format</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => handleExport("excel")}>
-            <FileExcel className="mr-2 h-4 w-4" />
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
             Export as Excel
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => handleExport("pdf")}>
-            <FilePdf className="mr-2 h-4 w-4" />
+            <File className="mr-2 h-4 w-4" />
             Export as PDF
           </DropdownMenuItem>
         </DropdownMenuContent>

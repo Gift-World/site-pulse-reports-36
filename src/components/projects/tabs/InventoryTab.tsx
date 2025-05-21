@@ -12,8 +12,8 @@ import {
   Warehouse,
   Truck,
   Box,
-  FileExcel,
-  FilePdf
+  FileSpreadsheet,
+  File
 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
@@ -117,11 +117,11 @@ export const InventoryTab: React.FC<InventoryTabProps> = ({ project }) => {
                 <DropdownMenuLabel>Report Format</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => generateInventoryReport("excel")}>
-                  <FileExcel className="mr-2 h-4 w-4" />
+                  <FileSpreadsheet className="mr-2 h-4 w-4" />
                   Generate Excel Report
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => generateInventoryReport("pdf")}>
-                  <FilePdf className="mr-2 h-4 w-4" />
+                  <File className="mr-2 h-4 w-4" />
                   Generate PDF Report
                 </DropdownMenuItem>
               </DropdownMenuContent>
