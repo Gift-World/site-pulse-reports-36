@@ -7,6 +7,7 @@ import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { useLocation } from "react-router-dom";
 import { NotificationProvider } from "@/hooks/use-notifications";
+import { InventoryProvider } from "@/contexts/InventoryContext";
 
 // Create a context to expose the sidebar toggle functionality
 export const LayoutContext = React.createContext<{
@@ -38,20 +39,22 @@ export function Layout() {
   return (
     <SidebarProvider>
       <NotificationProvider>
-        <LayoutContext.Provider value={{ toggleSidebar }}>
-          <div className="flex h-screen w-full overflow-hidden flex-col">
-            <div className="flex flex-1 w-full overflow-hidden">
-              {showSidebar && <MainSidebar />}
-              <div className={`flex flex-1 flex-col overflow-hidden ${isHomePage || isTermsPrivacyFaqPage ? "ml-0" : ""}`}>
-                <Header />
-                <main className={`flex-1 overflow-auto ${isHomePage || isTermsPrivacyFaqPage ? "p-0" : "p-4 md:p-6"}`}>
-                  <Outlet />
-                </main>
+        <InventoryProvider>
+          <LayoutContext.Provider value={{ toggleSidebar }}>
+            <div className="flex h-screen w-full overflow-hidden flex-col">
+              <div className="flex flex-1 w-full overflow-hidden">
+                {showSidebar && <MainSidebar />}
+                <div className={`flex flex-1 flex-col overflow-hidden ${isHomePage || isTermsPrivacyFaqPage ? "ml-0" : ""}`}>
+                  <Header />
+                  <main className={`flex-1 overflow-auto ${isHomePage || isTermsPrivacyFaqPage ? "p-0" : "p-4 md:p-6"}`}>
+                    <Outlet />
+                  </main>
+                </div>
               </div>
+              {(isHomePage || isTermsPrivacyFaqPage) && <Footer />}
             </div>
-            {(isHomePage || isTermsPrivacyFaqPage) && <Footer />}
-          </div>
-        </LayoutContext.Provider>
+          </LayoutContext.Provider>
+        </InventoryProvider>
       </NotificationProvider>
     </SidebarProvider>
   );
