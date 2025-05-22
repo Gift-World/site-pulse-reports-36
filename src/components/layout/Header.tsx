@@ -1,4 +1,3 @@
-
 import React, { useContext } from "react";
 import { 
   Bell, 
@@ -6,7 +5,7 @@ import {
   Home,
   Menu,
   Settings,
-  ArrowUpRight
+  SquareArrowUpRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -50,7 +49,7 @@ export function Header() {
         
         <Link to="/" className="flex items-center mr-4">
           <div className="h-8 w-8 rounded-md bg-construction-navy flex items-center justify-center relative mr-2">
-            <ArrowUpRight className="h-6 w-6 text-white" />
+            <SquareArrowUpRight className="h-6 w-6 text-white" />
           </div>
           <span className="text-lg font-bold text-construction-navy">SitePlan<span className="text-construction-orange">n</span></span>
         </Link>
