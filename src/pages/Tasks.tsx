@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -338,6 +337,8 @@ const Tasks = () => {
               <CardTitle>Task Management</CardTitle>
               <CardDescription>View and manage project tasks</CardDescription>
             </div>
+            
+            {/* Only show filters in the main Tasks tab */}
             <div className="flex flex-wrap gap-3">
               <Select 
                 defaultValue="all"
@@ -377,10 +378,13 @@ const Tasks = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="list" className="space-y-4">
-            <TabsList>
+            <TabsList className="mb-4">
               <TabsTrigger value="list">List View</TabsTrigger>
               <TabsTrigger value="board">Board View</TabsTrigger>
+              <TabsTrigger value="criticalPath">Critical Path</TabsTrigger>
+              <TabsTrigger value="importProgram">Import Program</TabsTrigger>
             </TabsList>
+            
             <TabsContent value="list">
               <div className="space-y-4">
                 {filteredTasks.map((task) => (
@@ -450,6 +454,7 @@ const Tasks = () => {
                 ))}
               </div>
             </TabsContent>
+            
             <TabsContent value="board">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {["Pending", "In Progress", "Completed", "Overdue"].map((status) => (
@@ -493,6 +498,32 @@ const Tasks = () => {
                       ))}
                   </div>
                 ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="criticalPath">
+              <div className="text-center py-8">
+                <h3 className="text-xl font-medium mb-2">Critical Path Management</h3>
+                <p className="text-muted-foreground">
+                  Visualize and manage the critical path for your project timeline
+                </p>
+                <div className="mt-6 p-8 border border-dashed rounded-lg flex items-center justify-center">
+                  <p className="text-muted-foreground">Critical path visualization will be displayed here</p>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="importProgram">
+              <div className="text-center py-8">
+                <h3 className="text-xl font-medium mb-2">Import Program</h3>
+                <p className="text-muted-foreground">
+                  Import project schedules and programs from external sources
+                </p>
+                <div className="mt-6 p-8 border border-dashed rounded-lg flex items-center justify-center">
+                  <Button variant="outline" className="mr-4">Import from MS Project</Button>
+                  <Button variant="outline" className="mr-4">Import from Primavera P6</Button>
+                  <Button variant="outline">Import CSV</Button>
+                </div>
               </div>
             </TabsContent>
           </Tabs>
