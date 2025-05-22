@@ -23,7 +23,7 @@ export const HeroSection = ({ onScrollToPricing }: HeroSectionProps) => {
         <div className="flex justify-center items-center mb-6">
           <div className="h-12 w-12 rounded-md bg-construction-navy flex items-center justify-center relative mr-3">
             <div className="h-9 w-9 border-3 border-white rounded-sm"></div>
-            <ExternalLink className="h-6 w-6 text-white absolute top-1.5 left-1.5 -rotate-45" />
+            <ExternalLink className="h-6 w-6 text-white absolute top-1.5 left-1.5" />
           </div>
           <h1 className="text-6xl md:text-7xl font-bold text-construction-navy">
             SitePlan<span className="text-construction-orange">n</span>
