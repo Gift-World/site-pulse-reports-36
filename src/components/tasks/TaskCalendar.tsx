@@ -168,7 +168,14 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks }) => {
             day: "relative",
           }}
           components={{
-            DayContent: ({ day }) => {
+            DayContent: (props) => {
+              // Safely access the day value
+              if (!props || !props.date) {
+                return <div>-</div>;
+              }
+              
+              const day = props.date; // Fix: Use props.date instead of trying to access day property
+              
               // Get tasks for this specific day
               const dayTasks = tasks.filter(task => {
                 const taskStartDate = parseISO(task.startDate);
