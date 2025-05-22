@@ -408,7 +408,7 @@ export const TasksTab: React.FC<TasksTabProps> = ({ project }) => {
                   <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All statuses</SelectItem>
+                  <SelectItem value="all">All statuses</SelectItem>
                   <SelectItem value="Completed">Completed</SelectItem>
                   <SelectItem value="In Progress">In Progress</SelectItem>
                   <SelectItem value="Pending">Pending</SelectItem>
@@ -435,7 +435,7 @@ export const TasksTab: React.FC<TasksTabProps> = ({ project }) => {
                   <SelectValue placeholder="All priorities" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All priorities</SelectItem>
+                  <SelectItem value="all">All priorities</SelectItem>
                   <SelectItem value="High">High</SelectItem>
                   <SelectItem value="Medium">Medium</SelectItem>
                   <SelectItem value="Low">Low</SelectItem>
