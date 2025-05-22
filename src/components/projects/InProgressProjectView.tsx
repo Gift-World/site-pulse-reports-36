@@ -10,7 +10,6 @@ import { SafetyTab } from "./tabs/SafetyTab";
 import { InventoryTab } from "./tabs/InventoryTab";
 import { LaborTab } from "./tabs/LaborTab";
 import { PlantTab } from "./tabs/PlantTab";
-import { ProgramTab } from "./tabs/ProgramTab";
 
 interface InProgressProjectViewProps {
   project: Project;
@@ -29,7 +28,6 @@ export function InProgressProjectView({ project }: InProgressProjectViewProps) {
       <TabsList className="flex flex-wrap h-auto">
         <TabsTrigger value="overview">Overview</TabsTrigger>
         <TabsTrigger value="team">Team</TabsTrigger>
-        <TabsTrigger value="program">Tasks</TabsTrigger>
         <TabsTrigger value="inventory">Inventory</TabsTrigger>
         <TabsTrigger value="labor">Labor</TabsTrigger>
         <TabsTrigger value="plant">Plant</TabsTrigger>
@@ -45,10 +43,6 @@ export function InProgressProjectView({ project }: InProgressProjectViewProps) {
         
         <TabsContent value="team" className="mt-0">
           <TeamTab project={project} />
-        </TabsContent>
-        
-        <TabsContent value="program" className="mt-0">
-          <ProgramTab project={project} />
         </TabsContent>
         
         <TabsContent value="inventory" className="mt-0">
