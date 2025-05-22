@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Project } from "@/types/project";
 import { Task } from "@/types/task";
@@ -86,7 +87,7 @@ const sampleTasks: Task[] = [
 ];
 
 // More sample tasks for subtasks demonstration
-const subTasks: Record<number, Task[]> = {
+const initialSubTasks: Record<number, Task[]> = {
   1: [
     {
       id: 101,
@@ -133,14 +134,27 @@ const subTasks: Record<number, Task[]> = {
 
 export const TasksTab: React.FC<TasksTabProps> = ({ project }) => {
   const [tasks, setTasks] = useState<Task[]>(sampleTasks);
+  const [subTasks, setSubTasks] = useState<Record<number, Task[]>>(initialSubTasks);
   const [expandedTasks, setExpandedTasks] = useState<Record<number, boolean>>({});
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [isEditTaskOpen, setIsEditTaskOpen] = useState(false);
+  const [isAddSubTaskOpen, setIsAddSubTaskOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [activeView, setActiveView] = useState<"list" | "calendar">("list");
   
   // Form state
   const [formData, setFormData] = useState<Partial<Task>>({
+    title: "",
+    description: "",
+    status: "Pending",
+    priority: "Medium",
+    assignee: "",
+    progress: 0,
+    projectId: project.id
+  });
+  
+  // SubTask form state
+  const [subTaskFormData, setSubTaskFormData] = useState<Partial<Task>>({
     title: "",
     description: "",
     status: "Pending",
@@ -176,8 +190,23 @@ export const TasksTab: React.FC<TasksTabProps> = ({ project }) => {
     }));
   };
 
+  const handleSubTaskInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setSubTaskFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubTaskSelectChange = (name: string, value: string) => {
+    setSubTaskFormData(prev => ({
       ...prev,
       [name]: value
     }));
@@ -192,6 +221,15 @@ export const TasksTab: React.FC<TasksTabProps> = ({ project }) => {
     }
   };
 
+  const handleSubTaskDateChange = (name: string, date: Date | undefined) => {
+    if (date) {
+      setSubTaskFormData(prev => ({
+        ...prev,
+        [name]: date.toISOString().split('T')[0]
+      }));
+    }
+  };
+
   const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
     setFormData(prev => ({
@@ -200,8 +238,28 @@ export const TasksTab: React.FC<TasksTabProps> = ({ project }) => {
     }));
   };
 
+  const handleSubTaskProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    setSubTaskFormData(prev => ({
+      ...prev,
+      progress: isNaN(value) ? 0 : Math.max(0, Math.min(100, value))
+    }));
+  };
+
   const resetForm = () => {
     setFormData({
+      title: "",
+      description: "",
+      status: "Pending",
+      priority: "Medium",
+      assignee: "",
+      progress: 0,
+      projectId: project.id
+    });
+  };
+
+  const resetSubTaskForm = () => {
+    setSubTaskFormData({
       title: "",
       description: "",
       status: "Pending",
@@ -223,6 +281,49 @@ export const TasksTab: React.FC<TasksTabProps> = ({ project }) => {
       ...task
     });
     setIsEditTaskOpen(true);
+  };
+
+  const openAddSubTaskDialog = (task: Task) => {
+    setSelectedTask(task);
+    resetSubTaskForm();
+    setIsAddSubTaskOpen(true);
+  };
+
+  // Calculate progress for a task based on its subtasks
+  const calculateTaskProgress = (taskId: number): number => {
+    const taskSubTasks = subTasks[taskId];
+    if (!taskSubTasks || taskSubTasks.length === 0) {
+      // If no subtasks, return the task's original progress
+      const task = tasks.find(t => t.id === taskId);
+      return task?.progress || 0;
+    }
+    
+    // Calculate average progress from all subtasks
+    const totalProgress = taskSubTasks.reduce((sum, subtask) => sum + subtask.progress, 0);
+    return Math.round(totalProgress / taskSubTasks.length);
+  };
+
+  // Update a subtask's status
+  const updateSubTaskStatus = (taskId: number, subTaskId: number, status: Task['status'], progress: number) => {
+    setSubTasks(prev => {
+      const updatedSubTasks = {...prev};
+      if (updatedSubTasks[taskId]) {
+        updatedSubTasks[taskId] = updatedSubTasks[taskId].map(subtask => 
+          subtask.id === subTaskId ? {...subtask, status, progress} : subtask
+        );
+      }
+      return updatedSubTasks;
+    });
+
+    // Update the parent task's progress based on subtasks
+    setTasks(prev => prev.map(task => 
+      task.id === taskId 
+        ? { 
+            ...task, 
+            progress: calculateTaskProgress(taskId) 
+          } 
+        : task
+    ));
   };
 
   const handleAddTask = () => {
@@ -256,6 +357,53 @@ export const TasksTab: React.FC<TasksTabProps> = ({ project }) => {
     });
   };
 
+  const handleAddSubTask = () => {
+    if (!selectedTask || !subTaskFormData.title || !subTaskFormData.assignee || !subTaskFormData.startDate || !subTaskFormData.dueDate) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const taskId = selectedTask.id;
+    // Generate a unique ID for the subtask
+    const existingSubTasks = subTasks[taskId] || [];
+    const allSubTaskIds = Object.values(subTasks).flat().map(t => t.id);
+    const newSubTaskId = Math.max(0, ...allSubTaskIds, 1000) + 1;
+
+    const newSubTask: Task = {
+      id: newSubTaskId,
+      title: subTaskFormData.title || "",
+      description: subTaskFormData.description || "",
+      status: (subTaskFormData.status as "Completed" | "In Progress" | "Pending" | "Overdue") || "Pending",
+      priority: (subTaskFormData.priority as "High" | "Medium" | "Low") || "Medium",
+      assignee: subTaskFormData.assignee || "",
+      dueDate: subTaskFormData.dueDate || new Date().toISOString().split('T')[0],
+      progress: subTaskFormData.progress || 0,
+      startDate: subTaskFormData.startDate || new Date().toISOString().split('T')[0],
+      projectId: project.id
+    };
+
+    setSubTasks(prev => ({
+      ...prev,
+      [taskId]: [...(prev[taskId] || []), newSubTask]
+    }));
+
+    // Update the parent task's progress based on all subtasks
+    const updatedProgress = calculateTaskProgress(taskId);
+    setTasks(prev => prev.map(task => 
+      task.id === taskId ? { ...task, progress: updatedProgress } : task
+    ));
+
+    setIsAddSubTaskOpen(false);
+    toast({
+      title: "Subtask Added",
+      description: "New subtask has been added successfully"
+    });
+  };
+
   const handleEditTask = () => {
     if (!selectedTask || !formData.title) return;
 
@@ -272,9 +420,36 @@ export const TasksTab: React.FC<TasksTabProps> = ({ project }) => {
 
   const deleteTask = (taskId: number) => {
     setTasks(prev => prev.filter(task => task.id !== taskId));
+    // Also delete any subtasks
+    setSubTasks(prev => {
+      const updatedSubTasks = {...prev};
+      delete updatedSubTasks[taskId];
+      return updatedSubTasks;
+    });
     toast({
       title: "Task Deleted",
       description: "Task has been removed successfully"
+    });
+  };
+
+  const deleteSubTask = (taskId: number, subTaskId: number) => {
+    setSubTasks(prev => {
+      const updatedSubTasks = {...prev};
+      if (updatedSubTasks[taskId]) {
+        updatedSubTasks[taskId] = updatedSubTasks[taskId].filter(subtask => subtask.id !== subTaskId);
+      }
+      return updatedSubTasks;
+    });
+
+    // Update the parent task progress
+    const updatedProgress = calculateTaskProgress(taskId);
+    setTasks(prev => prev.map(task => 
+      task.id === taskId ? { ...task, progress: updatedProgress } : task
+    ));
+
+    toast({
+      title: "Subtask Deleted",
+      description: "Subtask has been removed successfully"
     });
   };
 
@@ -375,7 +550,7 @@ export const TasksTab: React.FC<TasksTabProps> = ({ project }) => {
                   <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="">All statuses</SelectItem>
                   <SelectItem value="Completed">Completed</SelectItem>
                   <SelectItem value="In Progress">In Progress</SelectItem>
                   <SelectItem value="Pending">Pending</SelectItem>
@@ -402,7 +577,7 @@ export const TasksTab: React.FC<TasksTabProps> = ({ project }) => {
                   <SelectValue placeholder="All priorities" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All priorities</SelectItem>
+                  <SelectItem value="">All priorities</SelectItem>
                   <SelectItem value="High">High</SelectItem>
                   <SelectItem value="Medium">Medium</SelectItem>
                   <SelectItem value="Low">Low</SelectItem>
@@ -441,6 +616,12 @@ export const TasksTab: React.FC<TasksTabProps> = ({ project }) => {
                       <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
                     </div>
                     <div className="flex items-center space-x-2">
+                      <Button variant="ghost" size="icon" onClick={(e) => {
+                        e.stopPropagation();
+                        openAddSubTaskDialog(task);
+                      }}>
+                        <Plus className="h-4 w-4 text-green-600" />
+                      </Button>
                       <Button variant="ghost" size="icon" onClick={(e) => {
                         e.stopPropagation();
                         openEditTaskDialog(task);
@@ -486,29 +667,81 @@ export const TasksTab: React.FC<TasksTabProps> = ({ project }) => {
                       </div>
                       
                       {/* Subtasks */}
-                      {subTasks[task.id] && subTasks[task.id].length > 0 && (
-                        <div className="mt-4">
-                          <h4 className="text-sm font-medium mb-2">Subtasks</h4>
+                      <div className="mt-4">
+                        <h4 className="text-sm font-medium mb-2">Subtasks</h4>
+                        {subTasks[task.id] && subTasks[task.id].length > 0 ? (
                           <div className="space-y-2">
                             {subTasks[task.id].map(subtask => (
-                              <div key={subtask.id} className="p-3 bg-muted/20 rounded flex justify-between">
-                                <div>
+                              <div key={subtask.id} className="p-3 bg-muted/20 rounded flex justify-between items-center">
+                                <div className="flex-1">
                                   <p className="font-medium">{subtask.title}</p>
                                   <p className="text-xs text-muted-foreground">{subtask.description}</p>
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    <span className={`px-2 py-0.5 text-xs rounded-full ${getStatusColorClass(subtask.status)}`}>
+                                      {subtask.status}
+                                    </span>
+                                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100">
+                                      {subtask.assignee}
+                                    </span>
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  <span className={`px-2 py-0.5 text-xs rounded-full ${getStatusColorClass(subtask.status)}`}>
-                                    {subtask.status}
-                                  </span>
-                                  <span className="text-xs">
-                                    {subtask.assignee}
-                                  </span>
+                                <div className="flex items-center space-x-2">
+                                  <div className="flex-col items-center space-y-1">
+                                    <div className="w-36 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                      <div 
+                                        className={`h-full ${getProgressColorClass(subtask.progress)}`}
+                                        style={{ width: `${subtask.progress}%` }}
+                                      ></div>
+                                    </div>
+                                    <span className="text-xs">{subtask.progress}%</span>
+                                  </div>
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="outline" size="sm">Update Status</Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                      <DropdownMenuItem onClick={() => updateSubTaskStatus(task.id, subtask.id, "Pending", 0)}>
+                                        Set to Pending (0%)
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => updateSubTaskStatus(task.id, subtask.id, "In Progress", 50)}>
+                                        Set to In Progress (50%)
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => updateSubTaskStatus(task.id, subtask.id, "Completed", 100)}>
+                                        Set to Completed (100%)
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => updateSubTaskStatus(task.id, subtask.id, "Overdue", subtask.progress)}>
+                                        Mark as Overdue
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon"
+                                    onClick={() => deleteSubTask(task.id, subtask.id)}
+                                  >
+                                    <Trash2 className="h-4 w-4 text-red-600" />
+                                  </Button>
                                 </div>
                               </div>
                             ))}
                           </div>
-                        </div>
-                      )}
+                        ) : (
+                          <div className="text-center text-muted-foreground py-4">
+                            <p>No subtasks added yet.</p>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="mt-2"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openAddSubTaskDialog(task);
+                              }}
+                            >
+                              <Plus className="mr-2 h-4 w-4" /> Add Subtask
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -811,6 +1044,147 @@ export const TasksTab: React.FC<TasksTabProps> = ({ project }) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Add SubTask Dialog */}
+      <Dialog open={isAddSubTaskOpen} onOpenChange={setIsAddSubTaskOpen}>
+        <DialogContent className="sm:max-w-[625px]">
+          <DialogHeader>
+            <DialogTitle>Add New Subtask</DialogTitle>
+            <DialogDescription>
+              Create a new subtask for: {selectedTask?.title}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="subtask-title" className="text-right">
+                Title*
+              </Label>
+              <Input
+                id="subtask-title"
+                name="title"
+                value={subTaskFormData.title}
+                onChange={handleSubTaskInputChange}
+                className="col-span-3"
+                placeholder="Subtask title"
+                required
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="subtask-description" className="text-right">
+                Description
+              </Label>
+              <Textarea
+                id="subtask-description"
+                name="description"
+                value={subTaskFormData.description}
+                onChange={handleSubTaskInputChange}
+                className="col-span-3"
+                placeholder="Subtask description"
+                rows={3}
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="subtask-assignee" className="text-right">
+                Assignee*
+              </Label>
+              <Input
+                id="subtask-assignee"
+                name="assignee"
+                value={subTaskFormData.assignee}
+                onChange={handleSubTaskInputChange}
+                className="col-span-3"
+                placeholder="Person assigned to this subtask"
+                required
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Status</Label>
+              <Select
+                value={subTaskFormData.status}
+                onValueChange={(value) => handleSubTaskSelectChange("status", value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Pending">Pending</SelectItem>
+                  <SelectItem value="In Progress">In Progress</SelectItem>
+                  <SelectItem value="Completed">Completed</SelectItem>
+                  <SelectItem value="Overdue">Overdue</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Priority</Label>
+              <Select
+                value={subTaskFormData.priority}
+                onValueChange={(value) => handleSubTaskSelectChange("priority", value)}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Low">Low</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="High">High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Start Date*</Label>
+              <div className="col-span-3">
+                <DatePicker 
+                  date={subTaskFormData.startDate ? new Date(subTaskFormData.startDate) : undefined}
+                  onDateChange={(date) => handleSubTaskDateChange("startDate", date)}
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Due Date*</Label>
+              <div className="col-span-3">
+                <DatePicker 
+                  date={subTaskFormData.dueDate ? new Date(subTaskFormData.dueDate) : undefined}
+                  onDateChange={(date) => handleSubTaskDateChange("dueDate", date)}
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="subtask-progress" className="text-right">
+                Progress (%)
+              </Label>
+              <div className="col-span-3 flex items-center gap-4">
+                <Input
+                  id="subtask-progress"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={subTaskFormData.progress}
+                  onChange={handleSubTaskProgressChange}
+                />
+                <span>{subTaskFormData.progress}%</span>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddSubTaskOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddSubTask}>
+              Add Subtask
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
+
