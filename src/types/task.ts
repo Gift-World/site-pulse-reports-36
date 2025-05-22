@@ -1,4 +1,12 @@
 
+export interface Subtask {
+  id: number;
+  title: string;
+  status: "Completed" | "In Progress" | "Pending" | "Overdue";
+  progress: number;
+  assignee: string;
+}
+
 export interface Task {
   id: number;
   title: string;
@@ -12,4 +20,6 @@ export interface Task {
   endDate?: string;
   projectId?: number;
   projectName?: string;
+  subtasks?: Subtask[];
+  order?: number;
 }
