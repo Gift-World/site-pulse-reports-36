@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Project } from "@/types/project";
 import { Task, Subtask } from "@/types/task";
@@ -12,11 +11,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Plus, Filter, Calendar as CalendarIcon, ListFilter } from "lucide-react";
+import { Plus, Filter, Calendar as CalendarIcon, ListFilter, Timeline } from "lucide-react";
 import TaskCalendar from "@/components/tasks/TaskCalendar";
 import TaskList from "@/components/tasks/TaskList";
 import TaskExport from "@/components/tasks/TaskExport";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import TaskTimeline from "@/components/tasks/TaskTimeline";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -302,6 +302,10 @@ export function TasksTab({ project }: TasksTabProps) {
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   Calendar View
                 </TabsTrigger>
+                <TabsTrigger value="timeline">
+                  <Timeline className="mr-2 h-4 w-4" />
+                  Timeline
+                </TabsTrigger>
               </TabsList>
               
               <div className="flex flex-wrap gap-2">
@@ -379,6 +383,10 @@ export function TasksTab({ project }: TasksTabProps) {
                 onTimeframeChange={setExportTimeframe}
               />
             </TabsContent>
+            
+            <TabsContent value="timeline" className="pt-4">
+              <TaskTimeline tasks={sortedTasks} />
+            </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
@@ -388,6 +396,9 @@ export function TasksTab({ project }: TasksTabProps) {
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
             <DialogTitle>Add New Task</DialogTitle>
+            <DialogDescription>
+              Create a new task for the project.
+            </DialogDescription>
           </DialogHeader>
           
           <Form {...form}>
