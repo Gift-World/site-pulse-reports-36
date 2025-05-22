@@ -1,8 +1,6 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { SquareArrowUpRight } from "lucide-react";
 
 interface HeroSectionProps {
   onScrollToPricing: () => void;
@@ -21,9 +19,6 @@ export const HeroSection = ({ onScrollToPricing }: HeroSectionProps) => {
       {/* Main content */}
       <div className="container mx-auto px-4 py-16 text-center z-10">
         <div className="flex justify-center items-center mb-6">
-          <div className="h-12 w-12 rounded-md bg-construction-navy flex items-center justify-center relative mr-3">
-            <SquareArrowUpRight className="h-9 w-9 text-white" />
-          </div>
           <h1 className="text-6xl md:text-7xl font-bold text-construction-navy">
             SitePlan<span className="text-construction-orange">n</span>
           </h1>
