@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Project } from "@/types/project";
 import { Task } from "@/types/task";
@@ -322,61 +321,29 @@ export const TasksTab: React.FC<TasksTabProps> = ({ project }) => {
           <CardDescription>Manage and track tasks for this project</CardDescription>
         </div>
         <div className="flex space-x-2">
-          <TabsList>
-            <TabsTrigger 
-              value="list" 
+          <div className="flex">
+            <Button 
+              variant={activeView === "list" ? "default" : "outline"} 
+              className="rounded-r-none"
               onClick={() => setActiveView("list")}
-              className={activeView === "list" ? "bg-primary text-primary-foreground" : ""}
             >
               <List className="mr-2 h-4 w-4" />
               List
-            </TabsTrigger>
-            <TabsTrigger 
-              value="calendar" 
+            </Button>
+            <Button 
+              variant={activeView === "calendar" ? "default" : "outline"} 
+              className="rounded-l-none"
               onClick={() => setActiveView("calendar")}
-              className={activeView === "calendar" ? "bg-primary text-primary-foreground" : ""}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
               Calendar
-            </TabsTrigger>
-          </TabsList>
+            </Button>
+          </div>
 
           <Button onClick={() => setFilterOpen(!filterOpen)}>
             <Filter className="mr-2 h-4 w-4" />
             Filter
           </Button>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <Edit className="mr-2 h-4 w-4" />
-                Edit Task
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {tasks.map(task => (
-                <DropdownMenuItem key={task.id} onClick={() => openEditTaskDialog(task)}>
-                  {task.title}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="border-red-200 text-red-600 hover:bg-red-50">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Task
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {tasks.map(task => (
-                <DropdownMenuItem key={task.id} onClick={() => deleteTask(task.id)}>
-                  {task.title}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
           
           <Button onClick={openAddTaskDialog}>
             <Plus className="mr-2 h-4 w-4" />
@@ -473,15 +440,29 @@ export const TasksTab: React.FC<TasksTabProps> = ({ project }) => {
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
                     </div>
-                    <div className="flex flex-col items-end min-w-[200px]">
-                      <span className="text-sm">Assigned to: <strong>{task.assignee}</strong></span>
-                      <div className="mt-2 w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full ${getProgressColorClass(task.progress)}`}
-                          style={{ width: `${task.progress}%` }}
-                        ></div>
+                    <div className="flex items-center space-x-2">
+                      <Button variant="ghost" size="icon" onClick={(e) => {
+                        e.stopPropagation();
+                        openEditTaskDialog(task);
+                      }}>
+                        <Edit className="h-4 w-4 text-blue-600" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={(e) => {
+                        e.stopPropagation();
+                        deleteTask(task.id);
+                      }}>
+                        <Trash2 className="h-4 w-4 text-red-600" />
+                      </Button>
+                      <div className="flex flex-col items-end min-w-[200px]">
+                        <span className="text-sm">Assigned to: <strong>{task.assignee}</strong></span>
+                        <div className="mt-2 w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full ${getProgressColorClass(task.progress)}`}
+                            style={{ width: `${task.progress}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-xs mt-1">{task.progress}% complete</span>
                       </div>
-                      <span className="text-xs mt-1">{task.progress}% complete</span>
                     </div>
                   </div>
                   

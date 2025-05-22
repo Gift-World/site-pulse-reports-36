@@ -1,153 +1,100 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { Task } from "@/types/task";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Task } from "@/types/task";
-import { format, getMonth, getYear } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import { addDays, format, isSameDay, parseISO } from "date-fns";
 
 interface TaskCalendarProps {
   tasks: Task[];
 }
 
 const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks }) => {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
-  
-  // Find dates with tasks
-  const tasksDateMap = tasks.reduce<Record<string, Task[]>>((acc, task) => {
-    const dueDate = new Date(task.dueDate);
-    const dateKey = dueDate.toISOString().split('T')[0];
-    
-    if (!acc[dateKey]) {
-      acc[dateKey] = [];
-    }
-    
-    acc[dateKey].push(task);
-    return acc;
-  }, {});
+  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(new Date());
 
-  // Get tasks for the current month
-  const getTasksForCurrentMonth = () => {
-    return tasks.filter(task => {
-      const dueDate = new Date(task.dueDate);
-      return getMonth(dueDate) === getMonth(currentMonth) && 
-             getYear(dueDate) === getYear(currentMonth);
-    });
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "Completed":
-        return <Badge variant="outline" className="bg-green-50 text-construction-green">Completed</Badge>;
-      case "In Progress":
-        return <Badge variant="default" className="bg-construction-blue">In Progress</Badge>;
-      case "Pending":
-        return <Badge variant="secondary">Pending</Badge>;
-      case "Overdue":
-        return <Badge variant="destructive">Overdue</Badge>;
-      default:
-        return <Badge>{status}</Badge>;
-    }
-  };
-
-  // Update currentMonth when selected date changes
-  useEffect(() => {
-    const newMonth = new Date(selectedDate);
-    newMonth.setDate(1);
-    setCurrentMonth(newMonth);
-  }, [selectedDate]);
-
-  const monthlyTasks = getTasksForCurrentMonth();
+  // Get tasks for the selected date
+  const tasksForSelectedDate = selectedDate 
+    ? tasks.filter(task => {
+        const startDate = parseISO(task.startDate);
+        const dueDate = parseISO(task.dueDate);
+        const currentDate = selectedDate;
+        
+        // Check if the selected date falls within the task's start and due dates
+        return (currentDate >= startDate && currentDate <= dueDate);
+      })
+    : [];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-center">{format(currentMonth, "MMMM yyyy")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Calendar
-            mode="single"
-            selected={selectedDate}
-            onSelect={date => date && setSelectedDate(date)}
-            month={currentMonth}
-            onMonthChange={setCurrentMonth}
-            className="rounded-md border"
-            classNames={{
-              day_selected: "bg-construction-blue text-white",
-              day_today: "border border-construction-blue text-construction-blue",
-              cell: cn(
-                "relative p-0 text-center h-9 w-9 focus-within:relative focus-within:z-20"
-              ),
-              head_cell:
-                "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-              nav_button: cn(
-                "border-0 flex h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
-              ),
-            }}
-            components={{
-              IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
-              IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
-              DayContent: ({ date }) => {
-                const dateKey = date.toISOString().split('T')[0];
-                const hasTasks = !!tasksDateMap[dateKey];
-                const taskCount = tasksDateMap[dateKey]?.length || 0;
-                
-                return (
-                  <div className="relative w-full h-full flex items-center justify-center">
-                    {date.getDate()}
-                    {hasTasks && taskCount > 0 && (
-                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-construction-blue"></span>
-                    )}
-                  </div>
-                );
-              }
-            }}
-          />
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Tasks for {format(currentMonth, "MMMM yyyy")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {monthlyTasks.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Task</TableHead>
-                  <TableHead>Due Date</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {monthlyTasks.map((task) => (
-                  <TableRow key={task.id}>
-                    <TableCell className="font-medium">{task.title}</TableCell>
-                    <TableCell>{new Date(task.dueDate).toLocaleDateString()}</TableCell>
-                    <TableCell>{getStatusBadge(task.status)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <div className="py-6 text-center text-muted-foreground">
-              No tasks scheduled for {format(currentMonth, "MMMM yyyy")}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-      
-      <div className="col-span-1 md:col-span-2 mt-2">
-        <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded-full bg-construction-blue"></div>
-          <span className="text-sm">Days with tasks</span>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="md:col-span-2">
+        <Calendar
+          mode="single"
+          selected={selectedDate}
+          onSelect={setSelectedDate}
+          className="rounded-md border shadow p-3 pointer-events-auto"
+          classNames={{
+            day_today: "bg-blue-100 text-blue-900 font-bold",
+            day_selected: "bg-primary text-primary-foreground font-bold"
+          }}
+        />
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="flex items-center">
+            <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
+            <span className="text-sm">Tasks in progress</span>
+          </div>
+          <div className="flex items-center">
+            <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+            <span className="text-sm">Completed tasks</span>
+          </div>
+          <div className="flex items-center">
+            <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
+            <span className="text-sm">Pending tasks</span>
+          </div>
+          <div className="flex items-center">
+            <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
+            <span className="text-sm">Overdue tasks</span>
+          </div>
         </div>
+      </div>
+      
+      <div>
+        <Card className="h-full">
+          <CardHeader>
+            <CardTitle className="text-lg">
+              {selectedDate ? format(selectedDate, 'MMMM d, yyyy') : 'Select a date'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {tasksForSelectedDate.length > 0 ? (
+              <div className="space-y-3">
+                {tasksForSelectedDate.map(task => (
+                  <div key={task.id} className="border-l-4 pl-3 py-1" 
+                       style={{ 
+                         borderColor: task.status === "Completed" 
+                           ? "#10B981" 
+                           : task.status === "In Progress" 
+                             ? "#3B82F6" 
+                             : task.status === "Pending" 
+                               ? "#F59E0B" 
+                               : "#EF4444" 
+                       }}>
+                    <h4 className="font-medium">{task.title}</h4>
+                    <div className="text-xs text-muted-foreground">
+                      <div>Status: {task.status}</div>
+                      <div>Assignee: {task.assignee}</div>
+                      <div>Priority: {task.priority}</div>
+                      <div>Progress: {task.progress}%</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-muted-foreground py-8">
+                <p>No tasks scheduled for this date.</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
