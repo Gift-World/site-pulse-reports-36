@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -84,13 +83,13 @@ const Home = () => {
       {/* Hero Section with Construction Background */}
       <HeroSection onScrollToPricing={() => scrollToSection(pricingRef)} />
 
-      {/* Why ConstructPulse */}
+      {/* Why SitePlann */}
       <div ref={featuresRef}>
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Why ConstructPulse?</h2>
+            <h2 className="text-3xl font-bold mb-4">Why SitePlann?</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              ConstructPulse streamlines construction project management, eliminating communication gaps, 
+              SitePlann streamlines construction project management, eliminating communication gaps, 
               reducing delays, and ensuring your projects are delivered on time and within budget.
             </p>
           </div>
