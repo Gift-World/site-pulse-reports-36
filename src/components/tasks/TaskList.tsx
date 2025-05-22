@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Task } from "@/types/task";
 import { Badge } from "@/components/ui/badge";
@@ -24,11 +25,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 interface TaskListProps {
   tasks: Task[];
   onReorder: (tasks: Task[]) => void;
-  onAddSubtask: (taskId: number, subtaskTitle: string) => void;
+  onAddSubtask: (taskId: number, subtask: any) => void;
   onAssignTask: (taskId: number) => void;
   onDeleteTask?: (taskId: number) => void;
   onEditTask?: (task: Task) => void;
@@ -70,9 +75,25 @@ const taskEditSchema = z.object({
   description: z.string().optional(),
   status: z.enum(["Completed", "In Progress", "Pending", "Overdue"]),
   priority: z.enum(["High", "Medium", "Low"]),
+  assignee: z.string().min(1, "Assignee is required"),
+  dueDate: z.date({
+    required_error: "Due date is required",
+  }),
+  startDate: z.date({
+    required_error: "Start date is required",
+  })
+});
+
+// Form schema for subtask
+const subtaskSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  assignee: z.string().min(1, "Assignee is required"),
+  status: z.enum(["Completed", "In Progress", "Pending", "Overdue"]),
+  progress: z.number().min(0).max(100).default(0),
 });
 
 type TaskEditFormValues = z.infer<typeof taskEditSchema>;
+type SubtaskFormValues = z.infer<typeof subtaskSchema>;
 
 const TaskList: React.FC<TaskListProps> = ({ 
   tasks, 
@@ -83,10 +104,11 @@ const TaskList: React.FC<TaskListProps> = ({
   onEditTask
 }) => {
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
-  const [newSubtasks, setNewSubtasks] = useState<{[key: number]: string}>({});
   const [expandedTasks, setExpandedTasks] = useState<{[key: number]: boolean}>({});
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+  const [subtaskModalOpen, setSubtaskModalOpen] = useState(false);
+  const [taskForSubtask, setTaskForSubtask] = useState<number | null>(null);
   
   const form = useForm<TaskEditFormValues>({
     resolver: zodResolver(taskEditSchema),
@@ -95,6 +117,19 @@ const TaskList: React.FC<TaskListProps> = ({
       description: "",
       status: "Pending",
       priority: "Medium",
+      assignee: "",
+      dueDate: new Date(),
+      startDate: new Date(),
+    },
+  });
+  
+  const subtaskForm = useForm<SubtaskFormValues>({
+    resolver: zodResolver(subtaskSchema),
+    defaultValues: {
+      title: "",
+      assignee: "",
+      status: "Pending",
+      progress: 0,
     },
   });
   
@@ -144,26 +179,39 @@ const TaskList: React.FC<TaskListProps> = ({
       [taskId]: !prev[taskId]
     }));
   };
-  
-  const handleSubtaskInputChange = (taskId: number, value: string) => {
-    setNewSubtasks(prev => ({
-      ...prev,
-      [taskId]: value
-    }));
+
+  const handleOpenSubtaskModal = (taskId: number) => {
+    setTaskForSubtask(taskId);
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      subtaskForm.reset({
+        title: "",
+        assignee: task.assignee, // Default to same assignee as parent task
+        status: "Pending",
+        progress: 0,
+      });
+    }
+    setSubtaskModalOpen(true);
   };
   
-  const handleAddSubtask = (taskId: number) => {
-    if (newSubtasks[taskId]?.trim()) {
-      onAddSubtask(taskId, newSubtasks[taskId].trim());
-      // Clear the input after adding
-      setNewSubtasks(prev => ({
-        ...prev,
-        [taskId]: ""
-      }));
+  const handleAddSubtask = (data: SubtaskFormValues) => {
+    if (taskForSubtask !== null) {
+      const newSubtask = {
+        id: Date.now(),
+        title: data.title,
+        assignee: data.assignee,
+        status: data.status,
+        progress: data.progress
+      };
+      
+      onAddSubtask(taskForSubtask, newSubtask);
+      setSubtaskModalOpen(false);
+      subtaskForm.reset();
+      
       // Ensure the task is expanded to show the new subtask
       setExpandedTasks(prev => ({
         ...prev,
-        [taskId]: true
+        [taskForSubtask]: true
       }));
     }
   };
@@ -175,6 +223,9 @@ const TaskList: React.FC<TaskListProps> = ({
       description: task.description,
       status: task.status,
       priority: task.priority,
+      assignee: task.assignee,
+      dueDate: task.dueDate ? new Date(task.dueDate) : new Date(),
+      startDate: task.startDate ? new Date(task.startDate) : new Date(),
     });
     setEditModalOpen(true);
   };
@@ -193,6 +244,9 @@ const TaskList: React.FC<TaskListProps> = ({
         description: data.description || "",
         status: data.status,
         priority: data.priority,
+        assignee: data.assignee,
+        dueDate: format(data.dueDate, "MMM d, yyyy"),
+        startDate: format(data.startDate, "MMM d, yyyy"),
         progress: data.status === "Completed" ? 100 : taskToEdit.progress
       };
       
@@ -226,7 +280,7 @@ const TaskList: React.FC<TaskListProps> = ({
                 <div className="space-y-2 flex-1">
                   <div className="flex items-start gap-2">
                     {getStatusIcon(task.status)}
-                    <div>
+                    <div className="flex-1">
                       <p className="font-medium">{task.title}</p>
                       <p className="text-sm text-muted-foreground">{task.description}</p>
                       {task.projectName && (
@@ -234,6 +288,34 @@ const TaskList: React.FC<TaskListProps> = ({
                           Project: {task.projectName}
                         </p>
                       )}
+                    </div>
+                    
+                    {/* Action buttons moved here between title and assignee */}
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => handleOpenSubtaskModal(task.id)}
+                        title="Add subtask"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => handleEditClick(task)}
+                        title="Edit task"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => handleDeleteClick(task.id)}
+                        title="Delete task"
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -276,25 +358,6 @@ const TaskList: React.FC<TaskListProps> = ({
                   <Progress value={task.progress} className="h-2" />
                 </div>
               </div>
-              
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={() => handleEditClick(task)}
-                  title="Edit task"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={() => handleDeleteClick(task.id)}
-                  title="Delete task"
-                >
-                  <Trash2 className="h-4 w-4 text-red-500" />
-                </Button>
-              </div>
             </div>
             
             <div className="mt-4 flex items-center">
@@ -309,14 +372,14 @@ const TaskList: React.FC<TaskListProps> = ({
                 ) : (
                   <ChevronDown className="h-4 w-4" />
                 )}
-                <span className="text-sm">{(task.subtasks?.length || 0) > 0 ? `Subtasks (${task.subtasks?.length})` : "Add subtasks"}</span>
+                <span className="text-sm">{(task.subtasks?.length || 0) > 0 ? `Subtasks (${task.subtasks?.length})` : "View subtasks"}</span>
               </Button>
             </div>
             
             {expandedTasks[task.id] && (
               <div className="pl-6 mt-2 border-l-2 border-l-muted ml-4">
                 {/* Subtasks list */}
-                {task.subtasks && task.subtasks.length > 0 && (
+                {task.subtasks && task.subtasks.length > 0 ? (
                   <div className="space-y-2 mb-3">
                     {task.subtasks.map(subtask => (
                       <div key={subtask.id} className="flex items-center gap-2 py-1">
@@ -339,29 +402,9 @@ const TaskList: React.FC<TaskListProps> = ({
                       </div>
                     ))}
                   </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground my-2">No subtasks yet. Click the + button to add one.</div>
                 )}
-                
-                {/* Add subtask input */}
-                <div className="flex items-center gap-2 mb-3">
-                  <Input
-                    placeholder="Add a subtask"
-                    value={newSubtasks[task.id] || ""}
-                    onChange={(e) => handleSubtaskInputChange(task.id, e.target.value)}
-                    className="text-sm h-8"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleAddSubtask(task.id);
-                      }
-                    }}
-                  />
-                  <Button 
-                    size="sm" 
-                    variant="ghost"
-                    onClick={() => handleAddSubtask(task.id)}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
               </div>
             )}
           </div>
@@ -456,11 +499,206 @@ const TaskList: React.FC<TaskListProps> = ({
                 />
               </div>
               
+              <FormField
+                control={form.control}
+                name="assignee"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Assignee</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Assignee" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="David Lee">David Lee</SelectItem>
+                        <SelectItem value="Robert Wilson">Robert Wilson</SelectItem>
+                        <SelectItem value="Sarah Johnson">Sarah Johnson</SelectItem>
+                        <SelectItem value="Jennifer Chen">Jennifer Chen</SelectItem>
+                        <SelectItem value="Michael Robinson">Michael Robinson</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Start Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                            >
+                              {field.value ? format(field.value, "PPP") : "Pick a date"}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="dueDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Due Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                            >
+                              {field.value ? format(field.value, "PPP") : "Pick a date"}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setEditModalOpen(false)}>
                   Cancel
                 </Button>
                 <Button type="submit">Save Changes</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Subtask Modal */}
+      <Dialog open={subtaskModalOpen} onOpenChange={setSubtaskModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add Subtask</DialogTitle>
+          </DialogHeader>
+          
+          <Form {...subtaskForm}>
+            <form onSubmit={subtaskForm.handleSubmit(handleAddSubtask)} className="space-y-4">
+              <FormField
+                control={subtaskForm.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subtask Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter subtask title" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={subtaskForm.control}
+                  name="assignee"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Assignee</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Assignee" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="David Lee">David Lee</SelectItem>
+                          <SelectItem value="Robert Wilson">Robert Wilson</SelectItem>
+                          <SelectItem value="Sarah Johnson">Sarah Johnson</SelectItem>
+                          <SelectItem value="Jennifer Chen">Jennifer Chen</SelectItem>
+                          <SelectItem value="Michael Robinson">Michael Robinson</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={subtaskForm.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Pending">Pending</SelectItem>
+                          <SelectItem value="In Progress">In Progress</SelectItem>
+                          <SelectItem value="Completed">Completed</SelectItem>
+                          <SelectItem value="Overdue">Overdue</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <FormField
+                control={subtaskForm.control}
+                name="progress"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Progress (%)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        min="0"
+                        max="100"
+                        placeholder="Enter progress percentage" 
+                        {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setSubtaskModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">Add Subtask</Button>
               </DialogFooter>
             </form>
           </Form>

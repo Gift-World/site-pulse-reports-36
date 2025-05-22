@@ -93,6 +93,51 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks }) => {
   // Tasks for the date range based on current view mode
   const tasksInRange = getTasksForRange();
 
+  // Get view mode label for display
+  const getViewModeLabel = () => {
+    switch (viewMode) {
+      case "day": return "Daily";
+      case "week": return "Weekly";
+      case "month": return "Monthly";
+      default: return "Daily";
+    }
+  };
+
+  // Get formatted date range for display
+  const getDateRangeLabel = () => {
+    if (!selectedDate) return "";
+    
+    switch (viewMode) {
+      case "week": {
+        const start = startOfWeek(selectedDate);
+        const end = endOfWeek(selectedDate);
+        return `${format(start, 'MMM d')} - ${format(end, 'MMM d, yyyy')}`;
+      }
+      case "month": {
+        const start = startOfMonth(selectedDate);
+        const end = endOfMonth(selectedDate);
+        return `${format(start, 'MMM d')} - ${format(end, 'MMM d, yyyy')}`;
+      }
+      case "day":
+      default:
+        return format(selectedDate, 'MMMM d, yyyy');
+    }
+  };
+
+  // Function to get marker style for tasks based on priority and status
+  const getTaskMarkerStyle = (task: Task) => {
+    let bgColor;
+    switch (task.status) {
+      case "Completed": bgColor = "bg-green-500"; break;
+      case "In Progress": bgColor = "bg-blue-500"; break;
+      case "Pending": bgColor = "bg-yellow-500"; break;
+      case "Overdue": bgColor = "bg-red-500"; break;
+      default: bgColor = "bg-gray-500";
+    }
+    
+    return bgColor;
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="md:col-span-2">
@@ -119,7 +164,37 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks }) => {
           className="rounded-md border shadow p-3 pointer-events-auto"
           classNames={{
             day_today: "bg-blue-100 text-blue-900 font-bold",
-            day_selected: "bg-primary text-primary-foreground font-bold"
+            day_selected: "bg-primary text-primary-foreground font-bold",
+            day: "relative",
+          }}
+          components={{
+            DayContent: ({ day }) => {
+              // Get tasks for this specific day
+              const dayTasks = tasks.filter(task => {
+                const taskStartDate = parseISO(task.startDate);
+                const taskEndDate = task.endDate ? parseISO(task.endDate) : parseISO(task.dueDate);
+                return isSameDay(day, taskStartDate) || isSameDay(day, taskEndDate) || 
+                       (day >= taskStartDate && day <= taskEndDate);
+              });
+              
+              return (
+                <div className="relative flex justify-center items-center h-9 w-9">
+                  <div>{format(day, "d")}</div>
+                  {dayTasks.length > 0 && (
+                    <div className="absolute bottom-0 flex gap-0.5 justify-center">
+                      {dayTasks.slice(0, 3).map((task, i) => (
+                        <div
+                          key={`${task.id}-${i}`}
+                          className={`h-1 w-2 rounded-sm ${getTaskMarkerStyle(task)}`}
+                          style={{ backgroundColor: taskColors[task.priority] || taskColors.default }}
+                        ></div>
+                      ))}
+                      {dayTasks.length > 3 && <div className="h-1 w-1 rounded-full bg-gray-400"></div>}
+                    </div>
+                  )}
+                </div>
+              );
+            }
           }}
         />
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -147,10 +222,10 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks }) => {
           <CardHeader>
             <CardTitle className="text-lg flex justify-between items-center">
               <div>
-                {selectedDate ? format(selectedDate, 'MMMM d, yyyy') : 'Select a date'}
+                {getDateRangeLabel()}
               </div>
               <Badge variant="outline">
-                {viewMode === "day" ? "Daily" : viewMode === "week" ? "Weekly" : "Monthly"}
+                {getViewModeLabel()}
               </Badge>
             </CardTitle>
           </CardHeader>
@@ -158,7 +233,7 @@ const TaskCalendar: React.FC<TaskCalendarProps> = ({ tasks }) => {
             {tasksInRange.length > 0 ? (
               <div className="space-y-5">
                 {tasksInRange.map(task => (
-                  <div key={task.id}>
+                  <div key={task.id} className="task-item">
                     <div className="border-l-4 pl-3 py-1 mb-2" 
                         style={{ borderColor: taskColors[task.priority] || taskColors.default }}>
                       <h4 className="font-medium">{task.title}</h4>

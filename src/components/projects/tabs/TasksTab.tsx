@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Project } from "@/types/project";
 import { Task, Subtask } from "@/types/task";
@@ -26,6 +27,7 @@ import { format, parseISO, addDays } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface TasksTabProps {
   project: Project;
@@ -212,15 +214,15 @@ export function TasksTab({ project }: TasksTabProps) {
     setTasks(updatedTasks);
   };
 
-  const handleAddSubtask = (taskId: number, subtaskTitle: string) => {
+  const handleAddSubtask = (taskId: number, subtaskData: any) => {
     const updatedTasks = tasks.map(task => {
       if (task.id === taskId) {
         const newSubtask: Subtask = {
           id: Date.now(), // Use timestamp as ID for simplicity
-          title: subtaskTitle,
-          status: "Pending",
-          progress: 0,
-          assignee: task.assignee // Default to the main task assignee
+          title: subtaskData.title,
+          status: subtaskData.status,
+          progress: subtaskData.progress,
+          assignee: subtaskData.assignee
         };
         
         return {
@@ -235,7 +237,7 @@ export function TasksTab({ project }: TasksTabProps) {
     
     toast({
       title: "Subtask added",
-      description: `Added "${subtaskTitle}" to the task.`,
+      description: `Added "${subtaskData.title}" to the task.`,
     });
   };
 
@@ -518,6 +520,7 @@ export function TasksTab({ project }: TasksTabProps) {
                             selected={field.value}
                             onSelect={field.onChange}
                             initialFocus
+                            className={cn("p-3 pointer-events-auto")}
                           />
                         </PopoverContent>
                       </Popover>
@@ -549,6 +552,7 @@ export function TasksTab({ project }: TasksTabProps) {
                             selected={field.value}
                             onSelect={field.onChange}
                             initialFocus
+                            className={cn("p-3 pointer-events-auto")}
                           />
                         </PopoverContent>
                       </Popover>
