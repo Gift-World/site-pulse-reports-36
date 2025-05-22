@@ -41,7 +41,7 @@ export const IncidentReportForm: React.FC<IncidentReportFormProps> = ({
       date: new Date().toISOString().split("T")[0], // Today's date as default
       title: "",
       description: "",
-      severity: "Low",
+      severity: "Low", // Ensure there's a default value
       location: "",
       reportedBy: "",
     },

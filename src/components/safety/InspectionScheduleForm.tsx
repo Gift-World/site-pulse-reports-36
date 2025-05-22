@@ -36,7 +36,7 @@ export const InspectionScheduleForm: React.FC<InspectionScheduleFormProps> = ({
     resolver: zodResolver(inspectionFormSchema),
     defaultValues: {
       date: new Date(Date.now() + 86400000).toISOString().split("T")[0], // Tomorrow's date as default
-      type: "",
+      type: "Weekly Safety Audit", // Set a default value instead of empty string
       inspector: "",
       location: "",
       notes: "",
@@ -100,7 +100,7 @@ export const InspectionScheduleForm: React.FC<InspectionScheduleFormProps> = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Inspection Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value || "Weekly Safety Audit"}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select inspection type" />

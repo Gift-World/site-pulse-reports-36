@@ -38,7 +38,7 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
     resolver: zodResolver(observationFormSchema),
     defaultValues: {
       date: new Date().toISOString().split("T")[0], // Today's date as default
-      type: "Hazard",
+      type: "Hazard", // Ensure there's a default value
       description: "",
       location: "",
       reportedBy: "",
