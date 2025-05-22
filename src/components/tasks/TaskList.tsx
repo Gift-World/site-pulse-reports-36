@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Task } from "@/types/task";
 import { Badge } from "@/components/ui/badge";
@@ -12,16 +11,27 @@ import {
   GripVertical,
   ChevronDown,
   ChevronUp,
-  Plus
+  Plus,
+  Edit,
+  Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface TaskListProps {
   tasks: Task[];
   onReorder: (tasks: Task[]) => void;
   onAddSubtask: (taskId: number, subtaskTitle: string) => void;
   onAssignTask: (taskId: number) => void;
+  onDeleteTask?: (taskId: number) => void;
+  onEditTask?: (task: Task) => void;
 }
 
 const getStatusIcon = (status: string) => {
@@ -54,10 +64,39 @@ const getStatusBadge = (status: string) => {
   }
 };
 
-const TaskList: React.FC<TaskListProps> = ({ tasks, onReorder, onAddSubtask, onAssignTask }) => {
+// Form schema for task editing
+const taskEditSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  status: z.enum(["Completed", "In Progress", "Pending", "Overdue"]),
+  priority: z.enum(["High", "Medium", "Low"]),
+});
+
+type TaskEditFormValues = z.infer<typeof taskEditSchema>;
+
+const TaskList: React.FC<TaskListProps> = ({ 
+  tasks, 
+  onReorder, 
+  onAddSubtask, 
+  onAssignTask,
+  onDeleteTask,
+  onEditTask
+}) => {
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const [newSubtasks, setNewSubtasks] = useState<{[key: number]: string}>({});
   const [expandedTasks, setExpandedTasks] = useState<{[key: number]: boolean}>({});
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+  
+  const form = useForm<TaskEditFormValues>({
+    resolver: zodResolver(taskEditSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      status: "Pending",
+      priority: "Medium",
+    },
+  });
   
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
     setDraggingIndex(index);
@@ -126,6 +165,39 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onReorder, onAddSubtask, onA
         ...prev,
         [taskId]: true
       }));
+    }
+  };
+
+  const handleEditClick = (task: Task) => {
+    setTaskToEdit(task);
+    form.reset({
+      title: task.title,
+      description: task.description,
+      status: task.status,
+      priority: task.priority,
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleDeleteClick = (taskId: number) => {
+    if (onDeleteTask && window.confirm("Are you sure you want to delete this task?")) {
+      onDeleteTask(taskId);
+    }
+  };
+
+  const handleEditSubmit = (data: TaskEditFormValues) => {
+    if (taskToEdit && onEditTask) {
+      const updatedTask: Task = {
+        ...taskToEdit,
+        title: data.title,
+        description: data.description || "",
+        status: data.status,
+        priority: data.priority,
+        progress: data.status === "Completed" ? 100 : taskToEdit.progress
+      };
+      
+      onEditTask(updatedTask);
+      setEditModalOpen(false);
     }
   };
 
@@ -204,6 +276,25 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onReorder, onAddSubtask, onA
                   <Progress value={task.progress} className="h-2" />
                 </div>
               </div>
+              
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => handleEditClick(task)}
+                  title="Edit task"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => handleDeleteClick(task.id)}
+                  title="Delete task"
+                >
+                  <Trash2 className="h-4 w-4 text-red-500" />
+                </Button>
+              </div>
             </div>
             
             <div className="mt-4 flex items-center">
@@ -276,6 +367,105 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, onReorder, onAddSubtask, onA
           </div>
         </div>
       ))}
+
+      {/* Edit Task Modal */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Task</DialogTitle>
+          </DialogHeader>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleEditSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Task Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter task title" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Enter task description" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="priority"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Priority</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Priority" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Low">Low</SelectItem>
+                          <SelectItem value="Medium">Medium</SelectItem>
+                          <SelectItem value="High">High</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Pending">Pending</SelectItem>
+                          <SelectItem value="In Progress">In Progress</SelectItem>
+                          <SelectItem value="Completed">Completed</SelectItem>
+                          <SelectItem value="Overdue">Overdue</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setEditModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">Save Changes</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

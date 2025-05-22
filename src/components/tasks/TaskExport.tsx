@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
   Select,
@@ -9,8 +9,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Task } from "@/types/task";
-import { FileText, File, Download } from "lucide-react"; // Changed FileWord to File
-import { format } from "date-fns";
+import { FileText, File, Download, Calendar as CalendarIcon } from "lucide-react";
+import { format, addDays, addWeeks, addMonths } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 interface TaskExportProps {
   tasks: Task[];
@@ -25,16 +28,29 @@ const TaskExport: React.FC<TaskExportProps> = ({
   timeframe,
   onTimeframeChange
 }) => {
-  const generateTaskReport = (formatType: "pdf" | "word") => { // Renamed parameter to avoid confusion
+  const [exportDate, setExportDate] = useState<Date | undefined>(selectedDate || new Date());
+  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
+
+  const generateTaskReport = (formatType: "pdf" | "word") => {
     // In a real implementation, this would generate a PDF or Word document
     // For now, we'll just show a console message
     console.log(`Generating ${formatType} report for ${timeframe} tasks`);
     
-    const dateStr = selectedDate 
-      ? `${format(selectedDate, 'yyyy-MM-dd')}` 
-      : 'all dates';
+    let dateRangeStr = "all dates";
     
-    alert(`Downloading ${timeframe} task report (${formatType.toUpperCase()}) for ${dateStr}\n\nIn a production environment, this would generate and download a ${formatType.toUpperCase()} file with the task details.`);
+    if (exportDate) {
+      if (timeframe === "daily") {
+        dateRangeStr = `${format(exportDate, 'MMM d, yyyy')}`;
+      } else if (timeframe === "weekly") {
+        const endDate = addDays(exportDate, 6);
+        dateRangeStr = `${format(exportDate, 'MMM d')} - ${format(endDate, 'MMM d, yyyy')}`;
+      } else if (timeframe === "monthly") {
+        const endDate = addDays(addMonths(exportDate, 1), -1);
+        dateRangeStr = `${format(exportDate, 'MMM d')} - ${format(endDate, 'MMM d, yyyy')}`;
+      }
+    }
+    
+    alert(`Downloading ${timeframe} task report (${formatType.toUpperCase()}) for ${dateRangeStr}\n\nIn a production environment, this would generate and download a ${formatType.toUpperCase()} file with the task details.`);
   };
 
   return (
@@ -62,6 +78,27 @@ const TaskExport: React.FC<TaskExportProps> = ({
             </SelectContent>
           </Select>
           
+          <Popover open={showDatePicker} onOpenChange={setShowDatePicker}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center gap-1">
+                <CalendarIcon className="h-4 w-4" />
+                {exportDate ? format(exportDate, 'd MMM yyyy') : 'Select date'}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                mode="single"
+                selected={exportDate}
+                onSelect={(date) => {
+                  setExportDate(date);
+                  setShowDatePicker(false);
+                }}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
+          
           <Button 
             variant="outline" 
             size="sm"
@@ -77,7 +114,7 @@ const TaskExport: React.FC<TaskExportProps> = ({
             onClick={() => generateTaskReport("word")}
             className="flex items-center gap-1"
           >
-            <File className="h-4 w-4" /> {/* Changed FileWord to File */}
+            <File className="h-4 w-4" />
             Word
           </Button>
         </div>

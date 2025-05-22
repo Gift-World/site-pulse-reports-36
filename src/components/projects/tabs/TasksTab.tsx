@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Project } from "@/types/project";
 import { Task, Subtask } from "@/types/task";
@@ -248,6 +247,30 @@ export function TasksTab({ project }: TasksTabProps) {
     });
   };
 
+  const handleDeleteTask = (taskId: number) => {
+    // Filter out the task to be deleted
+    const updatedTasks = tasks.filter(task => task.id !== taskId);
+    setTasks(updatedTasks);
+    
+    toast({
+      title: "Task deleted",
+      description: "The task has been removed from the project.",
+    });
+  };
+  
+  const handleEditTask = (updatedTask: Task) => {
+    const updatedTasks = tasks.map(task => 
+      task.id === updatedTask.id ? updatedTask : task
+    );
+    
+    setTasks(updatedTasks);
+    
+    toast({
+      title: "Task updated",
+      description: "The task has been successfully updated.",
+    });
+  };
+
   // Get unique assignees for filter dropdown
   const uniqueAssignees = Array.from(
     new Set(tasks.map(task => task.assignee))
@@ -340,6 +363,8 @@ export function TasksTab({ project }: TasksTabProps) {
                 onReorder={handleTaskReorder}
                 onAddSubtask={handleAddSubtask}
                 onAssignTask={handleAssignTask}
+                onDeleteTask={handleDeleteTask}
+                onEditTask={handleEditTask}
               />
             </TabsContent>
             
