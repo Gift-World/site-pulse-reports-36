@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Globe, Phone, ChevronRight } from "lucide-react";
+import { Globe, Phone, ChevronRight, Square } from "lucide-react";
 
 interface HeroSectionProps {
   onScrollToPricing: () => void;
@@ -18,10 +18,10 @@ export const HeroSection = ({ onScrollToPricing }: HeroSectionProps) => {
         {/* Left column - Text content */}
         <div className="space-y-8 text-white">
           <div className="flex items-center mb-6">
-            <div className="h-10 w-10 rounded-md bg-white flex items-center justify-center text-construction-navy font-bold mr-3">
-              SP
+            <div className="h-10 w-10 rounded-md bg-white flex items-center justify-center text-construction-navy mr-3">
+              <Square className="h-6 w-6" />
             </div>
-            <span className="text-xl font-bold">SitePlann</span>
+            <span className="text-xl font-bold">SitePlan<span className="text-construction-orange">n</span></span>
           </div>
           
           <div className="space-y-6">
@@ -70,47 +70,35 @@ export const HeroSection = ({ onScrollToPricing }: HeroSectionProps) => {
           </div>
         </div>
         
-        {/* Right column - Creative image grid */}
-        <div className="hidden lg:flex items-center justify-center relative">
-          {/* Grid container */}
-          <div className="grid grid-cols-6 grid-rows-6 gap-3 h-full w-full">
-            {/* Large center image */}
-            <div className="col-span-4 row-span-4 col-start-2 row-start-2 relative z-30">
-              <div className="h-full w-full rounded-lg overflow-hidden shadow-2xl border-4 border-white">
-                <img 
-                  src="/lovable-uploads/b5a9484a-acf7-45fe-801f-d96772aacd1c.png" 
-                  alt="Construction workers at site" 
-                  className="h-full w-full object-cover"
-                />
+        {/* Right column - Content */}
+        <div className="hidden lg:flex items-center justify-center">
+          <div className="relative">
+            <div className="absolute -top-20 -right-12 h-64 w-64 bg-construction-darkBlue rounded-full opacity-50 blur-3xl"></div>
+            <div className="absolute -bottom-20 -left-12 h-64 w-64 bg-construction-orange rounded-full opacity-20 blur-3xl"></div>
+            
+            <div className="relative z-10 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-8 shadow-xl">
+              <div className="space-y-8">
+                <div className="flex items-center justify-center">
+                  <Square className="h-16 w-16 text-construction-orange" />
+                </div>
+                
+                <div className="text-center space-y-2">
+                  <h2 className="text-2xl font-bold text-white">Ready to transform your construction business?</h2>
+                  <p className="text-white/70">Join thousands of professionals who trust SitePlan<span className="text-construction-orange">n</span></p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white/10 rounded-lg p-4 text-center">
+                    <h3 className="text-lg font-bold text-white">500+</h3>
+                    <p className="text-white/70 text-sm">Projects Completed</p>
+                  </div>
+                  <div className="bg-white/10 rounded-lg p-4 text-center">
+                    <h3 className="text-lg font-bold text-white">98%</h3>
+                    <p className="text-white/70 text-sm">Client Satisfaction</p>
+                  </div>
+                </div>
               </div>
             </div>
-            
-            {/* Top right image */}
-            <div className="col-span-2 row-span-3 col-start-5 row-start-1 relative z-20">
-              <div className="h-full w-full rounded-lg overflow-hidden shadow-xl border-4 border-white transform rotate-3">
-                <img 
-                  src="/lovable-uploads/c39d8583-9621-4aad-95c6-ffd38ef442c8.png" 
-                  alt="Construction crane" 
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            </div>
-            
-            {/* Bottom left image */}
-            <div className="col-span-3 row-span-3 col-start-1 row-start-4 relative z-10">
-              <div className="h-full w-full rounded-lg overflow-hidden shadow-xl border-4 border-white transform -rotate-6">
-                <img 
-                  src="/lovable-uploads/277d781e-99be-47e7-a912-e42b62f83e95.png" 
-                  alt="Building construction" 
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            </div>
-            
-            {/* Decorative elements */}
-            <div className="absolute top-12 right-20 h-16 w-16 bg-construction-orange rounded-full opacity-20"></div>
-            <div className="absolute bottom-20 left-10 h-24 w-24 bg-white rounded-full opacity-10"></div>
-            <div className="absolute top-1/2 right-4 h-32 w-4 bg-construction-orange opacity-20"></div>
           </div>
         </div>
       </div>

@@ -5,7 +5,8 @@ import {
   Search, 
   Home,
   Menu,
-  Settings
+  Settings,
+  Square
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -46,6 +47,14 @@ export function Header() {
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b bg-background px-4 shadow-sm">
       <div className="flex items-center gap-2">
         {isMobile && <SidebarTrigger />}
+        
+        <Link to="/" className="flex items-center mr-4">
+          <div className="h-8 w-8 rounded-md bg-construction-navy flex items-center justify-center mr-2">
+            <Square className="h-5 w-5 text-white" />
+          </div>
+          <span className="text-lg font-bold text-construction-navy">SitePlan<span className="text-construction-orange">n</span></span>
+        </Link>
+        
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <input

@@ -1,157 +1,179 @@
 
 import React from "react";
-import { NavLink } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { Sidebar, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
+import { useSidebar } from "@/components/ui/sidebar";
 import { 
-  Sidebar, 
-  SidebarContent, 
-  SidebarGroup,
-  SidebarGroupContent, 
-  SidebarGroupLabel,
-  SidebarMenu, 
-  SidebarMenuItem, 
-  SidebarMenuButton, 
-  SidebarTrigger,
-  useSidebar
-} from "@/components/ui/sidebar";
-import { 
-  Users, 
-  FileText, 
-  MessageSquare,
-  ChartBar, 
-  ShieldAlert, 
-  FolderOpen, 
-  Package,
-  UserPlus,
-  Home,
+  LayoutDashboard,
+  FileSpreadsheet,
+  Briefcase,
+  Users,
+  CheckSquare,
+  ShieldAlert,
+  PackageOpen,
+  HardHat,
+  Settings,
   Files,
-  ClipboardCheck
+  MessagesSquare,
+  Square
 } from "lucide-react";
 
-// Define a type for navigation items (removed notification count)
-interface NavItem {
-  path: string;
-  name: string;
-  icon: React.ReactNode;
-}
-
-// Navigation items (removed notification counts)
-const navItems: NavItem[] = [
-  { 
-    path: "/", 
-    name: "Home", 
-    icon: <Home className="h-5 w-5" /> 
-  },
-  { 
-    path: "/dashboard", 
-    name: "Dashboard", 
-    icon: <ChartBar className="h-5 w-5" />
-  },
-  { 
-    path: "/projects", 
-    name: "Projects", 
-    icon: <FolderOpen className="h-5 w-5" /> 
-  },
-  { 
-    path: "/team", 
-    name: "Team", 
-    icon: <Users className="h-5 w-5" /> 
-  },
-  { 
-    path: "/tasks", 
-    name: "Tasks", 
-    icon: <ClipboardCheck className="h-5 w-5" />
-  },
-  { 
-    path: "/reports", 
-    name: "Reports", 
-    icon: <FileText className="h-5 w-5" /> 
-  },
-  { 
-    path: "/safety", 
-    name: "Safety", 
-    icon: <ShieldAlert className="h-5 w-5" />
-  },
-  { 
-    path: "/inventory", 
-    name: "Inventory", 
-    icon: <Package className="h-5 w-5" /> 
-  },
-  { 
-    path: "/labor", 
-    name: "Labor", 
-    icon: <UserPlus className="h-5 w-5" /> 
-  },
-  { 
-    path: "/files", 
-    name: "Files", 
-    icon: <Files className="h-5 w-5" /> 
-  },
-  { 
-    path: "/chat", 
-    name: "Chat", 
-    icon: <MessageSquare className="h-5 w-5" />
-  }
-];
-
 export function MainSidebar() {
-  const { open } = useSidebar();
-  const isCollapsed = !open;
-  
-  return (
-    <Sidebar
-      className={cn(
-        "border-r border-border fixed left-0 top-0 bottom-0 transition-all duration-300 ease-in-out z-40",
-        isCollapsed ? "w-16" : "w-64",
-        "bg-construction-navy text-white"
-      )}
-    >
-      {/* Logo Area */}
-      <div className="p-4 flex items-center justify-between">
-        {!isCollapsed && (
-          <div className="flex items-center">
-            <div className="h-8 w-8 rounded-md bg-white flex items-center justify-center text-construction-navy font-bold">
-              SP
-            </div>
-            <span className="ml-2 font-bold text-lg text-white">SitePlann</span>
-          </div>
-        )}
-        <SidebarTrigger className="ml-auto text-white hover:bg-construction-navy hover:text-white" />
-      </div>
+  const location = useLocation();
+  const { collapsed } = useSidebar();
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel className={cn("text-xs uppercase font-semibold text-white/70 px-4 py-2", isCollapsed && "sr-only")}>
-            Main Navigation
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.path}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.path}
-                      className={({ isActive }) =>
-                        cn(
-                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors relative",
-                          isActive 
-                            ? "bg-white text-construction-navy" 
-                            : "text-white hover:bg-white/10 hover:text-white"
-                        )
-                      }
-                      end={item.path === "/" || item.path === "/dashboard"}
-                    >
-                      {item.icon}
-                      {!isCollapsed && (
-                        <span>{item.name}</span>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+  const isActive = (path: string) => {
+    return location.pathname === path || location.pathname.startsWith(`${path}/`);
+  };
+
+  return (
+    <Sidebar className={`border-r ${collapsed ? "w-14" : "w-64"}`} collapsible>
+      <div className={`flex items-center ${collapsed ? "justify-center" : "justify-between"} px-4 py-3`}>
+        {!collapsed && (
+          <Link to="/" className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-md bg-construction-navy flex items-center justify-center">
+              <Square className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-lg font-bold text-construction-navy">SitePlan<span className="text-construction-orange">n</span></span>
+          </Link>
+        )}
+        <SidebarTrigger />
+      </div>
+      <SidebarContent className="py-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              asChild 
+              className={isActive("/dashboard") ? "bg-muted font-medium text-primary" : ""}
+            >
+              <Link to="/dashboard" className="flex items-center">
+                <LayoutDashboard className={`h-5 w-5 ${!collapsed ? "mr-3" : ""}`} />
+                {!collapsed && <span>Dashboard</span>}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              asChild 
+              className={isActive("/projects") ? "bg-muted font-medium text-primary" : ""}
+            >
+              <Link to="/projects" className="flex items-center">
+                <Briefcase className={`h-5 w-5 ${!collapsed ? "mr-3" : ""}`} />
+                {!collapsed && <span>Projects</span>}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              asChild 
+              className={isActive("/tasks") ? "bg-muted font-medium text-primary" : ""}
+            >
+              <Link to="/tasks" className="flex items-center">
+                <CheckSquare className={`h-5 w-5 ${!collapsed ? "mr-3" : ""}`} />
+                {!collapsed && <span>Tasks</span>}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              asChild 
+              className={isActive("/team") ? "bg-muted font-medium text-primary" : ""}
+            >
+              <Link to="/team" className="flex items-center">
+                <Users className={`h-5 w-5 ${!collapsed ? "mr-3" : ""}`} />
+                {!collapsed && <span>Team</span>}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              asChild 
+              className={isActive("/reports") ? "bg-muted font-medium text-primary" : ""}
+            >
+              <Link to="/reports" className="flex items-center">
+                <FileSpreadsheet className={`h-5 w-5 ${!collapsed ? "mr-3" : ""}`} />
+                {!collapsed && <span>Reports</span>}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              asChild 
+              className={isActive("/safety") ? "bg-muted font-medium text-primary" : ""}
+            >
+              <Link to="/safety" className="flex items-center">
+                <ShieldAlert className={`h-5 w-5 ${!collapsed ? "mr-3" : ""}`} />
+                {!collapsed && <span>Safety</span>}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              asChild 
+              className={isActive("/inventory") || isActive("/materials") ? "bg-muted font-medium text-primary" : ""}
+            >
+              <Link to="/inventory" className="flex items-center">
+                <PackageOpen className={`h-5 w-5 ${!collapsed ? "mr-3" : ""}`} />
+                {!collapsed && <span>Inventory</span>}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              asChild 
+              className={isActive("/labor") ? "bg-muted font-medium text-primary" : ""}
+            >
+              <Link to="/labor" className="flex items-center">
+                <HardHat className={`h-5 w-5 ${!collapsed ? "mr-3" : ""}`} />
+                {!collapsed && <span>Labor</span>}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              asChild 
+              className={isActive("/files") ? "bg-muted font-medium text-primary" : ""}
+            >
+              <Link to="/files" className="flex items-center">
+                <Files className={`h-5 w-5 ${!collapsed ? "mr-3" : ""}`} />
+                {!collapsed && <span>Files</span>}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              asChild 
+              className={isActive("/chat") ? "bg-muted font-medium text-primary" : ""}
+            >
+              <Link to="/chat" className="flex items-center">
+                <MessagesSquare className={`h-5 w-5 ${!collapsed ? "mr-3" : ""}`} />
+                {!collapsed && <span>Chat</span>}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              asChild 
+              className={isActive("/settings") ? "bg-muted font-medium text-primary" : ""}
+            >
+              <Link to="/settings" className="flex items-center">
+                <Settings className={`h-5 w-5 ${!collapsed ? "mr-3" : ""}`} />
+                {!collapsed && <span>Settings</span>}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarContent>
     </Sidebar>
   );
