@@ -31,7 +31,7 @@ export function MainSidebar() {
           <div className="h-8 w-8 rounded-md bg-construction-navy flex items-center justify-center relative">
             <ArrowUpRight className="h-6 w-6 text-white" />
           </div>
-          <span className="text-lg font-bold text-construction-navy">SitePlan<span className="text-construction-orange">n</span></span>
+          <span className="text-lg font-bold text-white">SitePlan<span className="text-construction-orange">n</span></span>
         </Link>
         <SidebarTrigger />
       </div>
