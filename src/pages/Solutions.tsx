@@ -55,7 +55,7 @@ const Solutions = () => {
   return (
     <div className="container mx-auto py-12 space-y-12">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-4">ConstructPulse Solutions</h1>
+        <h1 className="text-3xl font-bold mb-4">SitePlann Solutions</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
           Comprehensive tools for everyone on your construction site
         </p>
