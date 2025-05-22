@@ -45,8 +45,8 @@ export function Layout() {
               <div className="flex flex-1 w-full overflow-hidden">
                 {showSidebar && <MainSidebar />}
                 <div className={`flex flex-1 flex-col overflow-hidden ${isHomePage || isTermsPrivacyFaqPage ? "ml-0" : ""}`}>
-                  <Header />
-                  <main className={`flex-1 overflow-auto ${isHomePage || isTermsPrivacyFaqPage ? "p-0" : "p-4 md:p-6"}`}>
+                  {!isHomePage && <Header />}
+                  <main className={`flex-1 overflow-auto ${isHomePage ? "p-0" : isTermsPrivacyFaqPage ? "p-0" : "p-4 md:p-6"}`}>
                     <Outlet />
                   </main>
                 </div>
