@@ -21,12 +21,12 @@ const TermsOfService = () => {
       <div className="prose prose-slate max-w-none space-y-6">
         <section>
           <h2 className="text-2xl font-semibold">1. Acceptance of Terms</h2>
-          <p>By accessing or using ConstructPulse ("the Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.</p>
+          <p>By accessing or using SitePlann ("the Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.</p>
         </section>
         
         <section>
           <h2 className="text-2xl font-semibold">2. Description of Service</h2>
-          <p>ConstructPulse is a construction management platform that provides tools for project management, team coordination, task scheduling, inventory management, safety compliance, and reporting.</p>
+          <p>SitePlann is a construction management platform that provides tools for project management, team coordination, task scheduling, inventory management, safety compliance, and reporting.</p>
         </section>
         
         <section>
@@ -37,18 +37,18 @@ const TermsOfService = () => {
         
         <section>
           <h2 className="text-2xl font-semibold">4. Subscription and Fees</h2>
-          <p>ConstructPulse offers various subscription plans. You agree to pay the fees associated with your chosen subscription plan. Fees are non-refundable except as required by law or as explicitly stated in these terms.</p>
+          <p>SitePlann offers various subscription plans. You agree to pay the fees associated with your chosen subscription plan. Fees are non-refundable except as required by law or as explicitly stated in these terms.</p>
           <p>We reserve the right to change our fees at any time with reasonable notice before changes take effect.</p>
         </section>
         
         <section>
           <h2 className="text-2xl font-semibold">5. Data and Privacy</h2>
-          <p>Our Privacy Policy explains how we collect, use, and protect your information. By using ConstructPulse, you agree to our data practices as described in our Privacy Policy.</p>
+          <p>Our Privacy Policy explains how we collect, use, and protect your information. By using SitePlann, you agree to our data practices as described in our Privacy Policy.</p>
         </section>
         
         <section>
           <h2 className="text-2xl font-semibold">6. User Content</h2>
-          <p>You retain ownership of any content you upload to the Service. However, by uploading content, you grant ConstructPulse a worldwide, non-exclusive license to use, store, and display that content for the purpose of providing the Service.</p>
+          <p>You retain ownership of any content you upload to the Service. However, by uploading content, you grant SitePlann a worldwide, non-exclusive license to use, store, and display that content for the purpose of providing the Service.</p>
           <p>You agree not to upload content that infringes on anyone's rights or violates any laws.</p>
         </section>
         
@@ -82,7 +82,7 @@ const TermsOfService = () => {
         
         <section>
           <h2 className="text-2xl font-semibold">11. Limitation of Liability</h2>
-          <p>IN NO EVENT SHALL CONSTRUCTPULSE BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY.</p>
+          <p>IN NO EVENT SHALL SITEPLANN BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY.</p>
         </section>
         
         <section>
@@ -92,7 +92,7 @@ const TermsOfService = () => {
         
         <section>
           <h2 className="text-2xl font-semibold">13. Contact</h2>
-          <p>If you have any questions about these Terms, please contact us at legal@constructpulse.com.</p>
+          <p>If you have any questions about these Terms, please contact us at legal@siteplann.com.</p>
         </section>
       </div>
     </div>

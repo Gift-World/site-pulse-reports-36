@@ -111,9 +111,9 @@ export function MainSidebar() {
         {!isCollapsed && (
           <div className="flex items-center">
             <div className="h-8 w-8 rounded-md bg-white flex items-center justify-center text-construction-navy font-bold">
-              CP
+              SP
             </div>
-            <span className="ml-2 font-bold text-lg text-white">ConstructPulse</span>
+            <span className="ml-2 font-bold text-lg text-white">SitePlann</span>
           </div>
         )}
         <SidebarTrigger className="ml-auto text-white hover:bg-construction-navy hover:text-white" />

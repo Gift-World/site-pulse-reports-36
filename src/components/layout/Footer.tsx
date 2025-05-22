@@ -34,7 +34,7 @@ export function Footer() {
                 <div className="col-span-1 md:col-span-2">
                   <Link to="/" className="flex items-center mb-4">
                     <h2 className="text-2xl font-bold tracking-tight">
-                      <span className="text-construction-navy">Construct</span>Pulse
+                      <span className="text-construction-navy">Site</span>Plann
                     </h2>
                   </Link>
                   <p className="text-sm text-muted-foreground max-w-xs">
@@ -89,7 +89,7 @@ export function Footer() {
               
               <div className="flex flex-col md:flex-row justify-between items-center">
                 <p className="text-sm text-muted-foreground">
-                  &copy; {currentYear} ConstructPulse. All rights reserved.
+                  &copy; {currentYear} SitePlann. All rights reserved.
                 </p>
                 <div className="flex gap-6 mt-4 md:mt-0">
                   <Link to="/terms-of-service" className="text-sm text-muted-foreground hover:text-construction-navy">
