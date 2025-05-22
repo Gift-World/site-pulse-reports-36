@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Task } from "@/types/task";
-import { FileText, FileWord, Download } from "lucide-react";
+import { FileText, File, Download } from "lucide-react"; // Changed FileWord to File
 import { format } from "date-fns";
 
 interface TaskExportProps {
@@ -25,16 +25,16 @@ const TaskExport: React.FC<TaskExportProps> = ({
   timeframe,
   onTimeframeChange
 }) => {
-  const generateTaskReport = (format: "pdf" | "word") => {
+  const generateTaskReport = (formatType: "pdf" | "word") => { // Renamed parameter to avoid confusion
     // In a real implementation, this would generate a PDF or Word document
     // For now, we'll just show a console message
-    console.log(`Generating ${format} report for ${timeframe} tasks`);
+    console.log(`Generating ${formatType} report for ${timeframe} tasks`);
     
     const dateStr = selectedDate 
       ? `${format(selectedDate, 'yyyy-MM-dd')}` 
       : 'all dates';
     
-    alert(`Downloading ${timeframe} task report (${format}) for ${dateStr}\n\nIn a production environment, this would generate and download a ${format.toUpperCase()} file with the task details.`);
+    alert(`Downloading ${timeframe} task report (${formatType.toUpperCase()}) for ${dateStr}\n\nIn a production environment, this would generate and download a ${formatType.toUpperCase()} file with the task details.`);
   };
 
   return (
@@ -77,7 +77,7 @@ const TaskExport: React.FC<TaskExportProps> = ({
             onClick={() => generateTaskReport("word")}
             className="flex items-center gap-1"
           >
-            <FileWord className="h-4 w-4" />
+            <File className="h-4 w-4" /> {/* Changed FileWord to File */}
             Word
           </Button>
         </div>
