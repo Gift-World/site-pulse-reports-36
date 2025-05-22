@@ -15,7 +15,7 @@ import {
   Settings,
   Files,
   MessagesSquare,
-  ArrowUpRight
+  ExternalLink
 } from "lucide-react";
 
 export function MainSidebar() {
@@ -29,7 +29,7 @@ export function MainSidebar() {
       <div className="flex items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-md bg-construction-navy flex items-center justify-center relative">
-            <ArrowUpRight className="h-6 w-6 text-white" />
+            <ExternalLink className="h-6 w-6 text-white" />
           </div>
           <span className="text-lg font-bold text-white">SitePlan<span className="text-construction-orange">n</span></span>
         </Link>

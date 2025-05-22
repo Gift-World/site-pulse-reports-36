@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Construction, Building, Users, Shield, Book, List, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -84,7 +83,7 @@ const Solutions = () => {
       <div className="text-center mt-12">
         <Button 
           onClick={() => navigate("/")} 
-          className="bg-construction-navy hover:bg-construction-darkBlue"
+          className="bg-construction-navy hover:bg-construction-navy/90"
         >
           Back to Home
         </Button>
