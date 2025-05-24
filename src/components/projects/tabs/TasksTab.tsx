@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Plus, Filter, Calendar as CalendarIcon, ListFilter, Timeline } from "lucide-react";
+import { Plus, Filter, Calendar as CalendarIcon, ListFilter, Calendar } from "lucide-react";
 import TaskCalendar from "@/components/tasks/TaskCalendar";
 import TaskList from "@/components/tasks/TaskList";
 import TaskExport from "@/components/tasks/TaskExport";
@@ -25,7 +25,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, parseISO, addDays } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -303,7 +302,7 @@ export function TasksTab({ project }: TasksTabProps) {
                   Calendar View
                 </TabsTrigger>
                 <TabsTrigger value="timeline">
-                  <Timeline className="mr-2 h-4 w-4" />
+                  <Calendar className="mr-2 h-4 w-4" />
                   Timeline
                 </TabsTrigger>
               </TabsList>
