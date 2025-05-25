@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
@@ -36,9 +37,9 @@ export function MainSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              className={isActive("/dashboard") ? "bg-muted font-medium text-primary" : ""}
+              className={isActive("/app/dashboard") ? "bg-muted font-medium text-primary" : ""}
             >
-              <Link to="/dashboard" className="flex items-center">
+              <Link to="/app/dashboard" className="flex items-center">
                 <LayoutDashboard className="h-5 w-5 mr-3" />
                 <span>Dashboard</span>
               </Link>
@@ -48,9 +49,9 @@ export function MainSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              className={isActive("/projects") ? "bg-muted font-medium text-primary" : ""}
+              className={isActive("/app/projects") ? "bg-muted font-medium text-primary" : ""}
             >
-              <Link to="/projects" className="flex items-center">
+              <Link to="/app/projects" className="flex items-center">
                 <Briefcase className="h-5 w-5 mr-3" />
                 <span>Projects</span>
               </Link>
@@ -60,9 +61,9 @@ export function MainSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              className={isActive("/tasks") ? "bg-muted font-medium text-primary" : ""}
+              className={isActive("/app/tasks") ? "bg-muted font-medium text-primary" : ""}
             >
-              <Link to="/tasks" className="flex items-center">
+              <Link to="/app/tasks" className="flex items-center">
                 <CheckSquare className="h-5 w-5 mr-3" />
                 <span>Tasks</span>
               </Link>
@@ -72,9 +73,9 @@ export function MainSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              className={isActive("/team") ? "bg-muted font-medium text-primary" : ""}
+              className={isActive("/app/team") ? "bg-muted font-medium text-primary" : ""}
             >
-              <Link to="/team" className="flex items-center">
+              <Link to="/app/team" className="flex items-center">
                 <Users className="h-5 w-5 mr-3" />
                 <span>Team</span>
               </Link>
@@ -84,9 +85,9 @@ export function MainSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              className={isActive("/reports") ? "bg-muted font-medium text-primary" : ""}
+              className={isActive("/app/reports") ? "bg-muted font-medium text-primary" : ""}
             >
-              <Link to="/reports" className="flex items-center">
+              <Link to="/app/reports" className="flex items-center">
                 <FileSpreadsheet className="h-5 w-5 mr-3" />
                 <span>Reports</span>
               </Link>
@@ -96,9 +97,9 @@ export function MainSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              className={isActive("/safety") ? "bg-muted font-medium text-primary" : ""}
+              className={isActive("/app/safety") ? "bg-muted font-medium text-primary" : ""}
             >
-              <Link to="/safety" className="flex items-center">
+              <Link to="/app/safety" className="flex items-center">
                 <ShieldAlert className="h-5 w-5 mr-3" />
                 <span>Safety</span>
               </Link>
@@ -108,9 +109,9 @@ export function MainSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              className={isActive("/inventory") || isActive("/materials") ? "bg-muted font-medium text-primary" : ""}
+              className={isActive("/app/inventory") || isActive("/app/materials") ? "bg-muted font-medium text-primary" : ""}
             >
-              <Link to="/inventory" className="flex items-center">
+              <Link to="/app/inventory" className="flex items-center">
                 <PackageOpen className="h-5 w-5 mr-3" />
                 <span>Inventory</span>
               </Link>
@@ -120,9 +121,9 @@ export function MainSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              className={isActive("/labor") ? "bg-muted font-medium text-primary" : ""}
+              className={isActive("/app/labor") ? "bg-muted font-medium text-primary" : ""}
             >
-              <Link to="/labor" className="flex items-center">
+              <Link to="/app/labor" className="flex items-center">
                 <HardHat className="h-5 w-5 mr-3" />
                 <span>Labor</span>
               </Link>
@@ -132,9 +133,9 @@ export function MainSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              className={isActive("/files") ? "bg-muted font-medium text-primary" : ""}
+              className={isActive("/app/files") ? "bg-muted font-medium text-primary" : ""}
             >
-              <Link to="/files" className="flex items-center">
+              <Link to="/app/files" className="flex items-center">
                 <Files className="h-5 w-5 mr-3" />
                 <span>Files</span>
               </Link>
@@ -144,9 +145,9 @@ export function MainSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              className={isActive("/chat") ? "bg-muted font-medium text-primary" : ""}
+              className={isActive("/app/chat") ? "bg-muted font-medium text-primary" : ""}
             >
-              <Link to="/chat" className="flex items-center">
+              <Link to="/app/chat" className="flex items-center">
                 <MessagesSquare className="h-5 w-5 mr-3" />
                 <span>Chat</span>
               </Link>
@@ -156,9 +157,9 @@ export function MainSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild 
-              className={isActive("/settings") ? "bg-muted font-medium text-primary" : ""}
+              className={isActive("/app/settings") ? "bg-muted font-medium text-primary" : ""}
             >
-              <Link to="/settings" className="flex items-center">
+              <Link to="/app/settings" className="flex items-center">
                 <Settings className="h-5 w-5 mr-3" />
                 <span>Settings</span>
               </Link>
