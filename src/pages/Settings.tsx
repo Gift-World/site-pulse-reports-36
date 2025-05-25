@@ -125,7 +125,7 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const getCurrencySymbol = (currencyCode: string): string => {
     const symbols: { [key: string]: string } = {
-      USD: "$", EUR: "€", GBP: "£", JPY: "¥", CAD: "C$", AUD: "A$",
+      USD: "$", EUR: "€", GBP: "£", JPY: "¥", CAD: "C$",
       CHF: "CHF", CNY: "¥", SEK: "kr", NOK: "kr", DKK: "kr", PLN: "zł",
       CZK: "Kč", HUF: "Ft", RUB: "₽", INR: "₹", BRL: "R$", MXN: "$",
       ZAR: "R", SGD: "S$", HKD: "HK$", NZD: "NZ$", KRW: "₩", THB: "฿",
@@ -281,8 +281,12 @@ const countries = [
 const Settings = () => {
   const { toast } = useToast();
   const { currency, setCurrency, language, setLanguage, translate } = useCurrency();
-  const [country, setCountry] = useState("US");
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [country, setCountry] = useState(() => {
+    return localStorage.getItem("country") || "US";
+  });
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(() => {
+    return localStorage.getItem("twoFactorEnabled") === "true";
+  });
   const [orgDetails, setOrgDetails] = useState({
     name: "",
     address: "",
@@ -297,7 +301,8 @@ const Settings = () => {
   const [nextBillingDate, setNextBillingDate] = useState("N/A");
 
   const handleSaveGeneralSettings = () => {
-    // Save language preference
+    // Save all settings to localStorage
+    localStorage.setItem("currency", currency);
     localStorage.setItem("language", language);
     localStorage.setItem("country", country);
     localStorage.setItem("twoFactorEnabled", twoFactorEnabled.toString());
