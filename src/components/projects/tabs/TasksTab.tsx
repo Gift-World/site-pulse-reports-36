@@ -22,9 +22,9 @@ import {
   User, 
   BarChart3 
 } from "lucide-react";
-import { TaskList } from "@/components/tasks/TaskList";
-import { TaskCalendar } from "@/components/tasks/TaskCalendar";
-import { TaskTimeline } from "@/components/tasks/TaskTimeline";
+import TaskList from "@/components/tasks/TaskList";
+import TaskCalendar from "@/components/tasks/TaskCalendar";
+import TaskTimeline from "@/components/tasks/TaskTimeline";
 
 interface Task {
   id: string;

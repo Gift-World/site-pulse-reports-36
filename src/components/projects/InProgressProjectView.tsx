@@ -50,7 +50,7 @@ export function InProgressProjectView({ project }: InProgressProjectViewProps) {
         </TabsContent>
         
         <TabsContent value="tasks" className="mt-0">
-          <TasksTab project={project} />
+          <TasksTab />
         </TabsContent>
         
         <TabsContent value="cashflow" className="mt-0">
