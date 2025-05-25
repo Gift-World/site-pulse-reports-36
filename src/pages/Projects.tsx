@@ -1,12 +1,15 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Plus, Search, Edit, Trash2 } from "lucide-react";
 import { Project } from "@/types/project";
+import { NewProjectForm } from "@/components/projects/NewProjectForm";
+import { toast } from "@/hooks/use-toast";
 
 // Export the projects data so it can be imported by ProjectDetail
 export const projects: Project[] = [
@@ -152,11 +155,41 @@ export const projects: Project[] = [
 
 const Projects = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
   
   const filteredProjects = projects.filter(project =>
     project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     project.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleEditProject = (projectId: number) => {
+    console.log("Edit project:", projectId);
+    toast({
+      title: "Edit Project",
+      description: "Project editing functionality will be implemented soon.",
+    });
+  };
+
+  const handleDeleteProject = (projectId: number, projectName: string) => {
+    console.log("Delete project:", projectId);
+    toast({
+      title: "Project Deleted",
+      description: `Project "${projectName}" has been deleted successfully.`,
+      variant: "destructive",
+    });
+  };
+
+  const getBudgetSpendPercentage = (project: Project) => {
+    if (!project.budget || project.budget.total === 0) return 0;
+    return Math.round((project.budget.spent / project.budget.total) * 100);
+  };
+
+  const getBudgetSpendColor = (percentage: number) => {
+    if (percentage <= 50) return "bg-green-600";
+    if (percentage <= 75) return "bg-yellow-600";
+    if (percentage <= 90) return "bg-orange-600";
+    return "bg-red-600";
+  };
 
   return (
     <div className="space-y-6">
@@ -167,10 +200,20 @@ const Projects = () => {
             Manage and track all your construction projects
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          New Project
-        </Button>
+        <Dialog open={isNewProjectOpen} onOpenChange={setIsNewProjectOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              New Project
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-4xl max-h-[90vh]">
+            <DialogHeader>
+              <DialogTitle>Create New Project</DialogTitle>
+            </DialogHeader>
+            <NewProjectForm onComplete={() => setIsNewProjectOpen(false)} />
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="flex items-center space-x-2">
@@ -186,44 +229,108 @@ const Projects = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredProjects.map((project) => (
-          <Link key={project.id} to={`/app/projects/${project.id}`}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">{project.name}</CardTitle>
-                  <Badge
-                    variant={
-                      project.status === "Completed" ? "outline" :
-                      project.status === "In Progress" ? "default" : "secondary"
-                    }
-                  >
-                    {project.status}
-                  </Badge>
-                </div>
-                <CardDescription>{project.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Progress</span>
-                    <span>{project.progress}%</span>
+        {filteredProjects.map((project) => {
+          const budgetSpendPercentage = getBudgetSpendPercentage(project);
+          const budgetSpendColor = getBudgetSpendColor(budgetSpendPercentage);
+          
+          return (
+            <Card key={project.id} className="hover:shadow-lg transition-shadow relative group">
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleEditProject(project.id);
+                  }}
+                  className="h-8 w-8 p-0"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      onClick={(e) => e.preventDefault()}
+                      className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Project</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete "{project.name}"? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={() => handleDeleteProject(project.id, project.name)}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+              
+              <Link to={`/app/projects/${project.id}`}>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">{project.name}</CardTitle>
+                    <Badge
+                      variant={
+                        project.status === "Completed" ? "outline" :
+                        project.status === "In Progress" ? "default" : "secondary"
+                      }
+                    >
+                      {project.status}
+                    </Badge>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-600 h-2 rounded-full"
-                      style={{ width: `${project.progress}%` }}
-                    ></div>
+                  <CardDescription>{project.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Progress</span>
+                        <span>{project.progress}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-blue-600 h-2 rounded-full"
+                          style={{ width: `${project.progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Budget Spent</span>
+                        <span>{budgetSpendPercentage}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full ${budgetSpendColor}`}
+                          style={{ width: `${budgetSpendPercentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>Budget: ${(project.budget.total / 1000000).toFixed(1)}M</span>
+                      <span>Team: {project.team} members</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Budget: ${(project.budget.total / 1000000).toFixed(1)}M</span>
-                    <span>Team: {project.team} members</span>
-                  </div>
-                </div>
-              </CardContent>
+                </CardContent>
+              </Link>
             </Card>
-          </Link>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
