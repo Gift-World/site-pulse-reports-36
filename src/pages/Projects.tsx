@@ -1,435 +1,150 @@
 
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { FolderOpen, Plus, Users, Calendar, Clock, Edit, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Plus, Search } from "lucide-react";
 import { Project } from "@/types/project";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { NewProjectForm } from "@/components/projects/NewProjectForm";
-import { ProjectSelector } from "@/components/projects/ProjectSelector";
-import { toast } from "@/hooks/use-toast";
 
-const projects: Project[] = [
+// Export the projects data so it can be imported by ProjectDetail
+export const projects: Project[] = [
   {
     id: 1,
-    name: "Riverfront Commercial Complex",
-    description: "12-story commercial building with underground parking",
+    name: "Downtown Office Complex",
+    description: "Modern 15-story office building with retail space",
     status: "In Progress",
+    startDate: "2024-01-15",
+    endDate: "2024-12-31",
+    budget: 25000000,
+    spent: 12500000,
     progress: 65,
-    timelapse: 70,
-    team: 28,
-    dueDate: "Dec 15, 2025",
-    location: "Riverside Business District",
-    client: "Riverview Developments Ltd.",
-    budget: {
-      total: 25000000,
-      spent: 16250000,
-      remaining: 8750000
-    },
-    tasks: {
-      total: 312,
-      completed: 203,
-      overdue: 5
-    },
-    materials: {
-      allocated: 5800000,
-      used: 3770000
-    },
-    contacts: [
-      {
-        name: "Michael Chen",
-        role: "Project Manager",
-        phone: "555-123-4567",
-        email: "mchen@riverviewdev.com"
-      },
-      {
-        name: "Sarah Johnson",
-        role: "Client Representative",
-        phone: "555-987-6543",
-        email: "sjohnson@riverviewdev.com"
-      }
-    ],
-    milestones: [
-      {
-        name: "Foundation Completed",
-        dueDate: "Feb 28, 2025",
-        status: "Completed"
-      },
-      {
-        name: "Structural Steel",
-        dueDate: "Jun 15, 2025",
-        status: "Completed"
-      },
-      {
-        name: "Building Envelope",
-        dueDate: "Sep 30, 2025",
-        status: "In Progress"
-      },
-      {
-        name: "Interior Finishes",
-        dueDate: "Nov 30, 2025",
-        status: "Pending"
-      }
-    ],
-    notes: "Currently ahead of schedule. Budget review meeting scheduled for next month. Safety inspection passed with excellent remarks."
+    location: "Downtown",
+    client: "Metro Development Corp",
+    manager: "John Smith"
   },
   {
     id: 2,
-    name: "Parkview Residential Towers",
-    description: "Twin 20-story residential towers with amenities",
+    name: "Residential Tower A",
+    description: "Luxury apartment complex with 200 units",
     status: "In Progress",
-    progress: 42,
-    timelapse: 38,
-    team: 35,
-    dueDate: "Mar 30, 2026",
-    location: "Northern Heights District",
-    client: "Parkway Housing Corporation",
-    budget: {
-      total: 35000000,
-      spent: 14700000,
-      remaining: 20300000
-    },
-    tasks: {
-      total: 450,
-      completed: 189,
-      overdue: 12
-    },
-    materials: {
-      allocated: 12800000,
-      used: 5376000
-    },
-    contacts: [
-      {
-        name: "David Wong",
-        role: "Site Manager",
-        phone: "555-234-5678",
-        email: "dwong@parkwayhousing.com"
-      },
-      {
-        name: "Lisa Fernandez",
-        role: "Architectural Lead",
-        phone: "555-345-6789",
-        email: "lfernandez@parkwayhousing.com"
-      }
-    ],
-    milestones: [
-      {
-        name: "Site Preparation",
-        dueDate: "Oct 15, 2024",
-        status: "Completed"
-      },
-      {
-        name: "Tower A Foundation",
-        dueDate: "Jan 20, 2025",
-        status: "Completed"
-      },
-      {
-        name: "Tower B Foundation",
-        dueDate: "Mar 15, 2025",
-        status: "Completed"
-      },
-      {
-        name: "Tower A Core Structure",
-        dueDate: "Aug 30, 2025",
-        status: "In Progress"
-      },
-      {
-        name: "Tower B Core Structure",
-        dueDate: "Oct 15, 2025",
-        status: "Pending"
-      }
-    ],
-    notes: "Experiencing some delays due to material shortages. Cost mitigation strategy in place. Community relations team addressing resident concerns about construction noise."
+    startDate: "2024-02-01",
+    endDate: "2025-06-30",
+    budget: 18000000,
+    spent: 7200000,
+    progress: 40,
+    location: "Westside",
+    client: "Urban Living LLC",
+    manager: "Sarah Johnson"
   },
   {
     id: 3,
-    name: "Downtown Hotel Renovation",
-    description: "Complete renovation of historic 8-story hotel",
-    status: "Planning",
-    progress: 10,
-    timelapse: 5,
-    team: 15,
-    dueDate: "Aug 22, 2025",
-    location: "City Center",
-    client: "Heritage Hotels Inc.",
-    budget: {
-      total: 12500000,
-      spent: 1250000,
-      remaining: 11250000
-    },
-    tasks: {
-      total: 280,
-      completed: 28,
-      overdue: 0
-    },
-    materials: {
-      allocated: 4300000,
-      used: 430000
-    },
-    contacts: [
-      {
-        name: "Robert Garcia",
-        role: "Renovation Specialist",
-        phone: "555-456-7890",
-        email: "rgarcia@heritagehotels.com"
-      },
-      {
-        name: "Emma Lee",
-        role: "Historical Preservation Consultant",
-        phone: "555-567-8901",
-        email: "elee@heritagehotels.com"
-      }
-    ],
-    milestones: [
-      {
-        name: "Permit Approvals",
-        dueDate: "Jun 10, 2025",
-        status: "In Progress"
-      },
-      {
-        name: "Interior Demolition",
-        dueDate: "Jul 30, 2025",
-        status: "Pending"
-      }
-    ],
-    notes: "Working closely with historical preservation board to ensure all renovations maintain the building's historical integrity. Specialized materials on order."
+    name: "Shopping Center Renovation",
+    description: "Complete renovation of existing shopping center",
+    status: "Completed",
+    startDate: "2023-08-01",
+    endDate: "2024-03-15",
+    budget: 8500000,
+    spent: 8200000,
+    progress: 100,
+    location: "Suburbs",
+    client: "Retail Properties Inc",
+    manager: "Mike Davis"
   },
   {
     id: 4,
-    name: "City Center Shopping Mall",
-    description: "3-level shopping mall with food court and cinema",
-    status: "Completed",
-    progress: 100,
-    timelapse: 100,
-    team: 0,
-    dueDate: "Completed Apr 2025",
-    location: "Westside Commercial District",
-    client: "Metro Retail Developments",
-    budget: {
-      total: 18500000,
-      spent: 17800000,
-      remaining: 700000
-    },
-    tasks: {
-      total: 325,
-      completed: 325,
-      overdue: 0
-    },
-    materials: {
-      allocated: 7200000,
-      used: 7200000
-    },
-    contacts: [
-      {
-        name: "Jennifer Smith",
-        role: "Project Coordinator",
-        phone: "555-678-9012",
-        email: "jsmith@metroretail.com"
-      }
-    ],
-    milestones: [
-      {
-        name: "Project Completion",
-        dueDate: "Apr 15, 2025",
-        status: "Completed"
-      }
-    ],
-    defectsLiability: {
-      lapseDate: "Apr 15, 2026",
-      endDate: "Apr 15, 2027"
-    },
-    finalReports: {
-      projectReport: "final-project-report.pdf",
-      safetyReport: "final-safety-report.pdf",
-      budgetReport: "final-budget-report.pdf"
-    },
-    keyImpacts: {
-      positive: ["Completed 2 weeks ahead of schedule", "Under budget by 3.8%", "Zero safety incidents"],
-      negative: ["Supply chain delays in Q2", "Weather disruptions in March"]
-    },
-    notes: "Project completed on schedule and under budget. Final client walkthrough resulted in excellent feedback. Warranty period in effect for 12 months."
+    name: "Industrial Warehouse",
+    description: "Large distribution center with loading docks",
+    status: "Planning",
+    startDate: "2024-06-01",
+    endDate: "2025-02-28",
+    budget: 15000000,
+    spent: 0,
+    progress: 0,
+    location: "Industrial Park",
+    client: "Logistics Solutions",
+    manager: "Emily Chen"
   }
 ];
 
 const Projects = () => {
-  const navigate = useNavigate();
-  const [openNewProjectDialog, setOpenNewProjectDialog] = useState(false);
-  const [openEditProjectDialog, setOpenEditProjectDialog] = useState(false);
-  const [openDeleteProjectDialog, setOpenDeleteProjectDialog] = useState(false);
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   
-  const activeProjects = projects.filter(p => p.status !== "Completed");
-  
-  const handleEditProject = (projectId: number) => {
-    setSelectedProjectId(projectId);
-    setOpenEditProjectDialog(false);
-    // In a real app, navigate to the edit form with the selected project ID
-    toast({
-      title: "Edit Project",
-      description: `Navigating to edit form for project #${projectId}`,
-    });
-  };
-  
-  const handleDeleteProject = (projectId: number) => {
-    setSelectedProjectId(projectId);
-    setOpenDeleteProjectDialog(false);
-    // In a real app, send a request to delete the project
-    toast({
-      title: "Delete Request Sent",
-      description: "Admin has been notified of your delete request.",
-    });
-    // Secondary confirmation toast
-    setTimeout(() => {
-      toast({
-        title: "Admin Alert",
-        description: `Delete request for project #${projectId} pending approval.`,
-      });
-    }, 1500);
-  };
-  
+  const filteredProjects = projects.filter(project =>
+    project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    project.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Projects</h1>
           <p className="text-muted-foreground">
-            Manage and monitor all your construction projects
+            Manage and track all your construction projects
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={() => setOpenNewProjectDialog(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            New Project
-          </Button>
-          <Button variant="outline" onClick={() => setOpenEditProjectDialog(true)}>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Project
-          </Button>
-          <Button variant="outline" onClick={() => setOpenDeleteProjectDialog(true)}>
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete Project
-          </Button>
+        <Button>
+          <Plus className="mr-2 h-4 w-4" />
+          New Project
+        </Button>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search projects..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-8"
+          />
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {projects.map((project) => (
-          <Card key={project.id} className="flex flex-col">
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <CardTitle>{project.name}</CardTitle>
-                <Badge
-                  variant={
-                    project.status === "Completed" ? "outline" :
-                    project.status === "In Progress" ? "default" : "secondary"
-                  }
-                >
-                  {project.status}
-                </Badge>
-              </div>
-              <CardDescription>{project.description}</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1">
-              <div className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium">Progress</span>
-                    <span className="text-sm font-medium">{project.progress}%</span>
-                  </div>
-                  <Progress
-                    value={project.progress}
-                    className="h-2"
-                    indicatorClassName={
-                      project.progress === 100 ? "bg-construction-green" :
-                      project.progress > 50 ? "bg-construction-blue" : "bg-construction-orange"
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {filteredProjects.map((project) => (
+          <Link key={project.id} to={`/app/projects/${project.id}`}>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">{project.name}</CardTitle>
+                  <Badge
+                    variant={
+                      project.status === "Completed" ? "outline" :
+                      project.status === "In Progress" ? "default" : "secondary"
                     }
-                  />
+                  >
+                    {project.status}
+                  </Badge>
                 </div>
-                
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium">Timelapse</span>
-                    <span className="text-sm font-medium">{project.timelapse}%</span>
+                <CardDescription>{project.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Progress</span>
+                    <span>{project.progress}%</span>
                   </div>
-                  <Progress
-                    value={project.timelapse}
-                    className="h-2"
-                    indicatorClassName={
-                      project.timelapse === 100 ? "bg-construction-green" :
-                      project.timelapse >= project.progress ? "bg-construction-green" : 
-                      project.timelapse >= project.progress - 10 ? "bg-construction-blue" : "bg-construction-red"
-                    }
-                  />
-                </div>
-                
-                <div className="flex gap-4 text-sm">
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span>{project.team} Team members</span>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-blue-600 h-2 rounded-full"
+                      style={{ width: `${project.progress}%` }}
+                    ></div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>{project.dueDate}</span>
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>Budget: ${(project.budget / 1000000).toFixed(1)}M</span>
+                    <span>Manager: {project.manager}</span>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-            <CardFooter className="border-t pt-4">
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => navigate(`/projects/${project.id}`)}
-              >
-                {project.status === "Completed" ? "View Final Report" : "View Details"}
-              </Button>
-            </CardFooter>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
-
-      {/* New Project Dialog */}
-      <Dialog open={openNewProjectDialog} onOpenChange={setOpenNewProjectDialog}>
-        <DialogContent className="max-w-[60%] overflow-y-auto max-h-[85vh]">
-          <DialogHeader>
-            <DialogTitle>Create New Project</DialogTitle>
-            <DialogDescription>
-              Fill out the project details to create a new construction project
-            </DialogDescription>
-          </DialogHeader>
-          <NewProjectForm onComplete={() => setOpenNewProjectDialog(false)} />
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Project Selection Dialog */}
-      <ProjectSelector
-        open={openEditProjectDialog}
-        onOpenChange={setOpenEditProjectDialog}
-        title="Edit Project"
-        description="Select a project to edit"
-        projects={activeProjects}
-        onSelectProject={handleEditProject}
-        actionText="Edit Selected Project"
-        cancelText="Cancel"
-      />
-
-      {/* Delete Project Selection Dialog */}
-      <ProjectSelector
-        open={openDeleteProjectDialog}
-        onOpenChange={setOpenDeleteProjectDialog}
-        title="Delete Project"
-        description="Select a project to request deletion"
-        projects={projects}
-        onSelectProject={handleDeleteProject}
-        actionText="Request Deletion"
-        cancelText="Cancel"
-        variant="destructive"
-      />
     </div>
   );
 };
 
-export { projects }; // Export the projects data
 export default Projects;

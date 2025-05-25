@@ -15,7 +15,7 @@ export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ project }) => {
 
   return (
     <div>
-      <Button variant="ghost" className="mb-4" onClick={() => navigate('/projects')}>
+      <Button variant="ghost" className="mb-4" onClick={() => navigate('/app/projects')}>
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back to Projects
       </Button>

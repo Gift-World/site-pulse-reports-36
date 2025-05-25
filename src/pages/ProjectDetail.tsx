@@ -13,12 +13,16 @@ const ProjectDetail = () => {
   const navigate = useNavigate();
   const project = projects.find(p => p.id === Number(id));
   
+  console.log("ProjectDetail - Route params:", { id });
+  console.log("ProjectDetail - Found project:", project);
+  console.log("ProjectDetail - All projects:", projects);
+  
   if (!project) {
     return (
       <div className="flex flex-col items-center justify-center h-full py-20">
         <h1 className="text-2xl font-bold mb-4">Project Not Found</h1>
         <p className="text-muted-foreground mb-6">The project you're looking for doesn't exist or has been removed.</p>
-        <Button onClick={() => navigate('/projects')}>
+        <Button onClick={() => navigate('/app/projects')}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Projects
         </Button>
