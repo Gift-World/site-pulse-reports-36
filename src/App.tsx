@@ -50,7 +50,6 @@ function App() {
           <Route path="safety-metrics" element={<SafetyMetrics />} />
           <Route path="communication" element={<Communication />} />
           <Route path="chat" element={<Chat />} />
-          <Route path="solutions" element={<Solutions />} />
           <Route path="faq" element={<FAQ />} />
           <Route path="files" element={<Files />} />
           <Route path="settings" element={<Settings />} />
