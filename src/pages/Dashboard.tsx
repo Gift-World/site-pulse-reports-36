@@ -1,5 +1,5 @@
-
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -32,6 +32,7 @@ import {
   Cell,
   LabelList
 } from "recharts";
+import { projects } from "./Projects";
 
 // Sample data representing multiple projects
 const projectsData = [
@@ -181,6 +182,30 @@ const getProjectBarFill = (status) => {
 };
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
+  // Calculate data from actual projects
+  const activeProjectsCount = projects.filter(p => p.status === "In Progress").length;
+  const totalBudgetAll = projects.reduce((sum, project) => sum + (project.budget?.total || 0), 0);
+  const totalSpentAll = projects.reduce((sum, project) => sum + (project.budget?.spent || 0), 0);
+  const budgetSpentPercentageAll = Math.round((totalSpentAll / totalBudgetAll) * 100);
+
+  const handleActiveProjectsClick = () => {
+    navigate("/projects");
+  };
+
+  const handleBudgetClick = () => {
+    navigate("/budgets");
+  };
+
+  const handleSafetyClick = () => {
+    navigate("/safety-metrics");
+  };
+
+  const handleProgressClick = () => {
+    navigate("/project-progress");
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
@@ -191,7 +216,7 @@ const Dashboard = () => {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={handleActiveProjectsClick}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
@@ -199,9 +224,9 @@ const Dashboard = () => {
           <CardContent>
             <div className="flex items-center">
               <div className="mr-4">
-                <div className="text-2xl font-bold">{activeProjects}</div>
+                <div className="text-2xl font-bold">{activeProjectsCount}</div>
                 <p className="text-xs text-muted-foreground">
-                  {activeProjects > 2 ? "+1 from last month" : "Same as last month"}
+                  Click to view all projects
                 </p>
               </div>
               <div className="h-20 w-20">
@@ -209,8 +234,8 @@ const Dashboard = () => {
                   <PieChart>
                     <Pie
                       data={[
-                        { name: "Active", value: activeProjects, color: "#1A73E8" },
-                        { name: "Other", value: projectsData.length - activeProjects, color: "#EEEEEE" }
+                        { name: "Active", value: activeProjectsCount, color: "#1A73E8" },
+                        { name: "Other", value: projects.length - activeProjectsCount, color: "#EEEEEE" }
                       ]}
                       innerRadius={25}
                       outerRadius={35}
@@ -220,8 +245,8 @@ const Dashboard = () => {
                       stroke="none"
                     >
                       {[
-                        { name: "Active", value: activeProjects, color: "#1A73E8" },
-                        { name: "Other", value: projectsData.length - activeProjects, color: "#EEEEEE" }
+                        { name: "Active", value: activeProjectsCount, color: "#1A73E8" },
+                        { name: "Other", value: projects.length - activeProjectsCount, color: "#EEEEEE" }
                       ].map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
@@ -231,23 +256,23 @@ const Dashboard = () => {
               </div>
             </div>
             <Progress 
-              value={activeProjects / projectsData.length * 100} 
+              value={activeProjectsCount / projects.length * 100} 
               className="mt-3 h-2 bg-secondary [&>div]:bg-construction-blue" 
             />
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={handleBudgetClick}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Budget Status</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="flex items-center">
               <div className="mr-4">
-                <div className="text-2xl font-bold">${(totalBudgetSpent / 1000).toFixed(1)}K</div>
+                <div className="text-2xl font-bold">${(totalSpentAll / 1000000).toFixed(1)}M</div>
                 <p className="text-xs text-muted-foreground">
-                  {budgetSpentPercentage}% of total budget
+                  {budgetSpentPercentageAll}% of ${(totalBudgetAll / 1000000).toFixed(1)}M total
                 </p>
               </div>
               <div className="h-20 w-20">
@@ -272,13 +297,13 @@ const Dashboard = () => {
               </div>
             </div>
             <Progress 
-              value={budgetSpentPercentage} 
+              value={budgetSpentPercentageAll} 
               className="mt-3 h-2 bg-secondary [&>div]:bg-construction-orange" 
             />
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={handleSafetyClick}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Safety Score</CardTitle>
             <ShieldCheck className="h-4 w-4 text-muted-foreground" />
@@ -317,7 +342,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={handleProgressClick}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Project Progress</CardTitle>
             <ChartLine className="h-4 w-4 text-muted-foreground" />
@@ -327,7 +352,7 @@ const Dashboard = () => {
               <div className="mr-4">
                 <div className="text-2xl font-bold">{overallProgress}%</div>
                 <p className="text-xs text-muted-foreground">
-                  +5% from last month
+                  Average across all active projects
                 </p>
               </div>
               <div className="h-20 w-20">

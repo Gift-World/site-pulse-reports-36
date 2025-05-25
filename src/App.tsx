@@ -24,6 +24,9 @@ import FAQ from "./pages/FAQ";
 import Solutions from "./pages/Solutions";
 import AllMaterials from "./pages/AllMaterials";
 import Settings, { CurrencyProvider } from "./pages/Settings";
+import Budgets from "./pages/Budgets";
+import SafetyMetrics from "./pages/SafetyMetrics";
+import ProjectProgress from "./pages/ProjectProgress";
 import { InventoryProvider } from "./contexts/InventoryContext";
 
 const App = () => {
@@ -43,6 +46,9 @@ const App = () => {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/projects" element={<Projects />} />
                 <Route path="/projects/:id" element={<ProjectDetail />} />
+                <Route path="/budgets" element={<Budgets />} />
+                <Route path="/safety-metrics" element={<SafetyMetrics />} />
+                <Route path="/project-progress" element={<ProjectProgress />} />
                 <Route path="/team" element={<Team />} />
                 <Route path="/tasks" element={<Tasks />} />
                 <Route path="/reports" element={<Reports />} />
