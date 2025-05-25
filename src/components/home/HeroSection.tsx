@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -29,7 +30,7 @@ export const HeroSection = ({ onScrollToPricing }: HeroSectionProps) => {
           projects on autopilot
         </p>
         
-        <div className="flex flex-wrap justify-center gap-4">
+        <div className="flex flex-wrap justify-center gap-4 mb-12">
           <Button 
             onClick={onScrollToPricing} 
             size="lg" 
@@ -45,6 +46,21 @@ export const HeroSection = ({ onScrollToPricing }: HeroSectionProps) => {
             className="border-construction-navy text-construction-navy hover:bg-construction-navy/10 px-8 py-6 text-lg h-auto"
           >
             Learn More
+          </Button>
+        </div>
+
+        {/* Dashboard Access Section */}
+        <div className="bg-construction-navy/5 rounded-lg p-8 max-w-2xl mx-auto">
+          <h2 className="text-2xl font-bold mb-4 text-construction-navy">Ready to Get Started?</h2>
+          <p className="text-muted-foreground mb-6">
+            Access your project dashboard and start managing your construction projects today.
+          </p>
+          <Button 
+            onClick={() => navigate("/app/dashboard")} 
+            size="lg" 
+            className="bg-construction-navy hover:bg-construction-navy/90 text-white px-8 py-4 text-lg h-auto"
+          >
+            Go to Dashboard
           </Button>
         </div>
       </div>
