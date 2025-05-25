@@ -3,51 +3,55 @@ import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Calendar, TrendingUp, Clock } from "lucide-react";
+import { ArrowLeft, TrendingUp, TrendingDown, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { projects } from "./Projects";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 const ProjectProgress = () => {
   const navigate = useNavigate();
+  const [timeframe, setTimeframe] = useState<"week" | "month" | "year">("month");
 
-  // Generate weekly progress data for each project
-  const generateWeeklyData = (progress: number) => {
-    const weeks = [];
-    const increment = progress / 20; // Spread progress over 20 weeks
-    for (let i = 0; i <= 20; i++) {
-      weeks.push({
-        week: `Week ${i + 1}`,
-        progress: Math.min(progress, i * increment)
+  // Generate mock progress data for each project over time
+  const generateProgressData = (projectId: number, timeframe: string) => {
+    const dataPoints = timeframe === "week" ? 12 : timeframe === "month" ? 12 : 4;
+    const data = [];
+    
+    for (let i = 0; i < dataPoints; i++) {
+      const progress = Math.min(100, (i + 1) * (100 / dataPoints) + Math.random() * 10);
+      data.push({
+        period: timeframe === "week" ? `Week ${i + 1}` :
+                timeframe === "month" ? `Month ${i + 1}` :
+                `Q${i + 1}`,
+        progress: Math.round(progress)
       });
     }
-    return weeks;
+    return data;
   };
 
-  // Generate monthly data
-  const generateMonthlyData = (progress: number) => {
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-    return months.map((month, index) => ({
-      month,
-      progress: Math.min(progress, (progress / 6) * (index + 1))
-    }));
+  const getProgressTrend = (data: any[]) => {
+    if (data.length < 2) return "stable";
+    const lastTwo = data.slice(-2);
+    const trend = lastTwo[1].progress - lastTwo[0].progress;
+    return trend > 0 ? "up" : trend < 0 ? "down" : "stable";
   };
 
-  // Generate yearly data
-  const generateYearlyData = (progress: number) => {
-    const years = ["2023", "2024", "2025"];
-    return years.map((year, index) => ({
-      year,
-      progress: Math.min(progress, (progress / 3) * (index + 1))
-    }));
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "In Progress": return "default";
+      case "Planning": return "secondary";
+      case "Completed": return "outline";
+      case "On Hold": return "destructive";
+      default: return "secondary";
+    }
   };
 
-  const getProgressTrend = (current: number, timelapse: number) => {
-    if (current > timelapse) return { trend: "ahead", color: "text-green-600", icon: TrendingUp };
-    if (current < timelapse - 10) return { trend: "behind", color: "text-red-600", icon: Clock };
-    return { trend: "ontrack", color: "text-blue-600", icon: TrendingUp };
+  const formatTooltipValue = (value: any, name: string) => {
+    if (typeof value === 'number') {
+      return [`${value.toFixed(1)}%`, name];
+    }
+    return [value, name];
   };
 
   return (
@@ -60,172 +64,130 @@ const ProjectProgress = () => {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Project Progress</h1>
           <p className="text-muted-foreground">
-            Detailed progress tracking for all projects
+            Track progress across all projects over time
           </p>
         </div>
       </div>
 
-      <Tabs defaultValue="list" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="list">List View</TabsTrigger>
-          <TabsTrigger value="weekly">Weekly Trends</TabsTrigger>
-          <TabsTrigger value="monthly">Monthly Trends</TabsTrigger>
-          <TabsTrigger value="yearly">Yearly Overview</TabsTrigger>
-        </TabsList>
+      <div className="flex items-center gap-4">
+        <span className="text-sm font-medium">Time Period:</span>
+        <div className="flex gap-2">
+          {(["week", "month", "year"] as const).map((period) => (
+            <Button
+              key={period}
+              variant={timeframe === period ? "default" : "outline"}
+              size="sm"
+              onClick={() => setTimeframe(period)}
+            >
+              {period === "week" ? "Weekly" : period === "month" ? "Monthly" : "Yearly"}
+            </Button>
+          ))}
+        </div>
+      </div>
 
-        <TabsContent value="list" className="space-y-4">
-          {projects.map((project) => {
-            const progressTrend = getProgressTrend(project.progress, project.timelapse || 0);
-            const TrendIcon = progressTrend.icon;
+      <div className="grid gap-6">
+        {projects.map((project) => {
+          const progressData = generateProgressData(project.id, timeframe);
+          const trend = getProgressTrend(progressData);
+          const currentProgress = progressData[progressData.length - 1]?.progress || 0;
+          const previousProgress = progressData[progressData.length - 2]?.progress || 0;
+          const progressChange = currentProgress - previousProgress;
 
-            return (
-              <Card key={project.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        {project.name}
-                        <Badge variant={project.status === "Completed" ? "outline" : "default"}>
-                          {project.status}
-                        </Badge>
-                      </CardTitle>
-                      <CardDescription>{project.description}</CardDescription>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <TrendIcon className={`h-5 w-5 ${progressTrend.color}`} />
-                      <Badge 
-                        variant={progressTrend.trend === "ahead" ? "outline" : 
-                                progressTrend.trend === "behind" ? "destructive" : "secondary"}
-                      >
-                        {progressTrend.trend === "ahead" ? "Ahead of Schedule" :
-                         progressTrend.trend === "behind" ? "Behind Schedule" : "On Track"}
+          return (
+            <Card key={project.id}>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      {project.name}
+                      <Badge variant={getStatusColor(project.status)}>
+                        {project.status}
                       </Badge>
-                    </div>
+                    </CardTitle>
+                    <CardDescription>{project.description}</CardDescription>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">Overall Progress</p>
-                      <p className="text-2xl font-bold">{project.progress}%</p>
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">Time Progress</p>
-                      <p className="text-2xl font-bold">{project.timelapse || 0}%</p>
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">Due Date</p>
-                      <p className="text-lg font-semibold">{project.dueDate}</p>
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">Team Size</p>
-                      <p className="text-2xl font-bold">{project.team}</p>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    {trend === "up" ? (
+                      <TrendingUp className="h-5 w-5 text-green-600" />
+                    ) : trend === "down" ? (
+                      <TrendingDown className="h-5 w-5 text-red-600" />
+                    ) : (
+                      <Calendar className="h-5 w-5 text-gray-600" />
+                    )}
+                    <span className={`text-sm font-medium ${
+                      trend === "up" ? "text-green-600" : 
+                      trend === "down" ? "text-red-600" : "text-gray-600"
+                    }`}>
+                      {progressChange > 0 ? '+' : ''}{progressChange.toFixed(1)}%
+                    </span>
                   </div>
-                  
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Project Progress</span>
-                      <span>{project.progress}%</span>
-                    </div>
-                    <Progress 
-                      value={project.progress} 
-                      className="h-3"
-                      indicatorClassName={
-                        project.progress === 100 ? "bg-green-500" :
-                        project.progress > 75 ? "bg-blue-500" : 
-                        project.progress > 50 ? "bg-yellow-500" : "bg-red-500"
+                    <p className="text-sm font-medium text-muted-foreground">Current Progress</p>
+                    <p className="text-2xl font-bold">{project.progress}%</p>
+                    <Progress value={project.progress} className="h-2" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Due Date</p>
+                    <p className="text-lg font-semibold">{project.dueDate}</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Team Size</p>
+                    <p className="text-lg font-semibold">{project.team} members</p>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Tasks Completed</p>
+                    <p className="text-lg font-semibold">
+                      {project.tasks?.completed || 0}/{project.tasks?.total || 0}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium">Progress Over Time ({timeframe}ly)</h4>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={progressData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="period" />
+                        <YAxis domain={[0, 100]} />
+                        <Tooltip 
+                          formatter={formatTooltipValue}
+                          labelFormatter={(label) => `Period: ${label}`}
+                        />
+                        <Legend />
+                        <Line 
+                          type="monotone" 
+                          dataKey="progress" 
+                          stroke="#2563eb" 
+                          strokeWidth={2}
+                          name="Progress (%)"
+                          dot={{ fill: "#2563eb", r: 4 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {project.status !== "Completed" && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p className="text-sm text-blue-800">
+                      <strong>Progress Insight:</strong> {
+                        trend === "up" ? `Project is progressing well with ${progressChange.toFixed(1)}% improvement this ${timeframe}.` :
+                        trend === "down" ? `Project progress has slowed by ${Math.abs(progressChange).toFixed(1)}% this ${timeframe}. Consider reviewing timelines.` :
+                        `Project progress is stable. Monitor closely to ensure continued momentum.`
                       }
-                    />
+                    </p>
                   </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Time Progress</span>
-                      <span>{project.timelapse || 0}%</span>
-                    </div>
-                    <Progress 
-                      value={project.timelapse || 0} 
-                      className="h-3"
-                      indicatorClassName="bg-gray-400"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </TabsContent>
-
-        <TabsContent value="weekly" className="space-y-4">
-          {projects.slice(0, 3).map((project) => (
-            <Card key={project.id}>
-              <CardHeader>
-                <CardTitle>{project.name} - Weekly Progress</CardTitle>
-                <CardDescription>Progress tracking over the past 20 weeks</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={generateWeeklyData(project.progress)}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="week" />
-                      <YAxis />
-                      <Tooltip formatter={(value) => [`${value.toFixed(1)}%`, 'Progress']} />
-                      <Line type="monotone" dataKey="progress" stroke="#1A73E8" strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
+                )}
               </CardContent>
             </Card>
-          ))}
-        </TabsContent>
-
-        <TabsContent value="monthly" className="space-y-4">
-          {projects.slice(0, 3).map((project) => (
-            <Card key={project.id}>
-              <CardHeader>
-                <CardTitle>{project.name} - Monthly Progress</CardTitle>
-                <CardDescription>Progress tracking over the past 6 months</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={generateMonthlyData(project.progress)}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip formatter={(value) => [`${value.toFixed(1)}%`, 'Progress']} />
-                      <Bar dataKey="progress" fill="#1A73E8" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </TabsContent>
-
-        <TabsContent value="yearly" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Yearly Progress Overview</CardTitle>
-              <CardDescription>Progress comparison across all projects by year</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={generateYearlyData(65)}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => [`${value.toFixed(1)}%`, 'Average Progress']} />
-                    <Bar dataKey="progress" fill="#1A73E8" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          );
+        })}
+      </div>
     </div>
   );
 };

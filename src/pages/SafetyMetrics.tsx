@@ -74,7 +74,7 @@ const SafetyMetrics = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Excellent": return "success";
+      case "Excellent": return "default";
       case "Good": return "secondary";
       case "Completed": return "outline";
       default: return "destructive";

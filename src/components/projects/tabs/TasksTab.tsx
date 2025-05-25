@@ -1,586 +1,368 @@
-import React, { useState, useEffect } from "react";
-import { Project } from "@/types/project";
-import { Task, Subtask } from "@/types/task";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Plus, Filter, Calendar as CalendarIcon, ListFilter, Calendar } from "lucide-react";
-import TaskCalendar from "@/components/tasks/TaskCalendar";
-import TaskList from "@/components/tasks/TaskList";
-import TaskExport from "@/components/tasks/TaskExport";
-import TaskTimeline from "@/components/tasks/TaskTimeline";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
+import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { format, parseISO, addDays } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { 
+  Calendar as CalendarIcon, 
+  Plus, 
+  Search, 
+  Filter, 
+  CheckCircle, 
+  Clock, 
+  AlertTriangle, 
+  User, 
+  BarChart3 
+} from "lucide-react";
+import { TaskList } from "@/components/tasks/TaskList";
+import { TaskCalendar } from "@/components/tasks/TaskCalendar";
+import { TaskTimeline } from "@/components/tasks/TaskTimeline";
 
-interface TasksTabProps {
-  project: Project;
+interface Task {
+  id: string;
+  title: string;
+  description: string;
+  status: "pending" | "in-progress" | "completed" | "overdue";
+  dueDate: Date;
+  priority: "low" | "medium" | "high";
+  assignee: string;
 }
 
-// Sample tasks for the project
-const sampleTasks: Task[] = [
+const initialTasks: Task[] = [
   {
-    id: 1,
-    title: "Site clearing and preparation",
-    description: "Remove debris and prepare the site for construction",
-    status: "Completed",
-    priority: "High",
-    assignee: "David Lee",
-    dueDate: "May 5, 2025",
-    progress: 100,
-    startDate: "May 1, 2025",
-    endDate: "May 5, 2025",
-    projectId: 1,
-    projectName: "Building A Construction",
-    subtasks: [
-      {
-        id: 101,
-        title: "Remove existing vegetation",
-        status: "Completed",
-        progress: 100,
-        assignee: "Carlos Rodriguez"
-      },
-      {
-        id: 102,
-        title: "Level ground surface",
-        status: "Completed",
-        progress: 100,
-        assignee: "Mike Johnson"
-      }
-    ],
-    order: 0
+    id: "1",
+    title: "Design Homepage",
+    description: "Create the initial design for the project homepage",
+    status: "in-progress",
+    dueDate: new Date("2023-12-15"),
+    priority: "high",
+    assignee: "john-doe",
   },
   {
-    id: 2,
-    title: "Foundation excavation",
-    description: "Dig foundation trenches according to architectural plans",
-    status: "In Progress",
-    priority: "High",
-    assignee: "Robert Wilson",
-    dueDate: "May 20, 2025",
-    progress: 65,
-    startDate: "May 10, 2025",
-    endDate: "",
-    projectId: 1,
-    projectName: "Building A Construction",
-    subtasks: [
-      {
-        id: 201,
-        title: "Mark excavation boundaries",
-        status: "Completed",
-        progress: 100,
-        assignee: "Sarah Johnson"
-      },
-      {
-        id: 202,
-        title: "Excavate to required depth",
-        status: "In Progress",
-        progress: 75,
-        assignee: "Robert Wilson"
-      }
-    ],
-    order: 1
+    id: "2",
+    title: "Implement User Authentication",
+    description: "Set up user authentication and authorization",
+    status: "completed",
+    dueDate: new Date("2023-12-20"),
+    priority: "high",
+    assignee: "jane-smith",
   },
   {
-    id: 3,
-    title: "Rebar installation",
-    description: "Place reinforcement bars for the foundation",
-    status: "Pending",
-    priority: "Medium",
-    assignee: "Jennifer Chen",
-    dueDate: "May 25, 2025",
-    progress: 0,
-    startDate: "May 21, 2025",
-    endDate: "",
-    projectId: 1,
-    projectName: "Building A Construction",
-    order: 2
-  }
+    id: "3",
+    title: "Database Setup",
+    description: "Configure and set up the project database",
+    status: "completed",
+    dueDate: new Date("2023-12-22"),
+    priority: "medium",
+    assignee: "mike-johnson",
+  },
+  {
+    id: "4",
+    title: "Develop Task Management Module",
+    description: "Create the task management module with CRUD operations",
+    status: "in-progress",
+    dueDate: new Date("2024-01-05"),
+    priority: "medium",
+    assignee: "john-doe",
+  },
+  {
+    id: "5",
+    title: "Testing and Bug Fixing",
+    description: "Perform thorough testing and fix any identified bugs",
+    status: "pending",
+    dueDate: new Date("2024-01-10"),
+    priority: "high",
+    assignee: "jane-smith",
+  },
+  {
+    id: "6",
+    title: "Deploy Application",
+    description: "Deploy the application to the production environment",
+    status: "pending",
+    dueDate: new Date("2024-01-15"),
+    priority: "high",
+    assignee: "mike-johnson",
+  },
+  {
+    id: "7",
+    title: "Design Task List",
+    description: "Create the initial design for the project task list",
+    status: "overdue",
+    dueDate: new Date("2023-11-15"),
+    priority: "high",
+    assignee: "john-doe",
+  },
 ];
 
-// Form schema for task creation
-const taskFormSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  status: z.enum(["Pending", "In Progress", "Completed", "Overdue"]),
-  priority: z.enum(["Low", "Medium", "High"]),
-  assignee: z.string().min(1, "Assignee is required"),
-  dueDate: z.date({
-    required_error: "Due date is required",
-  }),
-  startDate: z.date({
-    required_error: "Start date is required",
-  })
-});
-
-type TaskFormValues = z.infer<typeof taskFormSchema>;
-
-export function TasksTab({ project }: TasksTabProps) {
-  const [tasks, setTasks] = useState<Task[]>(sampleTasks);
+export function TasksTab() {
+  const [activeTab, setActiveTab] = useState("list");
+  const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [priorityFilter, setPriorityFilter] = useState("all");
   const [assigneeFilter, setAssigneeFilter] = useState("all");
-  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [exportTimeframe, setExportTimeframe] = useState<"daily" | "weekly" | "monthly">("daily");
-  const { toast } = useToast();
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskDescription, setNewTaskDescription] = useState("");
+  const [newTaskDueDate, setNewTaskDueDate] = useState<Date>();
+  const [newTaskPriority, setNewTaskPriority] = useState("medium");
+  const [newTaskAssignee, setNewTaskAssignee] = useState("");
+  const [showNewTaskForm, setShowNewTaskForm] = useState(false);
 
-  const form = useForm<TaskFormValues>({
-    resolver: zodResolver(taskFormSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      status: "Pending",
-      priority: "Medium",
-      assignee: "",
-      dueDate: new Date(),
-      startDate: new Date(),
-    },
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+
+  const filteredTasks = tasks.filter((task) => {
+    const searchTermMatch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      task.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const statusMatch = statusFilter === "all" || task.status === statusFilter;
+    const assigneeMatch = assigneeFilter === "all" || task.assignee === assigneeFilter;
+
+    return searchTermMatch && statusMatch && assigneeMatch;
   });
 
-  // Filter tasks based on selected filters
-  const filteredTasks = tasks.filter(task => {
-    if (statusFilter !== "all" && task.status.toLowerCase() !== statusFilter.toLowerCase()) {
-      return false;
+  const handleCreateTask = () => {
+    if (!newTaskTitle || !newTaskDescription || !newTaskDueDate || !newTaskAssignee) {
+      alert("Please fill in all required fields.");
+      return;
     }
-    if (priorityFilter !== "all" && task.priority.toLowerCase() !== priorityFilter.toLowerCase()) {
-      return false;
-    }
-    if (assigneeFilter !== "all" && !task.assignee.toLowerCase().includes(assigneeFilter.toLowerCase())) {
-      return false;
-    }
-    return true;
-  });
 
-  // Sort tasks by their order property
-  const sortedTasks = [...filteredTasks].sort((a, b) => {
-    return (a.order || 0) - (b.order || 0);
-  });
-
-  const handleAddTask = (data: TaskFormValues) => {
     const newTask: Task = {
-      id: Math.max(0, ...tasks.map(task => task.id)) + 1,
-      title: data.title,
-      description: data.description || "",
-      status: data.status,
-      priority: data.priority,
-      assignee: data.assignee,
-      dueDate: format(data.dueDate, "MMM d, yyyy"),
-      progress: data.status === "Completed" ? 100 : data.status === "In Progress" ? 20 : 0,
-      startDate: format(data.startDate, "MMM d, yyyy"),
-      endDate: "",
-      projectId: project.id,
-      projectName: project.name,
-      subtasks: [],
-      order: tasks.length // Add to the end by default
+      id: String(tasks.length + 1),
+      title: newTaskTitle,
+      description: newTaskDescription,
+      status: "pending",
+      dueDate: newTaskDueDate,
+      priority: newTaskPriority as "low" | "medium" | "high",
+      assignee: newTaskAssignee,
     };
 
     setTasks([...tasks, newTask]);
-    setShowAddTaskModal(false);
-    form.reset();
-
-    toast({
-      title: "Task created",
-      description: "The task has been successfully added to the project.",
-    });
+    setNewTaskTitle("");
+    setNewTaskDescription("");
+    setNewTaskDueDate(undefined);
+    setNewTaskPriority("medium");
+    setNewTaskAssignee("");
+    setShowNewTaskForm(false);
   };
-
-  const handleTaskReorder = (reorderedTasks: Task[]) => {
-    // Update all tasks with the new order
-    const updatedTasks = tasks.map(task => {
-      const reorderedTask = reorderedTasks.find(t => t.id === task.id);
-      if (reorderedTask) {
-        return { ...task, order: reorderedTask.order };
-      }
-      return task;
-    });
-    
-    setTasks(updatedTasks);
-  };
-
-  const handleAddSubtask = (taskId: number, subtaskData: any) => {
-    const updatedTasks = tasks.map(task => {
-      if (task.id === taskId) {
-        const newSubtask: Subtask = {
-          id: Date.now(), // Use timestamp as ID for simplicity
-          title: subtaskData.title,
-          status: subtaskData.status,
-          progress: subtaskData.progress,
-          assignee: subtaskData.assignee
-        };
-        
-        return {
-          ...task,
-          subtasks: [...(task.subtasks || []), newSubtask]
-        };
-      }
-      return task;
-    });
-    
-    setTasks(updatedTasks);
-    
-    toast({
-      title: "Subtask added",
-      description: `Added "${subtaskData.title}" to the task.`,
-    });
-  };
-
-  const handleAssignTask = (taskId: number) => {
-    // This would open the assignment dialog in a real implementation
-    toast({
-      title: "Task Assignment",
-      description: "Task assignment functionality would open here.",
-    });
-  };
-
-  const handleDeleteTask = (taskId: number) => {
-    // Filter out the task to be deleted
-    const updatedTasks = tasks.filter(task => task.id !== taskId);
-    setTasks(updatedTasks);
-    
-    toast({
-      title: "Task deleted",
-      description: "The task has been removed from the project.",
-    });
-  };
-  
-  const handleEditTask = (updatedTask: Task) => {
-    const updatedTasks = tasks.map(task => 
-      task.id === updatedTask.id ? updatedTask : task
-    );
-    
-    setTasks(updatedTasks);
-    
-    toast({
-      title: "Task updated",
-      description: "The task has been successfully updated.",
-    });
-  };
-
-  // Get unique assignees for filter dropdown
-  const uniqueAssignees = Array.from(
-    new Set(tasks.map(task => task.assignee))
-  );
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <CardTitle className="text-xl">Project Tasks</CardTitle>
-          </div>
-          <Button onClick={() => setShowAddTaskModal(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add New Task
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="list" className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <TabsList className="mb-2">
-                <TabsTrigger value="list">
-                  <ListFilter className="mr-2 h-4 w-4" />
-                  List View
-                </TabsTrigger>
-                <TabsTrigger value="calendar">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  Calendar View
-                </TabsTrigger>
-                <TabsTrigger value="timeline">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Timeline
-                </TabsTrigger>
-              </TabsList>
-              
-              <div className="flex flex-wrap gap-2">
-                <Select 
-                  defaultValue="all"
-                  value={statusFilter}
-                  onValueChange={setStatusFilter}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-medium">Project Tasks</h3>
+          <p className="text-sm text-muted-foreground">
+            Manage and track all project tasks
+          </p>
+        </div>
+        <Button onClick={() => setShowNewTaskForm(!showNewTaskForm)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Task
+        </Button>
+      </div>
+
+      {/* Task Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-2">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              <div>
+                <p className="text-2xl font-bold">{tasks.filter(t => t.status === "completed").length}</p>
+                <p className="text-xs text-muted-foreground">Completed</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-2">
+              <Clock className="h-4 w-4 text-blue-600" />
+              <div>
+                <p className="text-2xl font-bold">{tasks.filter(t => t.status === "in-progress").length}</p>
+                <p className="text-xs text-muted-foreground">In Progress</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <div>
+                <p className="text-2xl font-bold">{tasks.filter(t => t.status === "overdue").length}</p>
+                <p className="text-xs text-muted-foreground">Overdue</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-2">
+              <BarChart3 className="h-4 w-4 text-yellow-600" />
+              <div>
+                <p className="text-2xl font-bold">{Math.round((tasks.filter(t => t.status === "completed").length / tasks.length) * 100)}%</p>
+                <p className="text-xs text-muted-foreground">Completion Rate</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* New Task Form */}
+      {showNewTaskForm && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Create New Task</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">Task Title</label>
+                <Input 
+                  value={newTaskTitle}
+                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                  placeholder="Enter task title"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Assignee</label>
+                <select 
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={newTaskAssignee}
+                  onChange={(e) => setNewTaskAssignee(e.target.value)}
                 >
-                  <SelectTrigger className="w-[130px]">
-                    <Filter className="mr-2 h-4 w-4" />
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="in progress">In Progress</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="overdue">Overdue</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                <Select 
-                  defaultValue="all"
-                  value={priorityFilter}
-                  onValueChange={setPriorityFilter}
-                >
-                  <SelectTrigger className="w-[130px]">
-                    <SelectValue placeholder="Priority" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Priority</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="low">Low</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                <Select 
-                  defaultValue="all"
-                  value={assigneeFilter}
-                  onValueChange={setAssigneeFilter}
-                >
-                  <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="Assignee" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Assignees</SelectItem>
-                    {uniqueAssignees.map(assignee => (
-                      <SelectItem key={assignee} value={assignee.toLowerCase()}>
-                        {assignee}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <option value="">Select assignee</option>
+                  <option value="john-doe">John Doe</option>
+                  <option value="jane-smith">Jane Smith</option>
+                  <option value="mike-johnson">Mike Johnson</option>
+                </select>
               </div>
             </div>
             
-            <TabsContent value="list" className="pt-4">
-              <TaskList 
-                tasks={sortedTasks} 
-                onReorder={handleTaskReorder}
-                onAddSubtask={handleAddSubtask}
-                onAssignTask={handleAssignTask}
-                onDeleteTask={handleDeleteTask}
-                onEditTask={handleEditTask}
+            <div>
+              <label className="text-sm font-medium">Description</label>
+              <Textarea 
+                value={newTaskDescription}
+                onChange={(e) => setNewTaskDescription(e.target.value)}
+                placeholder="Enter task description"
+                className="min-h-[80px]"
               />
-            </TabsContent>
+            </div>
             
-            <TabsContent value="calendar" className="pt-4">
-              <TaskCalendar tasks={tasks} />
-              <TaskExport 
-                tasks={tasks}
-                selectedDate={selectedDate}
-                timeframe={exportTimeframe}
-                onTimeframeChange={setExportTimeframe}
-              />
-            </TabsContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">Due Date</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !newTaskDueDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {newTaskDueDate ? format(newTaskDueDate, "PPP") : "Pick a date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={newTaskDueDate}
+                      onSelect={setNewTaskDueDate}
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Priority</label>
+                <select 
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={newTaskPriority}
+                  onChange={(e) => setNewTaskPriority(e.target.value)}
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+            </div>
             
-            <TabsContent value="timeline" className="pt-4">
-              <TaskTimeline tasks={sortedTasks} />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-      
-      {/* Add Task Modal */}
-      <Dialog open={showAddTaskModal} onOpenChange={setShowAddTaskModal}>
-        <DialogContent className="sm:max-w-[550px]">
-          <DialogHeader>
-            <DialogTitle>Add New Task</DialogTitle>
-            <DialogDescription>
-              Create a new task for the project.
-            </DialogDescription>
-          </DialogHeader>
+            <div className="flex gap-2">
+              <Button onClick={handleCreateTask}>Create Task</Button>
+              <Button variant="outline" onClick={() => setShowNewTaskForm(false)}>Cancel</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Filters and Search */}
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex-1">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search tasks..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
+        
+        <div className="flex gap-2">
+          <select 
+            className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="overdue">Overdue</option>
+          </select>
           
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleAddTask)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Task Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter task title" {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Enter task description" {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="priority"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Priority</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select Priority" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Low">Low</SelectItem>
-                          <SelectItem value="Medium">Medium</SelectItem>
-                          <SelectItem value="High">High</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select Status" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Pending">Pending</SelectItem>
-                          <SelectItem value="In Progress">In Progress</SelectItem>
-                          <SelectItem value="Completed">Completed</SelectItem>
-                          <SelectItem value="Overdue">Overdue</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <FormField
-                control={form.control}
-                name="assignee"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Assignee</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Assignee" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="David Lee">David Lee</SelectItem>
-                        <SelectItem value="Robert Wilson">Robert Wilson</SelectItem>
-                        <SelectItem value="Sarah Johnson">Sarah Johnson</SelectItem>
-                        <SelectItem value="Jennifer Chen">Jennifer Chen</SelectItem>
-                        <SelectItem value="Michael Robinson">Michael Robinson</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-              
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="startDate"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Start Date</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
-                            >
-                              {field.value ? format(field.value, "PPP") : "Pick a date"}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                            className={cn("p-3 pointer-events-auto")}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="dueDate"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Due Date</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={`w-full pl-3 text-left font-normal ${!field.value && "text-muted-foreground"}`}
-                            >
-                              {field.value ? format(field.value, "PPP") : "Pick a date"}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                            className={cn("p-3 pointer-events-auto")}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setShowAddTaskModal(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit">Add Task</Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+          <select 
+            className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+            value={assigneeFilter}
+            onChange={(e) => setAssigneeFilter(e.target.value)}
+          >
+            <option value="all">All Assignees</option>
+            <option value="john-doe">John Doe</option>
+            <option value="jane-smith">Jane Smith</option>
+            <option value="mike-johnson">Mike Johnson</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Task Views */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="list">List View</TabsTrigger>
+          <TabsTrigger value="calendar">Calendar View</TabsTrigger>
+          <TabsTrigger value="timeline">Timeline View</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="list" className="mt-6">
+          <TaskList tasks={filteredTasks} />
+        </TabsContent>
+        
+        <TabsContent value="calendar" className="mt-6">
+          <TaskCalendar tasks={filteredTasks} />
+        </TabsContent>
+        
+        <TabsContent value="timeline" className="mt-6">
+          <TaskTimeline tasks={filteredTasks} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

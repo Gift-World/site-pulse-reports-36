@@ -1,19 +1,14 @@
-
 import React, { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/ui/date-picker";
 import { FileUploader } from "@/components/reports/FileUploader";
 import { toast } from "@/hooks/use-toast";
-import { CalendarIcon, Plus, Trash2 } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { CalendarIcon, Plus, Trash2, Map, Building, User } from "lucide-react";
 import { 
   Form, 
   FormControl, 
@@ -23,6 +18,13 @@ import {
   FormLabel, 
   FormMessage 
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const consultantTypes = [
   "Architect",
@@ -35,15 +37,35 @@ const consultantTypes = [
   "Other"
 ];
 
+const currencies = [
+  { code: "USD", symbol: "$", name: "US Dollar" },
+  { code: "EUR", symbol: "€", name: "Euro" },
+  { code: "GBP", symbol: "£", name: "British Pound" },
+  { code: "JPY", symbol: "¥", name: "Japanese Yen" },
+  { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
+  { code: "AUD", symbol: "A$", name: "Australian Dollar" },
+  { code: "CHF", symbol: "CHF", name: "Swiss Franc" },
+  { code: "CNY", symbol: "¥", name: "Chinese Yuan" },
+  { code: "INR", symbol: "₹", name: "Indian Rupee" },
+  { code: "NGN", symbol: "₦", name: "Nigerian Naira" },
+  { code: "ZAR", symbol: "R", name: "South African Rand" },
+  { code: "KES", symbol: "KSh", name: "Kenyan Shilling" }
+];
+
 const formSchema = z.object({
   name: z.string().min(2, "Project name must be at least 2 characters"),
   client: z.string().min(2, "Client name is required"),
+  mainContractor: z.string().min(2, "Main contractor name is required"),
   location: z.string().min(2, "Site location is required"),
   cost: z.string().refine((val) => !isNaN(Number(val)), {
     message: "Project cost must be a valid number",
   }),
+  currency: z.string().min(1, "Currency is required"),
   startDate: z.date({
     required_error: "Project start date is required",
+  }),
+  completionDate: z.date({
+    required_error: "Project completion date is required",
   }),
   consultants: z.array(
     z.object({
@@ -65,14 +87,17 @@ interface NewProjectFormProps {
 
 export function NewProjectForm({ onComplete }: NewProjectFormProps) {
   const [programFile, setProgramFile] = useState<File | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<{lat: number, lng: number, address: string} | null>(null);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       client: "",
+      mainContractor: "",
       location: "",
       cost: "",
+      currency: "USD",
       description: "",
       consultants: [
         {
@@ -88,10 +113,13 @@ export function NewProjectForm({ onComplete }: NewProjectFormProps) {
   const onSubmit = (data: FormValues) => {
     console.log("Form submitted:", data);
     console.log("Program file:", programFile);
+    console.log("Selected location:", selectedLocation);
+    
+    const selectedCurrency = currencies.find(c => c.code === data.currency);
     
     toast({
       title: "Project Created",
-      description: `Project "${data.name}" has been successfully created.`,
+      description: `Project "${data.name}" has been successfully created with budget ${selectedCurrency?.symbol}${Number(data.cost).toLocaleString()}.`,
     });
     
     onComplete();
@@ -124,6 +152,34 @@ export function NewProjectForm({ onComplete }: NewProjectFormProps) {
     }
   };
 
+  const handleOpenMap = () => {
+    // Open Google Maps for location selection
+    const mapUrl = "https://www.google.com/maps/@0,0,2z";
+    const newWindow = window.open(mapUrl, '_blank', 'width=800,height=600');
+    
+    // Simulate location selection (in a real app, this would be handled via Google Maps API)
+    toast({
+      title: "Map Opened",
+      description: "Please select your location on Google Maps. In a real implementation, this would integrate with Google Maps API to return coordinates.",
+    });
+    
+    // Mock location selection after 3 seconds
+    setTimeout(() => {
+      const mockLocation = {
+        lat: 40.7128,
+        lng: -74.0060,
+        address: "New York, NY, USA"
+      };
+      setSelectedLocation(mockLocation);
+      form.setValue("location", mockLocation.address);
+      
+      toast({
+        title: "Location Selected",
+        description: `Selected: ${mockLocation.address}`,
+      });
+    }, 3000);
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -148,7 +204,102 @@ export function NewProjectForm({ onComplete }: NewProjectFormProps) {
               <FormItem>
                 <FormLabel>Client</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter client name" {...field} />
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Enter client name" className="pl-10" {...field} />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="mainContractor"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Main Contractor</FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <Building className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input placeholder="Enter main contractor name" className="pl-10" {...field} />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="location"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Site Location</FormLabel>
+              <FormControl>
+                <div className="flex gap-2">
+                  <Input placeholder="Enter site location" {...field} />
+                  <Button type="button" variant="outline" onClick={handleOpenMap}>
+                    <Map className="h-4 w-4 mr-2" />
+                    Choose on Map
+                  </Button>
+                </div>
+              </FormControl>
+              {selectedLocation && (
+                <FormDescription>
+                  Selected coordinates: {selectedLocation.lat.toFixed(6)}, {selectedLocation.lng.toFixed(6)}
+                </FormDescription>
+              )}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <FormField
+            control={form.control}
+            name="currency"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Currency</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select currency" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {currencies.map((currency) => (
+                      <SelectItem key={currency.code} value={currency.code}>
+                        {currency.symbol} {currency.code} - {currency.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="cost"
+            render={({ field }) => (
+              <FormItem className="md:col-span-2">
+                <FormLabel>Project Cost</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <span className="absolute left-3 top-3 text-muted-foreground">
+                      {currencies.find(c => c.code === form.watch("currency"))?.symbol || "$"}
+                    </span>
+                    <Input 
+                      placeholder="Enter project cost" 
+                      type="text" 
+                      className="pl-8"
+                      {...field} 
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -159,12 +310,15 @@ export function NewProjectForm({ onComplete }: NewProjectFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
-            name="location"
+            name="startDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Site Location</FormLabel>
+                <FormLabel>Start Date</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter site location" {...field} />
+                  <DatePicker 
+                    date={field.value} 
+                    onDateChange={field.onChange} 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -172,35 +326,21 @@ export function NewProjectForm({ onComplete }: NewProjectFormProps) {
           />
           <FormField
             control={form.control}
-            name="cost"
+            name="completionDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Project Cost</FormLabel>
+                <FormLabel>Completion Date</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter project cost" type="text" {...field} />
+                  <DatePicker 
+                    date={field.value} 
+                    onDateChange={field.onChange} 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-
-        <FormField
-          control={form.control}
-          name="startDate"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Start Date</FormLabel>
-              <FormControl>
-                <DatePicker 
-                  date={field.value} 
-                  onDateChange={field.onChange} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <div className="space-y-4">
           <div className="flex justify-between items-center">
