@@ -15,56 +15,138 @@ export const projects: Project[] = [
     name: "Downtown Office Complex",
     description: "Modern 15-story office building with retail space",
     status: "In Progress",
-    startDate: "2024-01-15",
-    endDate: "2024-12-31",
-    budget: 25000000,
-    spent: 12500000,
     progress: 65,
+    timelapse: 70,
+    team: 12,
+    dueDate: "2024-12-31",
     location: "Downtown",
     client: "Metro Development Corp",
-    manager: "John Smith"
+    budget: {
+      total: 25000000,
+      spent: 12500000,
+      remaining: 12500000
+    },
+    tasks: {
+      total: 150,
+      completed: 98,
+      overdue: 5
+    },
+    materials: {
+      allocated: 85,
+      used: 65
+    },
+    contacts: [
+      { name: "John Smith", role: "Project Manager", phone: "+1-555-0123", email: "john.smith@metro.com" },
+      { name: "Sarah Johnson", role: "Site Engineer", phone: "+1-555-0124", email: "sarah.j@metro.com" }
+    ],
+    milestones: [
+      { name: "Foundation Complete", dueDate: "2024-03-15", status: "Completed" },
+      { name: "Structure Complete", dueDate: "2024-08-30", status: "In Progress" },
+      { name: "Final Inspection", dueDate: "2024-12-15", status: "Pending" }
+    ]
   },
   {
     id: 2,
     name: "Residential Tower A",
     description: "Luxury apartment complex with 200 units",
     status: "In Progress",
-    startDate: "2024-02-01",
-    endDate: "2025-06-30",
-    budget: 18000000,
-    spent: 7200000,
     progress: 40,
+    timelapse: 45,
+    team: 18,
+    dueDate: "2025-06-30",
     location: "Westside",
     client: "Urban Living LLC",
-    manager: "Sarah Johnson"
+    budget: {
+      total: 18000000,
+      spent: 7200000,
+      remaining: 10800000
+    },
+    tasks: {
+      total: 200,
+      completed: 80,
+      overdue: 3
+    },
+    materials: {
+      allocated: 60,
+      used: 35
+    },
+    contacts: [
+      { name: "Sarah Johnson", role: "Project Manager", phone: "+1-555-0125", email: "sarah.johnson@urban.com" }
+    ],
+    milestones: [
+      { name: "Site Preparation", dueDate: "2024-02-28", status: "Completed" },
+      { name: "Foundation Work", dueDate: "2024-09-15", status: "In Progress" }
+    ]
   },
   {
     id: 3,
     name: "Shopping Center Renovation",
     description: "Complete renovation of existing shopping center",
     status: "Completed",
-    startDate: "2023-08-01",
-    endDate: "2024-03-15",
-    budget: 8500000,
-    spent: 8200000,
     progress: 100,
+    timelapse: 100,
+    team: 8,
+    dueDate: "2024-03-15",
     location: "Suburbs",
     client: "Retail Properties Inc",
-    manager: "Mike Davis"
+    budget: {
+      total: 8500000,
+      spent: 8200000,
+      remaining: 300000
+    },
+    tasks: {
+      total: 120,
+      completed: 120,
+      overdue: 0
+    },
+    materials: {
+      allocated: 100,
+      used: 98
+    },
+    contacts: [
+      { name: "Mike Davis", role: "Project Manager", phone: "+1-555-0126", email: "mike.davis@retail.com" }
+    ],
+    milestones: [
+      { name: "Demolition Complete", dueDate: "2023-10-15", status: "Completed" },
+      { name: "Renovation Complete", dueDate: "2024-03-01", status: "Completed" }
+    ],
+    defectsLiability: {
+      lapseDate: "2024-03-15",
+      endDate: "2025-03-15"
+    }
   },
   {
     id: 4,
     name: "Industrial Warehouse",
     description: "Large distribution center with loading docks",
     status: "Planning",
-    startDate: "2024-06-01",
-    endDate: "2025-02-28",
-    budget: 15000000,
-    spent: 0,
     progress: 0,
+    timelapse: 0,
+    team: 0,
+    dueDate: "2025-02-28",
     location: "Industrial Park",
     client: "Logistics Solutions",
-    manager: "Emily Chen"
+    budget: {
+      total: 15000000,
+      spent: 0,
+      remaining: 15000000
+    },
+    tasks: {
+      total: 180,
+      completed: 0,
+      overdue: 0
+    },
+    materials: {
+      allocated: 0,
+      used: 0
+    },
+    contacts: [
+      { name: "Emily Chen", role: "Project Manager", phone: "+1-555-0127", email: "emily.chen@logistics.com" }
+    ],
+    milestones: [
+      { name: "Permits Approved", dueDate: "2024-06-01", status: "Pending" },
+      { name: "Ground Breaking", dueDate: "2024-07-01", status: "Pending" }
+    ]
   }
 ];
 
@@ -134,8 +216,8 @@ const Projects = () => {
                     ></div>
                   </div>
                   <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Budget: ${(project.budget / 1000000).toFixed(1)}M</span>
-                    <span>Manager: {project.manager}</span>
+                    <span>Budget: ${(project.budget.total / 1000000).toFixed(1)}M</span>
+                    <span>Team: {project.team} members</span>
                   </div>
                 </div>
               </CardContent>
