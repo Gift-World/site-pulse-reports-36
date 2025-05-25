@@ -10,7 +10,7 @@ import { SafetyTab } from "./tabs/SafetyTab";
 import { InventoryTab } from "./tabs/InventoryTab";
 import { LaborTab } from "./tabs/LaborTab";
 import { PlantTab } from "./tabs/PlantTab";
-import { TasksTab } from "./tabs/TasksTab";
+import TasksTab from "./tabs/TasksTab";
 import { CashflowTab } from "./tabs/CashflowTab";
 
 interface InProgressProjectViewProps {
