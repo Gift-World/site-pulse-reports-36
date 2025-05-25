@@ -83,6 +83,23 @@ const Home = () => {
       {/* Hero Section with Construction Background */}
       <HeroSection onScrollToPricing={() => scrollToSection(pricingRef)} />
 
+      {/* Quick Access Section */}
+      <section className="py-8 px-4 bg-construction-navy/5">
+        <div className="container mx-auto text-center">
+          <h2 className="text-2xl font-bold mb-4 text-construction-navy">Ready to Get Started?</h2>
+          <p className="text-muted-foreground mb-6">
+            Access your project dashboard and start managing your construction projects today.
+          </p>
+          <Button 
+            onClick={() => navigate("/app/dashboard")} 
+            size="lg" 
+            className="bg-construction-navy hover:bg-construction-navy/90 text-white px-8 py-4 text-lg h-auto"
+          >
+            Go to Dashboard
+          </Button>
+        </div>
+      </section>
+
       {/* Why SitePlann */}
       <div ref={featuresRef}>
         <div className="container mx-auto">
@@ -327,15 +344,25 @@ const Home = () => {
         <div className="text-center space-y-6 relative z-10">
           <h2 className="text-3xl font-bold">Ready to transform your construction business?</h2>
           <p className="max-w-2xl mx-auto text-white/80">
-            Join thousands of construction professionals who are already using ConstructPulse to streamline their operations.
+            Join thousands of construction professionals who are already using SitePlann to streamline their operations.
           </p>
-          <Button 
-            size="lg" 
-            className="bg-white text-construction-navy hover:bg-white/90"
-            onClick={() => navigate("/settings")}
-          >
-            Get Started Today
-          </Button>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button 
+              size="lg" 
+              className="bg-white text-construction-navy hover:bg-white/90"
+              onClick={() => navigate("/app/dashboard")}
+            >
+              Go to Dashboard
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline"
+              className="border-white text-white hover:bg-white/10"
+              onClick={() => navigate("/settings")}
+            >
+              Settings
+            </Button>
+          </div>
         </div>
       </section>
 
