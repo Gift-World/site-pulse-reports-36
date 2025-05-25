@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -25,13 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
 const consultantTypes = [
   "Architect",
@@ -102,8 +96,6 @@ export function NewProjectForm({ onComplete }: NewProjectFormProps) {
   const [specificationFiles, setSpecificationFiles] = useState<File[]>([]);
   const [otherFiles, setOtherFiles] = useState<File[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<{lat: number, lng: number, address: string} | null>(null);
-  const [showLocationConfirm, setShowLocationConfirm] = useState(false);
-  const [pendingLocation, setPendingLocation] = useState<{lat: number, lng: number, address: string} | null>(null);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -155,10 +147,10 @@ export function NewProjectForm({ onComplete }: NewProjectFormProps) {
       });
     }
     
-    // Send invites to consultants
+    // Send invites to team members
     data.consultants.forEach(consultant => {
       toast({
-        title: "Consultant Invite Sent",
+        title: "Team Member Invite Sent",
         description: `Invitation sent to ${consultant.name} at ${consultant.email}`,
       });
     });
@@ -204,517 +196,460 @@ export function NewProjectForm({ onComplete }: NewProjectFormProps) {
 
   const handleOpenMap = () => {
     const mapUrl = "https://www.google.com/maps/@0,0,2z";
-    const newWindow = window.open(mapUrl, '_blank', 'width=800,height=600');
+    window.open(mapUrl, '_blank', 'width=800,height=600');
     
     toast({
       title: "Map Opened",
-      description: "Please select your location on Google Maps. Once selected, you'll be prompted to confirm.",
+      description: "Please select your location on Google Maps and manually enter the address in the location field.",
     });
-    
-    // Simulate location selection after 3 seconds
-    setTimeout(() => {
-      const mockLocation = {
-        lat: 40.7128 + (Math.random() - 0.5) * 0.1,
-        lng: -74.0060 + (Math.random() - 0.5) * 0.1,
-        address: "Selected Location, New York, NY, USA"
-      };
-      setPendingLocation(mockLocation);
-      setShowLocationConfirm(true);
-    }, 3000);
-  };
-
-  const confirmLocation = () => {
-    if (pendingLocation) {
-      setSelectedLocation(pendingLocation);
-      form.setValue("location", pendingLocation.address);
-      setShowLocationConfirm(false);
-      
-      toast({
-        title: "Location Confirmed",
-        description: `Location set to: ${pendingLocation.address}`,
-      });
-    }
   };
 
   return (
-    <>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Project Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter project name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Site Location</FormLabel>
-                  <FormControl>
-                    <div className="flex gap-2">
-                      <Input placeholder="Enter site location" {...field} />
-                      <Button type="button" variant="outline" onClick={handleOpenMap}>
-                        <Map className="h-4 w-4 mr-2" />
-                        Choose on Map
-                      </Button>
-                    </div>
-                  </FormControl>
-                  {selectedLocation && (
-                    <FormDescription>
-                      Selected coordinates: {selectedLocation.lat.toFixed(6)}, {selectedLocation.lng.toFixed(6)}
-                    </FormDescription>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Client Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="client"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Client Name</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="Enter client name" className="pl-10" {...field} />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="clientEmail"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Client Email (Optional)</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="Enter client email" type="email" className="pl-10" {...field} />
-                    </div>
-                  </FormControl>
-                  <FormDescription>
-                    Email will be used to send an invite to join the project
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Main Contractor Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="mainContractor"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Main Contractor Name</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Building className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="Enter main contractor name" className="pl-10" {...field} />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="mainContractorEmail"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Main Contractor Email (Optional)</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="Enter main contractor email" type="email" className="pl-10" {...field} />
-                    </div>
-                  </FormControl>
-                  <FormDescription>
-                    Email will be used to send an invite to join the project
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Cost and Currency */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <FormField
-              control={form.control}
-              name="currency"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Currency</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select currency" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {currencies.map((currency) => (
-                        <SelectItem key={currency.code} value={currency.code}>
-                          {currency.symbol} {currency.code} - {currency.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="cost"
-              render={({ field }) => (
-                <FormItem className="md:col-span-2">
-                  <FormLabel>Project Cost</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <span className="absolute left-3 top-3 text-muted-foreground">
-                        {currencies.find(c => c.code === form.watch("currency"))?.symbol || "$"}
-                      </span>
-                      <Input 
-                        placeholder="Enter project cost" 
-                        type="text" 
-                        className="pl-8"
-                        {...field} 
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Dates */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="startDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Start Date</FormLabel>
-                  <FormControl>
-                    <DatePicker 
-                      date={field.value} 
-                      onDateChange={field.onChange} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="completionDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Completion Date</FormLabel>
-                  <FormControl>
-                    <DatePicker 
-                      date={field.value} 
-                      onDateChange={field.onChange} 
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    This will help track project time elapse
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <FormLabel className="text-base">Consultants</FormLabel>
-              <Button type="button" variant="outline" size="sm" onClick={addConsultant}>
-                <Plus className="h-4 w-4 mr-2" /> Add Consultant
-              </Button>
-            </div>
-            
-            {form.watch("consultants")?.map((_, index) => (
-              <div key={index} className="border rounded-md p-4 space-y-4">
-                <div className="flex justify-between items-center">
-                  <h4 className="font-medium">Consultant {index + 1}</h4>
-                  {index > 0 && (
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => removeConsultant(index)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name={`consultants.${index}.type`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Type</FormLabel>
-                        <select
-                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                          {...field}
-                        >
-                          {consultantTypes.map((type) => (
-                            <option key={type} value={type}>
-                              {type}
-                            </option>
-                          ))}
-                        </select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  {form.watch(`consultants.${index}.type`) === "Other" && (
-                    <FormField
-                      control={form.control}
-                      name={`consultants.${index}.otherType`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Specify Other Type</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter consultant type" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
-                  
-                  <FormField
-                    control={form.control}
-                    name={`consultants.${index}.name`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter consultant name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name={`consultants.${index}.email`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter consultant email" type="email" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          Email will be used to send an invite to join the project
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name={`consultants.${index}.phone`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone (Optional)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter consultant phone" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="space-y-2">
-            <FormLabel>Program of Works</FormLabel>
-            <FileUploader 
-              onFilesSelected={handleProgramFileUpload}
-              acceptedFileTypes=".pdf,.doc,.docx,.xls,.xlsx,.mpp"
-              maxFiles={1}
-            />
-            {programFile && (
-              <div className="text-sm text-muted-foreground">
-                Selected file: {programFile.name} (will be uploaded to progress tab)
-              </div>
-            )}
-          </div>
-
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
-            name="description"
+            name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Project Description</FormLabel>
+                <FormLabel>Project Name</FormLabel>
                 <FormControl>
-                  <Textarea 
-                    placeholder="Enter additional details about the project" 
-                    className="min-h-[100px]" 
-                    {...field} 
-                  />
+                  <Input placeholder="Enter project name" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-
+          
           <FormField
             control={form.control}
-            name="scopeOfWorks"
+            name="location"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Scope of Works (Optional)</FormLabel>
+                <FormLabel>Site Location</FormLabel>
                 <FormControl>
-                  <Textarea 
-                    placeholder="Enter scope of works in numbered format (1, 2, 3, 4...)" 
-                    className="min-h-[100px]" 
-                    {...field} 
-                  />
+                  <div className="flex gap-2">
+                    <Input placeholder="Enter site location" {...field} />
+                    <Button type="button" variant="outline" onClick={handleOpenMap}>
+                      <Map className="h-4 w-4 mr-2" />
+                      Choose on Map
+                    </Button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Client Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="client"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Client Name</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Enter client name" className="pl-10" {...field} />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="clientEmail"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Client Email</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Enter client email" type="email" className="pl-10" {...field} />
+                  </div>
                 </FormControl>
                 <FormDescription>
-                  Please format as numbered list (1, 2, 3, 4...)
+                  Email will be used to send an invite to join the project
                 </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
+        </div>
 
-          {/* Project Files Section */}
-          <div className="space-y-4">
-            <FormLabel className="text-base">Project Files</FormLabel>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <FormLabel>Contract Documents</FormLabel>
-                <FileUploader 
-                  onFilesSelected={setContractFiles}
-                  acceptedFileTypes=".pdf,.doc,.docx"
-                  maxFiles={5}
-                />
-                {contractFiles.length > 0 && (
-                  <div className="text-sm text-muted-foreground">
-                    {contractFiles.length} file(s) selected
+        {/* Main Contractor Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="mainContractor"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Main Contractor Name</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Building className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Enter main contractor name" className="pl-10" {...field} />
                   </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="mainContractorEmail"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Main Contractor Email</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Enter main contractor email" type="email" className="pl-10" {...field} />
+                  </div>
+                </FormControl>
+                <FormDescription>
+                  Email will be used to send an invite to join the project
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Cost and Currency */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <FormField
+            control={form.control}
+            name="currency"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Currency</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select currency" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {currencies.map((currency) => (
+                      <SelectItem key={currency.code} value={currency.code}>
+                        {currency.symbol} {currency.code} - {currency.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="cost"
+            render={({ field }) => (
+              <FormItem className="md:col-span-2">
+                <FormLabel>Project Cost</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <span className="absolute left-3 top-3 text-muted-foreground">
+                      {currencies.find(c => c.code === form.watch("currency"))?.symbol || "$"}
+                    </span>
+                    <Input 
+                      placeholder="Enter project cost" 
+                      type="text" 
+                      className="pl-8"
+                      {...field} 
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Dates */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="startDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Start Date</FormLabel>
+                <FormControl>
+                  <DatePicker 
+                    date={field.value} 
+                    onDateChange={field.onChange} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="completionDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Completion Date</FormLabel>
+                <FormControl>
+                  <DatePicker 
+                    date={field.value} 
+                    onDateChange={field.onChange} 
+                  />
+                </FormControl>
+                <FormDescription>
+                  This will help track project time elapse
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <FormLabel className="text-base">Team Members</FormLabel>
+            <Button type="button" variant="outline" size="sm" onClick={addConsultant}>
+              <Plus className="h-4 w-4 mr-2" /> Add Team Member
+            </Button>
+          </div>
+          
+          {form.watch("consultants")?.map((_, index) => (
+            <div key={index} className="border rounded-md p-4 space-y-4">
+              <div className="flex justify-between items-center">
+                <h4 className="font-medium">Team Member {index + 1}</h4>
+                {index > 0 && (
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => removeConsultant(index)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 )}
               </div>
               
-              <div className="space-y-2">
-                <FormLabel>Drawings</FormLabel>
-                <FileUploader 
-                  onFilesSelected={setDrawingFiles}
-                  acceptedFileTypes=".pdf,.dwg,.dxf,.jpg,.png"
-                  maxFiles={10}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name={`consultants.${index}.type`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Type</FormLabel>
+                      <select
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        {...field}
+                      >
+                        {consultantTypes.map((type) => (
+                          <option key={type} value={type}>
+                            {type}
+                          </option>
+                        ))}
+                      </select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                {drawingFiles.length > 0 && (
-                  <div className="text-sm text-muted-foreground">
-                    {drawingFiles.length} file(s) selected
-                  </div>
+                
+                {form.watch(`consultants.${index}.type`) === "Other" && (
+                  <FormField
+                    control={form.control}
+                    name={`consultants.${index}.otherType`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Specify Other Type</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter team member type" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 )}
-              </div>
-              
-              <div className="space-y-2">
-                <FormLabel>Specifications</FormLabel>
-                <FileUploader 
-                  onFilesSelected={setSpecificationFiles}
-                  acceptedFileTypes=".pdf,.doc,.docx,.xls,.xlsx"
-                  maxFiles={5}
+                
+                <FormField
+                  control={form.control}
+                  name={`consultants.${index}.name`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter team member name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                {specificationFiles.length > 0 && (
-                  <div className="text-sm text-muted-foreground">
-                    {specificationFiles.length} file(s) selected
-                  </div>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <FormLabel>Other Documents</FormLabel>
-                <FileUploader 
-                  onFilesSelected={setOtherFiles}
-                  acceptedFileTypes=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png"
-                  maxFiles={10}
+                
+                <FormField
+                  control={form.control}
+                  name={`consultants.${index}.email`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter team member email" type="email" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Email will be used to send an invite to join the project
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                {otherFiles.length > 0 && (
-                  <div className="text-sm text-muted-foreground">
-                    {otherFiles.length} file(s) selected
-                  </div>
-                )}
+                
+                <FormField
+                  control={form.control}
+                  name={`consultants.${index}.phone`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone (Optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter team member phone" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </div>
-            <FormDescription>
-              All files will be automatically directed to the documents section
-            </FormDescription>
-          </div>
+          ))}
+        </div>
 
-          <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={onComplete}>
-              Cancel
-            </Button>
-            <Button type="submit">Create Project</Button>
-          </div>
-        </form>
-      </Form>
-
-      {/* Location Confirmation Dialog */}
-      <Dialog open={showLocationConfirm} onOpenChange={setShowLocationConfirm}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirm Location</DialogTitle>
-            <DialogDescription>
-              Do you want to use this location for your project?
-            </DialogDescription>
-          </DialogHeader>
-          {pendingLocation && (
-            <div className="space-y-2">
-              <p><strong>Address:</strong> {pendingLocation.address}</p>
-              <p><strong>Coordinates:</strong> {pendingLocation.lat.toFixed(6)}, {pendingLocation.lng.toFixed(6)}</p>
+        <div className="space-y-2">
+          <FormLabel>Program of Works</FormLabel>
+          <FileUploader 
+            onFilesSelected={handleProgramFileUpload}
+            acceptedFileTypes=".pdf,.doc,.docx,.xls,.xlsx,.mpp"
+            maxFiles={1}
+          />
+          {programFile && (
+            <div className="text-sm text-muted-foreground">
+              Selected file: {programFile.name} (will be uploaded to progress tab)
             </div>
           )}
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setShowLocationConfirm(false)}>
-              Cancel
-            </Button>
-            <Button onClick={confirmLocation}>
-              Confirm Location
-            </Button>
+        </div>
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Project Description</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Enter additional details about the project" 
+                  className="min-h-[100px]" 
+                  {...field} 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="scopeOfWorks"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Scope of Works (Optional)</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Enter scope of works in numbered format (1, 2, 3, 4...)" 
+                  className="min-h-[100px]" 
+                  {...field} 
+                />
+              </FormControl>
+              <FormDescription>
+                Please format as numbered list (1, 2, 3, 4...)
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Project Files Section */}
+        <div className="space-y-4">
+          <FormLabel className="text-base">Project Files</FormLabel>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <FormLabel>Contract Documents</FormLabel>
+              <FileUploader 
+                onFilesSelected={setContractFiles}
+                acceptedFileTypes=".pdf,.doc,.docx"
+                maxFiles={5}
+              />
+              {contractFiles.length > 0 && (
+                <div className="text-sm text-muted-foreground">
+                  {contractFiles.length} file(s) selected
+                </div>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <FormLabel>Drawings</FormLabel>
+              <FileUploader 
+                onFilesSelected={setDrawingFiles}
+                acceptedFileTypes=".pdf,.dwg,.dxf,.jpg,.png"
+                maxFiles={10}
+              />
+              {drawingFiles.length > 0 && (
+                <div className="text-sm text-muted-foreground">
+                  {drawingFiles.length} file(s) selected
+                </div>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <FormLabel>Specifications</FormLabel>
+              <FileUploader 
+                onFilesSelected={setSpecificationFiles}
+                acceptedFileTypes=".pdf,.doc,.docx,.xls,.xlsx"
+                maxFiles={5}
+              />
+              {specificationFiles.length > 0 && (
+                <div className="text-sm text-muted-foreground">
+                  {specificationFiles.length} file(s) selected
+                </div>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <FormLabel>Other Documents</FormLabel>
+              <FileUploader 
+                onFilesSelected={setOtherFiles}
+                acceptedFileTypes=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png"
+                maxFiles={10}
+              />
+              {otherFiles.length > 0 && (
+                <div className="text-sm text-muted-foreground">
+                  {otherFiles.length} file(s) selected
+                </div>
+              )}
+            </div>
           </div>
-        </DialogContent>
-      </Dialog>
-    </>
+          <FormDescription>
+            All files will be automatically directed to the documents section
+          </FormDescription>
+        </div>
+
+        <div className="flex justify-end space-x-2">
+          <Button type="button" variant="outline" onClick={onComplete}>
+            Cancel
+          </Button>
+          <Button type="submit">Create Project</Button>
+        </div>
+      </form>
+    </Form>
   );
 }

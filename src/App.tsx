@@ -1,7 +1,7 @@
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
-import Layout from "@/components/layout/Layout";
+import { Layout } from "@/components/layout/Layout";
 import Home from "@/pages/Home";
 import Dashboard from "@/pages/Dashboard";
 import Projects from "@/pages/Projects";
