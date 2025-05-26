@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
@@ -29,7 +30,7 @@ export function Footer() {
         <DrawerContent className="max-h-[85vh] overflow-auto">
           <div className="bg-white">
             <div className="container mx-auto px-4 py-8">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="col-span-1 md:col-span-2">
                   <Link to="/" className="flex items-center mb-4">
                     <h2 className="text-2xl font-bold tracking-tight">
@@ -61,22 +62,10 @@ export function Footer() {
                   </div>
                 </div>
                 
-                
                 <div>
-                  <h3 className="text-sm font-semibold uppercase tracking-wider">Product</h3>
-                  <ul className="mt-4 space-y-2">
-                    <li><Link to="/dashboard" className="text-sm text-muted-foreground hover:text-construction-navy">Dashboard</Link></li>
-                    <li><Link to="/projects" className="text-sm text-muted-foreground hover:text-construction-navy">Projects</Link></li>
-                    <li><Link to="/tasks" className="text-sm text-muted-foreground hover:text-construction-navy">Task Management</Link></li>
-                    <li><Link to="/reports" className="text-sm text-muted-foreground hover:text-construction-navy">Reports</Link></li>
-                    <li><Link to="/inventory" className="text-sm text-muted-foreground hover:text-construction-navy">Inventory</Link></li>
-                  </ul>
-                </div>
-                
-                <div>
-                  <h3 className="text-sm font-semibold uppercase tracking-wider">Support</h3>
-                  <ul className="mt-4 space-y-2">
-                    <li><Link to="/faq" className="text-sm text-muted-foreground hover:text-construction-navy">FAQ</Link></li>
+                  <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Support & Legal</h3>
+                  <ul className="space-y-3">
+                    <li><Link to="/app/faq" className="text-sm text-muted-foreground hover:text-construction-navy">FAQ</Link></li>
                     <li><a href="#" className="text-sm text-muted-foreground hover:text-construction-navy">Documentation</a></li>
                     <li><a href="#" className="text-sm text-muted-foreground hover:text-construction-navy">Contact Support</a></li>
                     <li><Link to="/terms-of-service" className="text-sm text-muted-foreground hover:text-construction-navy">Terms of Service</Link></li>
@@ -98,7 +87,7 @@ export function Footer() {
                   <Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-construction-navy">
                     Privacy Policy
                   </Link>
-                  <Link to="/faq" className="text-sm text-muted-foreground hover:text-construction-navy">
+                  <Link to="/app/faq" className="text-sm text-muted-foreground hover:text-construction-navy">
                     FAQ
                   </Link>
                 </div>
