@@ -32,16 +32,12 @@ export function Footer() {
             <div className="container mx-auto px-4 py-8">
               <Separator className="mb-8" />
               
-              <div className="flex flex-col items-center text-center space-y-6">
-                <Link to="/" className="flex items-center">
-                  <h2 className="text-2xl font-bold tracking-tight">
-                    <span className="text-construction-navy">Site</span>Plann
-                  </h2>
-                </Link>
-                <p className="text-sm text-muted-foreground max-w-xs">
-                  The all-in-one construction management platform that puts your projects on autopilot
+              <div className="flex flex-col md:flex-row justify-between items-center">
+                <p className="text-sm text-muted-foreground">
+                  &copy; {currentYear} SitePlann. All rights reserved.
                 </p>
-                <div className="flex space-x-4">
+                
+                <div className="flex space-x-4 my-4 md:my-0">
                   <a href="https://www.tiktok.com/@siteplann?_t=ZM-8wfvBN6KI6f&_r=1" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-construction-navy">
                     <span className="sr-only">TikTok</span>
                     <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -61,13 +57,8 @@ export function Footer() {
                     </svg>
                   </a>
                 </div>
-              </div>
-              
-              <div className="flex flex-col md:flex-row justify-between items-center mt-8">
-                <p className="text-sm text-muted-foreground">
-                  &copy; {currentYear} SitePlann. All rights reserved.
-                </p>
-                <div className="flex gap-6 mt-4 md:mt-0">
+                
+                <div className="flex gap-6">
                   <Link to="/terms-of-service" className="text-sm text-muted-foreground hover:text-construction-navy">
                     Terms of Service
                   </Link>
