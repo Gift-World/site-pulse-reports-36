@@ -101,7 +101,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Key Metrics */}
+      {/* Key Metrics with Infographs */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="cursor-pointer hover:shadow-lg transition-shadow relative overflow-hidden" onClick={() => navigate("/app/projects")}>
           <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50">
@@ -113,8 +113,14 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent className="relative z-10">
             <div className="text-2xl font-bold">{activeProjectsCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Back to dashboard: /app/dashboard
+            <div className="flex items-center mt-2">
+              <div className="flex-1 mr-2">
+                <Progress value={68} className="h-2" />
+              </div>
+              <span className="text-sm font-medium text-blue-600">68%</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              +2.5% from last week
             </p>
           </CardContent>
         </Card>
@@ -131,8 +137,24 @@ const Dashboard = () => {
             <div className="text-2xl font-bold">
               ${totalBudget.toLocaleString()}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Back to dashboard: /app/dashboard
+            <div className="flex items-center mt-2 space-x-2">
+              <div className="w-8 h-8 relative">
+                <div className="w-8 h-8 rounded-full border-4 border-gray-200 border-t-red-500 border-r-yellow-400 border-b-green-500 animate-pulse"></div>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center text-xs space-x-2">
+                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span>High</span>
+                  <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
+                  <span>Medium</span>
+                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                  <span>Low</span>
+                </div>
+              </div>
+              <span className="text-lg font-bold">12</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              5 high priority
             </p>
           </CardContent>
         </Card>
@@ -146,9 +168,18 @@ const Dashboard = () => {
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="relative z-10">
-            <div className="text-2xl font-bold">94%</div>
-            <p className="text-xs text-muted-foreground">
-              Back to dashboard: /app/dashboard
+            <div className="text-2xl font-bold">95%</div>
+            <div className="flex items-center mt-2">
+              <div className="w-8 h-8 relative mr-2">
+                <div className="w-8 h-8 rounded-full border-4 border-gray-200"></div>
+                <div className="w-8 h-8 rounded-full border-4 border-green-500 border-t-green-500 border-r-green-500 border-b-green-500 border-l-gray-200 absolute top-0 left-0 transform rotate-45"></div>
+              </div>
+              <div className="flex-1">
+                <Progress value={95} className="h-2" />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              1 incident this week
             </p>
           </CardContent>
         </Card>
@@ -163,8 +194,18 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent className="relative z-10">
             <div className="text-2xl font-bold">65%</div>
-            <p className="text-xs text-muted-foreground">
-              Back to dashboard: /app/dashboard
+            <div className="flex items-center mt-2">
+              <div className="flex-1 mr-2">
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full" style={{ width: '65%' }}></div>
+                </div>
+              </div>
+              <div className="w-6 h-6">
+                <BarChart3 className="h-4 w-4 text-purple-600" />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Average across all projects
             </p>
           </CardContent>
         </Card>
