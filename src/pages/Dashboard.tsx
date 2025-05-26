@@ -105,8 +105,8 @@ const Dashboard = () => {
       {/* Key Metrics with Infographs */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="cursor-pointer hover:shadow-lg transition-shadow relative overflow-hidden" onClick={() => navigate("/app/projects")}>
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-100 to-orange-100 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50">
-            <BarChart3 className="h-8 w-8 text-blue-600" />
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50" style={{ background: 'linear-gradient(135deg, #22bff0 0%, #0df539 100%)' }}>
+            <BarChart3 className="h-8 w-8" style={{ color: '#ffffff' }} />
           </div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
             <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
@@ -116,9 +116,9 @@ const Dashboard = () => {
             <div className="text-2xl font-bold">{activeProjectsCount}</div>
             <div className="flex items-center mt-2">
               <div className="flex-1 mr-2">
-                <Progress value={68} className="h-2" indicatorClassName="bg-gradient-to-r from-blue-500 to-orange-500" />
+                <Progress value={68} className="h-2" indicatorClassName="bg-gradient-to-r" style={{ background: 'linear-gradient(to right, #22bff0, #0df539)' }} />
               </div>
-              <span className="text-sm font-medium text-blue-600">68%</span>
+              <span className="text-sm font-medium" style={{ color: '#22bff0' }}>68%</span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               +2.5% from last week
@@ -127,8 +127,8 @@ const Dashboard = () => {
         </Card>
         
         <Card className="cursor-pointer hover:shadow-lg transition-shadow relative overflow-hidden" onClick={() => navigate("/app/project-budgets")}>
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-orange-100 to-red-100 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50">
-            <TrendingUp className="h-8 w-8 text-orange-600" />
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50" style={{ background: 'linear-gradient(135deg, #ff5722 0%, #ff0000 100%)' }}>
+            <TrendingUp className="h-8 w-8" style={{ color: '#ffffff' }} />
           </div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
             <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
@@ -140,19 +140,19 @@ const Dashboard = () => {
             </div>
             <div className="flex items-center mt-2 space-x-2">
               <div className="w-8 h-8 relative">
-                <div className="w-8 h-8 rounded-full border-4 border-gray-200 border-t-red-500 border-r-orange-400 border-b-orange-500 animate-pulse"></div>
+                <div className="w-8 h-8 rounded-full border-4 border-gray-200 animate-pulse" style={{ borderTopColor: '#ff0000', borderRightColor: '#ff5722', borderBottomColor: '#ff5722' }}></div>
               </div>
               <div className="flex-1">
                 <div className="flex items-center text-xs space-x-2">
-                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#ff0000' }}></span>
                   <span>High</span>
-                  <span className="w-2 h-2 bg-orange-400 rounded-full"></span>
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#ff5722' }}></span>
                   <span>Medium</span>
-                  <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#ff5722' }}></span>
                   <span>Low</span>
                 </div>
               </div>
-              <span className="text-lg font-bold text-orange-600">12</span>
+              <span className="text-lg font-bold" style={{ color: '#ff5722' }}>12</span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               5 high priority
@@ -161,8 +161,8 @@ const Dashboard = () => {
         </Card>
         
         <Card className="cursor-pointer hover:shadow-lg transition-shadow relative overflow-hidden" onClick={() => navigate("/app/safety-metrics")}>
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-yellow-100 to-blue-100 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50">
-            <CheckCircle className="h-8 w-8 text-yellow-600" />
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50" style={{ background: 'linear-gradient(135deg, #fffc00 0%, #22bff0 100%)' }}>
+            <CheckCircle className="h-8 w-8" style={{ color: '#ffffff' }} />
           </div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
             <CardTitle className="text-sm font-medium">Safety Score</CardTitle>
@@ -173,10 +173,10 @@ const Dashboard = () => {
             <div className="flex items-center mt-2">
               <div className="w-8 h-8 relative mr-2">
                 <div className="w-8 h-8 rounded-full border-4 border-gray-200"></div>
-                <div className="w-8 h-8 rounded-full border-4 border-yellow-500 border-t-yellow-500 border-r-blue-500 border-b-blue-500 border-l-gray-200 absolute top-0 left-0 transform rotate-45"></div>
+                <div className="w-8 h-8 rounded-full border-4 border-l-gray-200 absolute top-0 left-0 transform rotate-45" style={{ borderTopColor: '#fffc00', borderRightColor: '#22bff0', borderBottomColor: '#22bff0' }}></div>
               </div>
               <div className="flex-1">
-                <Progress value={95} className="h-2" indicatorClassName="bg-gradient-to-r from-yellow-500 to-blue-500" />
+                <Progress value={95} className="h-2" style={{ background: 'linear-gradient(to right, #fffc00, #22bff0)' }} />
               </div>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -186,8 +186,8 @@ const Dashboard = () => {
         </Card>
         
         <Card className="cursor-pointer hover:shadow-lg transition-shadow relative overflow-hidden" onClick={() => navigate("/app/project-progress")}>
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-100 to-yellow-100 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50">
-            <Activity className="h-8 w-8 text-red-600" />
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50" style={{ background: 'linear-gradient(135deg, #ff0000 0%, #fffc00 100%)' }}>
+            <Activity className="h-8 w-8" style={{ color: '#ffffff' }} />
           </div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
             <CardTitle className="text-sm font-medium">Project Progress</CardTitle>
@@ -198,11 +198,11 @@ const Dashboard = () => {
             <div className="flex items-center mt-2">
               <div className="flex-1 mr-2">
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-gradient-to-r from-red-500 to-yellow-500 h-2 rounded-full" style={{ width: '65%' }}></div>
+                  <div className="h-2 rounded-full" style={{ width: '65%', background: 'linear-gradient(to right, #ff0000, #fffc00)' }}></div>
                 </div>
               </div>
               <div className="w-6 h-6">
-                <BarChart3 className="h-4 w-4 text-red-600" />
+                <BarChart3 className="h-4 w-4" style={{ color: '#ff0000' }} />
               </div>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -227,8 +227,8 @@ const Dashboard = () => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="pv" stackId="a" fill="#f97316" />
-                <Bar dataKey="uv" stackId="a" fill="#3b82f6" />
+                <Bar dataKey="pv" stackId="a" fill="#ff5722" />
+                <Bar dataKey="uv" stackId="a" fill="#22bff0" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -256,7 +256,7 @@ const Dashboard = () => {
                   dataKey="value"
                 >
                   {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index === 0 ? '#eab308' : '#ef4444'} />
+                    <Cell key={`cell-${index}`} fill={index === 0 ? '#0df539' : '#ff0000'} />
                   ))}
                 </Pie>
                 <Legend />
