@@ -5,7 +5,7 @@ import { ChartBar, Users, Clock, Shield, PieChart, CheckCircle, Book, List, Slac
 import { useNavigate } from "react-router-dom";
 import { HelpCenter } from "@/components/home/HelpCenter";
 import { SolutionsList } from "@/components/home/SolutionsList";
-import { useCurrency } from "./Settings";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -82,23 +82,6 @@ const Home = () => {
     <div className="space-y-12">
       {/* Hero Section with Construction Background */}
       <HeroSection onScrollToPricing={() => scrollToSection(pricingRef)} />
-
-      {/* Quick Access Section */}
-      <section className="py-8 px-4 bg-construction-navy/5">
-        <div className="container mx-auto text-center">
-          <h2 className="text-2xl font-bold mb-4 text-construction-navy">Ready to Get Started?</h2>
-          <p className="text-muted-foreground mb-6">
-            Access your project dashboard and start managing your construction projects today.
-          </p>
-          <Button 
-            onClick={() => navigate("/app/dashboard")} 
-            size="lg" 
-            className="bg-construction-navy hover:bg-construction-navy/90 text-white px-8 py-4 text-lg h-auto"
-          >
-            Go to Dashboard
-          </Button>
-        </div>
-      </section>
 
       {/* Why SitePlann */}
       <div ref={featuresRef}>

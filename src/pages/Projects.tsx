@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Search, Edit, Trash2 } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
 import { Project } from "@/types/project";
 import { NewProjectForm } from "@/components/projects/NewProjectForm";
 import { toast } from "@/hooks/use-toast";
@@ -278,56 +279,63 @@ const Projects = () => {
                 </AlertDialog>
               </div>
               
-              <Link to={`/app/projects/${project.id}`}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{project.name}</CardTitle>
-                    <Badge
-                      variant={
-                        project.status === "Completed" ? "outline" :
-                        project.status === "In Progress" ? "default" : "secondary"
-                      }
-                    >
-                      {project.status}
-                    </Badge>
-                  </div>
-                  <CardDescription>{project.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Progress</span>
-                        <span>{project.progress}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className="bg-blue-600 h-2 rounded-full"
-                          style={{ width: `${project.progress}%` }}
-                        ></div>
-                      </div>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">{project.name}</CardTitle>
+                  <Badge
+                    variant={
+                      project.status === "Completed" ? "outline" :
+                      project.status === "In Progress" ? "default" : "secondary"
+                    }
+                  >
+                    {project.status}
+                  </Badge>
+                </div>
+                <CardDescription>{project.description}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Progress</span>
+                      <span>{project.progress}%</span>
                     </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Budget Spent</span>
-                        <span>{budgetSpendPercentage}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className={`h-2 rounded-full ${budgetSpendColor}`}
-                          style={{ width: `${budgetSpendPercentage}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>Budget: ${(project.budget.total / 1000000).toFixed(1)}M</span>
-                      <span>Team: {project.team} members</span>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-blue-600 h-2 rounded-full"
+                        style={{ width: `${project.progress}%` }}
+                      ></div>
                     </div>
                   </div>
-                </CardContent>
-              </Link>
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Budget Spent</span>
+                      <span>{budgetSpendPercentage}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className={`h-2 rounded-full ${budgetSpendColor}`}
+                        style={{ width: `${budgetSpendPercentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>Budget: ${(project.budget.total / 1000000).toFixed(1)}M</span>
+                    <span>Team: {project.team} members</span>
+                  </div>
+                  
+                  <div className="pt-2">
+                    <Link to={`/app/projects/${project.id}`}>
+                      <Button className="w-full" variant="outline" size="sm">
+                        <Eye className="mr-2 h-4 w-4" />
+                        View Details
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
             </Card>
           );
         })}
