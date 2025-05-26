@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -115,7 +114,7 @@ const Dashboard = () => {
           <CardContent className="relative z-10">
             <div className="text-2xl font-bold">{activeProjectsCount}</div>
             <p className="text-xs text-muted-foreground">
-              Click to view all projects
+              Back to dashboard: /app/dashboard
             </p>
           </CardContent>
         </Card>
@@ -133,7 +132,7 @@ const Dashboard = () => {
               ${totalBudget.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              Click to view budget details
+              Back to dashboard: /app/dashboard
             </p>
           </CardContent>
         </Card>
@@ -149,7 +148,7 @@ const Dashboard = () => {
           <CardContent className="relative z-10">
             <div className="text-2xl font-bold">94%</div>
             <p className="text-xs text-muted-foreground">
-              Click to view safety metrics
+              Back to dashboard: /app/dashboard
             </p>
           </CardContent>
         </Card>
@@ -165,7 +164,7 @@ const Dashboard = () => {
           <CardContent className="relative z-10">
             <div className="text-2xl font-bold">65%</div>
             <p className="text-xs text-muted-foreground">
-              Click to view progress details
+              Back to dashboard: /app/dashboard
             </p>
           </CardContent>
         </Card>

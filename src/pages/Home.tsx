@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -442,7 +441,7 @@ const Home = () => {
         </DialogContent>
       </Dialog>
 
-      <style jsx>{`
+      <style>{`
         .bg-grid-pattern {
           background-image: radial-gradient(circle, #e2e8f0 1px, transparent 1px);
           background-size: 20px 20px;
