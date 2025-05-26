@@ -33,34 +33,36 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/solutions" element={<Solutions />} />
-        <Route path="/app" element={<Layout />}>
-          <Route index element={<Index />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="projects" element={<Projects />} />
-          <Route path="projects/:id" element={<ProjectDetail />} />
-          <Route path="project-progress" element={<ProjectProgress />} />
-          <Route path="project-budgets" element={<ProjectBudgets />} />
-          <Route path="tasks" element={<Tasks />} />
-          <Route path="team" element={<Team />} />
-          <Route path="gallery" element={<Gallery />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="safety" element={<Safety />} />
-          <Route path="safety-metrics" element={<SafetyMetrics />} />
-          <Route path="communication" element={<Communication />} />
-          <Route path="chat" element={<Chat />} />
-          <Route path="faq" element={<FAQ />} />
-          <Route path="files" element={<Files />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="labor" element={<Labor />} />
-          <Route path="budgets" element={<Budgets />} />
-          <Route path="inventory" element={<Inventory />} />
-          <Route path="materials" element={<AllMaterials />} />
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="terms-of-service" element={<TermsOfService />} />
+          <Route path="solutions" element={<Solutions />} />
+          <Route path="app">
+            <Route index element={<Index />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="projects" element={<Projects />} />
+            <Route path="projects/:id" element={<ProjectDetail />} />
+            <Route path="project-progress" element={<ProjectProgress />} />
+            <Route path="project-budgets" element={<ProjectBudgets />} />
+            <Route path="tasks" element={<Tasks />} />
+            <Route path="team" element={<Team />} />
+            <Route path="gallery" element={<Gallery />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="safety" element={<Safety />} />
+            <Route path="safety-metrics" element={<SafetyMetrics />} />
+            <Route path="communication" element={<Communication />} />
+            <Route path="chat" element={<Chat />} />
+            <Route path="faq" element={<FAQ />} />
+            <Route path="files" element={<Files />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="labor" element={<Labor />} />
+            <Route path="budgets" element={<Budgets />} />
+            <Route path="inventory" element={<Inventory />} />
+            <Route path="materials" element={<AllMaterials />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
         </Route>
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsOfService />} />
-        <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
     </Router>
