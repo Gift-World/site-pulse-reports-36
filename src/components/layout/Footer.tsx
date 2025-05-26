@@ -1,5 +1,4 @@
 
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
@@ -31,6 +30,8 @@ export function Footer() {
         <DrawerContent className="max-h-[85vh] overflow-auto">
           <div className="bg-white">
             <div className="container mx-auto px-4 py-8">
+              <Separator className="mb-8" />
+              
               <div className="flex flex-col items-center text-center space-y-6">
                 <Link to="/" className="flex items-center">
                   <h2 className="text-2xl font-bold tracking-tight">
@@ -62,9 +63,7 @@ export function Footer() {
                 </div>
               </div>
               
-              <Separator className="my-8" />
-              
-              <div className="flex flex-col md:flex-row justify-between items-center">
+              <div className="flex flex-col md:flex-row justify-between items-center mt-8">
                 <p className="text-sm text-muted-foreground">
                   &copy; {currentYear} SitePlann. All rights reserved.
                 </p>
@@ -75,9 +74,6 @@ export function Footer() {
                   <Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-construction-navy">
                     Privacy Policy
                   </Link>
-                  <Link to="/app/faq" className="text-sm text-muted-foreground hover:text-construction-navy">
-                    FAQ
-                  </Link>
                 </div>
               </div>
             </div>
@@ -87,4 +83,3 @@ export function Footer() {
     </div>
   );
 }
-
