@@ -319,36 +319,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-construction-navy text-white rounded-lg px-6 relative overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1459767129954-1b1c1f9b9ace?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80')] bg-cover bg-center opacity-10"></div>
-        </div>
-        <div className="text-center space-y-6 relative z-10">
-          <h2 className="text-3xl font-bold">Ready to transform your construction business?</h2>
-          <p className="max-w-2xl mx-auto text-white/80">
-            Join thousands of construction professionals who are already using SitePlann to streamline their operations.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button 
-              size="lg" 
-              className="bg-white text-construction-navy hover:bg-white/90"
-              onClick={() => navigate("/app/dashboard")}
-            >
-              Go to Dashboard
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              className="border-white text-white hover:bg-white/10"
-              onClick={() => navigate("/settings")}
-            >
-              Settings
-            </Button>
-          </div>
-        </div>
-      </section>
-
       {/* Email Collection Dialog */}
       <Dialog open={subscribeDialogOpen} onOpenChange={setSubscribeDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
