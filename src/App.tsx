@@ -35,6 +35,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Navigate to="/app/dashboard" replace />} />
+          <Route path="dashboard" element={<Navigate to="/app/dashboard" replace />} />
           <Route path="home" element={<Home />} />
           <Route path="privacy-policy" element={<PrivacyPolicy />} />
           <Route path="terms-of-service" element={<TermsOfService />} />
