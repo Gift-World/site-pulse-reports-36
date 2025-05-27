@@ -35,8 +35,6 @@ const data = [
   { name: "Dec", uv: 1890, pv: 4800, amt: 2181 },
 ];
 
-const COLORS = ['#10b981', '#8b5cf6', '#ef4444', '#3b82f6', '#eab308', '#22c55e'];
-
 const RADIAN = Math.PI / 180;
 const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }: any) => {
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -44,7 +42,7 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
   return (
-    <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+    <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontWeight="bold">
       {`${(percent * 100).toFixed(0)}%`}
     </text>
   );
@@ -81,16 +79,6 @@ const Dashboard = () => {
     return sum + (project.tasks?.overdue || 0);
   }, 0);
 
-  // Calculate total materials allocated across all projects
-  const totalMaterialsAllocated = projects.reduce((sum, project) => {
-    return sum + (project.materials?.allocated || 0);
-  }, 0);
-
-  // Calculate total materials used across all projects
-  const totalMaterialsUsed = projects.reduce((sum, project) => {
-    return sum + (project.materials?.used || 0);
-  }, 0);
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -105,7 +93,7 @@ const Dashboard = () => {
       {/* Key Metrics with Infographs */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="cursor-pointer hover:shadow-lg transition-shadow relative overflow-hidden" onClick={() => navigate("/app/projects")}>
-          <div className="absolute top-0 right-0 w-20 h-20 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50" style={{ background: 'linear-gradient(135deg, #22bff0 0%, #0df539 100%)' }}>
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50" style={{ backgroundColor: '#fffc00' }}>
             <BarChart3 className="h-8 w-8" style={{ color: '#ffffff' }} />
           </div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
@@ -116,9 +104,11 @@ const Dashboard = () => {
             <div className="text-2xl font-bold">{activeProjectsCount}</div>
             <div className="flex items-center mt-2">
               <div className="flex-1 mr-2">
-                <Progress value={68} className="h-2" indicatorClassName="bg-gradient-to-r" style={{ background: 'linear-gradient(to right, #22bff0, #0df539)' }} />
+                <Progress value={68} className="h-2" style={{ backgroundColor: '#f3f4f6' }}>
+                  <div className="h-full rounded-full transition-all duration-300" style={{ width: '68%', backgroundColor: '#fffc00' }}></div>
+                </Progress>
               </div>
-              <span className="text-sm font-medium" style={{ color: '#22bff0' }}>68%</span>
+              <span className="text-sm font-medium" style={{ color: '#fffc00' }}>68%</span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               +2.5% from last week
@@ -127,7 +117,7 @@ const Dashboard = () => {
         </Card>
         
         <Card className="cursor-pointer hover:shadow-lg transition-shadow relative overflow-hidden" onClick={() => navigate("/app/project-budgets")}>
-          <div className="absolute top-0 right-0 w-20 h-20 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50" style={{ background: 'linear-gradient(135deg, #ff5722 0%, #ff0000 100%)' }}>
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50" style={{ backgroundColor: '#ff5722' }}>
             <TrendingUp className="h-8 w-8" style={{ color: '#ffffff' }} />
           </div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
@@ -140,11 +130,11 @@ const Dashboard = () => {
             </div>
             <div className="flex items-center mt-2 space-x-2">
               <div className="w-8 h-8 relative">
-                <div className="w-8 h-8 rounded-full border-4 border-gray-200 animate-pulse" style={{ borderTopColor: '#ff0000', borderRightColor: '#ff5722', borderBottomColor: '#ff5722' }}></div>
+                <div className="w-8 h-8 rounded-full border-4 border-gray-200 animate-pulse" style={{ borderTopColor: '#ff5722', borderRightColor: '#ff5722', borderBottomColor: '#ff5722' }}></div>
               </div>
               <div className="flex-1">
                 <div className="flex items-center text-xs space-x-2">
-                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#ff0000' }}></span>
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#ff5722' }}></span>
                   <span>High</span>
                   <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#ff5722' }}></span>
                   <span>Medium</span>
@@ -161,7 +151,7 @@ const Dashboard = () => {
         </Card>
         
         <Card className="cursor-pointer hover:shadow-lg transition-shadow relative overflow-hidden" onClick={() => navigate("/app/safety-metrics")}>
-          <div className="absolute top-0 right-0 w-20 h-20 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50" style={{ background: 'linear-gradient(135deg, #fffc00 0%, #22bff0 100%)' }}>
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50" style={{ backgroundColor: '#ff0000' }}>
             <CheckCircle className="h-8 w-8" style={{ color: '#ffffff' }} />
           </div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
@@ -173,10 +163,12 @@ const Dashboard = () => {
             <div className="flex items-center mt-2">
               <div className="w-8 h-8 relative mr-2">
                 <div className="w-8 h-8 rounded-full border-4 border-gray-200"></div>
-                <div className="w-8 h-8 rounded-full border-4 border-l-gray-200 absolute top-0 left-0 transform rotate-45" style={{ borderTopColor: '#fffc00', borderRightColor: '#22bff0', borderBottomColor: '#22bff0' }}></div>
+                <div className="w-8 h-8 rounded-full border-4 border-l-gray-200 absolute top-0 left-0 transform rotate-45" style={{ borderTopColor: '#ff0000', borderRightColor: '#ff0000', borderBottomColor: '#ff0000' }}></div>
               </div>
               <div className="flex-1">
-                <Progress value={95} className="h-2" style={{ background: 'linear-gradient(to right, #fffc00, #22bff0)' }} />
+                <Progress value={95} className="h-2" style={{ backgroundColor: '#f3f4f6' }}>
+                  <div className="h-full rounded-full transition-all duration-300" style={{ width: '95%', backgroundColor: '#ff0000' }}></div>
+                </Progress>
               </div>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -186,7 +178,7 @@ const Dashboard = () => {
         </Card>
         
         <Card className="cursor-pointer hover:shadow-lg transition-shadow relative overflow-hidden" onClick={() => navigate("/app/project-progress")}>
-          <div className="absolute top-0 right-0 w-20 h-20 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50" style={{ background: 'linear-gradient(135deg, #ff0000 0%, #fffc00 100%)' }}>
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full -mr-10 -mt-10 flex items-center justify-center opacity-50" style={{ backgroundColor: '#0df539' }}>
             <Activity className="h-8 w-8" style={{ color: '#ffffff' }} />
           </div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
@@ -198,11 +190,11 @@ const Dashboard = () => {
             <div className="flex items-center mt-2">
               <div className="flex-1 mr-2">
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="h-2 rounded-full" style={{ width: '65%', background: 'linear-gradient(to right, #ff0000, #fffc00)' }}></div>
+                  <div className="h-2 rounded-full" style={{ width: '65%', backgroundColor: '#0df539' }}></div>
                 </div>
               </div>
               <div className="w-6 h-6">
-                <BarChart3 className="h-4 w-4" style={{ color: '#ff0000' }} />
+                <BarChart3 className="h-4 w-4" style={{ color: '#0df539' }} />
               </div>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -227,7 +219,7 @@ const Dashboard = () => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="pv" stackId="a" fill="#ff5722" />
+                <Bar dataKey="pv" stackId="a" fill="#22bff0" />
                 <Bar dataKey="uv" stackId="a" fill="#22bff0" />
               </BarChart>
             </ResponsiveContainer>
@@ -244,8 +236,8 @@ const Dashboard = () => {
               <PieChart>
                 <Pie
                   data={[
-                    { name: 'Completed', value: completedTasks },
-                    { name: 'Overdue', value: overdueTasks },
+                    { name: 'Completed', value: 97 },
+                    { name: 'Overdue', value: 3 },
                   ]}
                   cx="50%"
                   cy="50%"
@@ -255,9 +247,8 @@ const Dashboard = () => {
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index === 0 ? '#0df539' : '#ff0000'} />
-                  ))}
+                  <Cell fill='#0df539' />
+                  <Cell fill='#1e3a8a' />
                 </Pie>
                 <Legend />
                 <Tooltip />
