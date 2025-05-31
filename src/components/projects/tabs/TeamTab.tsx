@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { Project } from "@/types/project";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer } from 'recharts';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { UserPlus } from "lucide-react";
@@ -83,29 +82,35 @@ export const TeamTab: React.FC<TeamTabProps> = ({ project }) => {
     }
   ]);
 
-  // Calculate labor distribution based on team members' designations
+  // Calculate labor distribution
   const laborDistribution = [
     { 
       name: 'Engineers', 
       count: teamMembers.filter(m => m.designation === "Engineer").length, 
-      color: '#0A2463' 
+      color: '#22bff0',
+      icon: '🔧'
     },
     { 
       name: 'Skilled Labor', 
       count: teamMembers.filter(m => m.designation === "Skilled").length, 
-      color: '#83A2FF' 
+      color: '#0df539',
+      icon: '⚡'
     },
     { 
       name: 'General Labor', 
       count: teamMembers.filter(m => m.designation === "Unskilled").length, 
-      color: '#FF5722' 
+      color: '#ff9500',
+      icon: '👷'
     },
     { 
       name: 'Supervisors', 
       count: teamMembers.filter(m => m.designation === "Supervisor").length, 
-      color: '#34A853' 
+      color: '#8b5cf6',
+      icon: '👨‍💼'
     }
   ];
+
+  const totalMembers = teamMembers.length;
 
   const handleAddMember = () => {
     // Mock implementation - would typically save to database
@@ -136,33 +141,84 @@ export const TeamTab: React.FC<TeamTabProps> = ({ project }) => {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
+          {/* Enhanced Team Composition Infographic */}
           <div className="mb-6">
-            <h3 className="text-lg font-medium mb-3">Team Composition</h3>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={laborDistribution}
-                  layout="vertical"
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" width={100} />
-                  <Tooltip />
-                  <Bar dataKey="count" name="Staff Count">
-                    {laborDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+            <h3 className="text-lg font-medium mb-6">Team Composition</h3>
+            
+            {/* Circular Progress Indicators */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+              {laborDistribution.map((category, index) => {
+                const percentage = totalMembers > 0 ? (category.count / totalMembers) * 100 : 0;
+                const circumference = 2 * Math.PI * 45;
+                const strokeDasharray = circumference;
+                const strokeDashoffset = circumference - (percentage / 100) * circumference;
+                
+                return (
+                  <div key={index} className="flex flex-col items-center">
+                    <div className="relative w-24 h-24 mb-3">
+                      <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="45"
+                          stroke="#e5e7eb"
+                          strokeWidth="6"
+                          fill="none"
+                        />
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="45"
+                          stroke={category.color}
+                          strokeWidth="6"
+                          fill="none"
+                          strokeLinecap="round"
+                          strokeDasharray={strokeDasharray}
+                          strokeDashoffset={strokeDashoffset}
+                          className="transition-all duration-1000 ease-out"
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-2xl">{category.icon}</span>
+                        <span className="text-lg font-bold" style={{ color: category.color }}>
+                          {category.count}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <p className="font-medium text-sm">{category.name}</p>
+                      <p className="text-xs text-muted-foreground">{percentage.toFixed(0)}%</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Summary Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-construction-blue">{totalMembers}</p>
+                <p className="text-sm text-muted-foreground">Total Members</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-construction-green">{laborDistribution.filter(cat => cat.count > 0).length}</p>
+                <p className="text-sm text-muted-foreground">Active Roles</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-construction-orange">{laborDistribution.find(cat => cat.name === 'Skilled Labor')?.count || 0}</p>
+                <p className="text-sm text-muted-foreground">Skilled Workers</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-purple-600">{laborDistribution.find(cat => cat.name === 'Supervisors')?.count || 0}</p>
+                <p className="text-sm text-muted-foreground">Supervisors</p>
+              </div>
             </div>
           </div>
 
           <h3 className="text-lg font-medium mb-4">Team Members</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {teamMembers.map((member) => (
-              <div key={member.id} className="border rounded-lg p-4 flex flex-col">
+              <div key={member.id} className="border rounded-lg p-4 flex flex-col hover:shadow-md transition-shadow">
                 <div className="flex items-start gap-4 mb-3">
                   <Avatar className="h-12 w-12">
                     <AvatarImage src={member.avatar} alt={member.name} />
