@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -22,11 +21,19 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils"
 import { CalendarIcon, CheckCircle, ChevronDown, GripVertical, Plus, Search, XCircle, List, Calendar as CalendarIcon2, Route, FileText } from "lucide-react";
 import { format } from "date-fns"
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "@/hooks/use-toast";
 
 interface Task {
   id: number;
@@ -130,10 +137,35 @@ const priorityColors: { [key: string]: string } = {
   "Low": "bg-green-100 text-green-700",
 };
 
+// Task form schema
+const taskFormSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  status: z.enum(["Not Started", "In Progress", "Completed", "On Hold"]),
+  priority: z.enum(["Low", "Medium", "High"]),
+  assignee: z.string().min(1, "Assignee is required"),
+  dueDate: z.date({ required_error: "Due date is required" }),
+  startDate: z.date({ required_error: "Start date is required" }),
+});
+
 const TasksTab = () => {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [searchQuery, setSearchQuery] = useState("");
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [showAddTaskDialog, setShowAddTaskDialog] = useState(false);
+
+  const form = useForm({
+    resolver: zodResolver(taskFormSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      status: "Not Started",
+      priority: "Medium",
+      assignee: "",
+      dueDate: new Date(),
+      startDate: new Date(),
+    },
+  });
 
   const filteredTasks = tasks.filter(task =>
     task.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -141,10 +173,36 @@ const TasksTab = () => {
 
   const criticalPathTasks = tasks.filter(task => task.isCritical);
 
+  const onSubmitTask = (data: any) => {
+    const newTask: Task = {
+      id: Math.max(0, ...tasks.map(t => t.id)) + 1,
+      title: data.title,
+      description: data.description || "",
+      status: data.status,
+      priority: data.priority,
+      assignee: data.assignee,
+      dueDate: format(data.dueDate, "MMM d, yyyy"),
+      startDate: format(data.startDate, "MMM d, yyyy"),
+      endDate: "",
+      progress: data.status === "In Progress" ? 25 : data.status === "Completed" ? 100 : 0,
+      dependencies: [],
+      isCritical: data.priority === "High"
+    };
+
+    setTasks([...tasks, newTask]);
+    setShowAddTaskDialog(false);
+    form.reset();
+    
+    toast({
+      title: "Task Created",
+      description: "The task has been successfully added to the list.",
+    });
+  };
+
   const TaskListView = () => (
     <div>
-      <div className="flex items-center justify-between py-4">
-        <div className="relative w-1/3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4">
+        <div className="relative w-full sm:w-1/3">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
@@ -154,7 +212,7 @@ const TasksTab = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <Button>
+        <Button onClick={() => setShowAddTaskDialog(true)}>
           <Plus className="w-4 h-4 mr-2" /> Add Task
         </Button>
       </div>
@@ -166,11 +224,11 @@ const TasksTab = () => {
               <TableHead className="w-[50px]">
                 <GripVertical className="w-4 h-4" />
               </TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Due Date</TableHead>
-              <TableHead>Priority</TableHead>
-              <TableHead>Assignee</TableHead>
+              <TableHead className="min-w-[200px]">Title</TableHead>
+              <TableHead className="hidden sm:table-cell">Status</TableHead>
+              <TableHead className="hidden md:table-cell">Due Date</TableHead>
+              <TableHead className="hidden lg:table-cell">Priority</TableHead>
+              <TableHead className="hidden xl:table-cell">Assignee</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -180,17 +238,24 @@ const TasksTab = () => {
                 <TableCell className="font-medium w-[50px]">
                   <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
                 </TableCell>
-                <TableCell className="font-medium">{task.title}</TableCell>
-                <TableCell>
+                <TableCell className="font-medium">
+                  <div>
+                    <div className="font-medium">{task.title}</div>
+                    <div className="text-sm text-muted-foreground sm:hidden">
+                      {task.status} • {task.dueDate}
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="hidden sm:table-cell">
                   <Badge className={statusColors[task.status]}>{task.status}</Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden md:table-cell">
                   {task.dueDate}
                 </TableCell>
-                <TableCell>
+                <TableCell className="hidden lg:table-cell">
                   <Badge className={priorityColors[task.priority]}>{task.priority}</Badge>
                 </TableCell>
-                <TableCell>{task.assignee}</TableCell>
+                <TableCell className="hidden xl:table-cell">{task.assignee}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -355,42 +420,242 @@ const TasksTab = () => {
   );
 
   return (
-    <Tabs defaultValue="list" className="w-full">
-      <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="list" className="flex items-center gap-2">
-          <List className="h-4 w-4" />
-          List View
-        </TabsTrigger>
-        <TabsTrigger value="calendar" className="flex items-center gap-2">
-          <CalendarIcon2 className="h-4 w-4" />
-          Calendar View
-        </TabsTrigger>
-        <TabsTrigger value="program" className="flex items-center gap-2">
-          <FileText className="h-4 w-4" />
-          Program of Works
-        </TabsTrigger>
-        <TabsTrigger value="critical" className="flex items-center gap-2">
-          <Route className="h-4 w-4" />
-          Critical Path
-        </TabsTrigger>
-      </TabsList>
-      
-      <TabsContent value="list" className="mt-6">
-        <TaskListView />
-      </TabsContent>
-      
-      <TabsContent value="calendar" className="mt-6">
-        <TaskCalendarView />
-      </TabsContent>
-      
-      <TabsContent value="program" className="mt-6">
-        <ProgramOfWorksView />
-      </TabsContent>
-      
-      <TabsContent value="critical" className="mt-6">
-        <CriticalPathView />
-      </TabsContent>
-    </Tabs>
+    <div>
+      <Tabs defaultValue="list" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="list" className="flex items-center gap-2">
+            <List className="h-4 w-4" />
+            <span className="hidden sm:inline">List View</span>
+            <span className="sm:hidden">List</span>
+          </TabsTrigger>
+          <TabsTrigger value="calendar" className="flex items-center gap-2">
+            <CalendarIcon2 className="h-4 w-4" />
+            <span className="hidden sm:inline">Calendar</span>
+            <span className="sm:hidden">Cal</span>
+          </TabsTrigger>
+          <TabsTrigger value="program" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            <span className="hidden sm:inline">Program</span>
+            <span className="sm:hidden">Prog</span>
+          </TabsTrigger>
+          <TabsTrigger value="critical" className="flex items-center gap-2">
+            <Route className="h-4 w-4" />
+            <span className="hidden sm:inline">Critical Path</span>
+            <span className="sm:hidden">Critical</span>
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="list" className="mt-6">
+          <TaskListView />
+        </TabsContent>
+        
+        <TabsContent value="calendar" className="mt-6">
+          <TaskCalendarView />
+        </TabsContent>
+        
+        <TabsContent value="program" className="mt-6">
+          <ProgramOfWorksView />
+        </TabsContent>
+        
+        <TabsContent value="critical" className="mt-6">
+          <CriticalPathView />
+        </TabsContent>
+      </Tabs>
+
+      {/* Add Task Dialog */}
+      <Dialog open={showAddTaskDialog} onOpenChange={setShowAddTaskDialog}>
+        <DialogContent className="sm:max-w-[550px]">
+          <DialogHeader>
+            <DialogTitle>Add New Task</DialogTitle>
+          </DialogHeader>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmitTask)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Task Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter task title" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Enter task description" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="priority"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Priority</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Priority" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Low">Low</SelectItem>
+                          <SelectItem value="Medium">Medium</SelectItem>
+                          <SelectItem value="High">High</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Not Started">Not Started</SelectItem>
+                          <SelectItem value="In Progress">In Progress</SelectItem>
+                          <SelectItem value="Completed">Completed</SelectItem>
+                          <SelectItem value="On Hold">On Hold</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <FormField
+                control={form.control}
+                name="assignee"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Assignee</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Assignee" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="john-doe">John Doe</SelectItem>
+                        <SelectItem value="jane-smith">Jane Smith</SelectItem>
+                        <SelectItem value="mike-johnson">Mike Johnson</SelectItem>
+                        <SelectItem value="sarah-wilson">Sarah Wilson</SelectItem>
+                        <SelectItem value="alex-brown">Alex Brown</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Start Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? format(field.value, "PPP") : "Pick a date"}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="dueDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Due Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? format(field.value, "PPP") : "Pick a date"}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setShowAddTaskDialog(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">Create Task</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 

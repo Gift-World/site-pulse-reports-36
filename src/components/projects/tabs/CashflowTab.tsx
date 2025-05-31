@@ -135,10 +135,10 @@ export const CashflowTab: React.FC<CashflowTabProps> = ({ project }) => {
                     yAxisId="right" 
                     type="monotone" 
                     dataKey="progress" 
-                    stroke="#0df539" 
+                    stroke="#1e3a8a" 
                     strokeWidth={3}
                     name="Progress"
-                    dot={{ fill: '#0df539', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: '#1e3a8a', strokeWidth: 2, r: 4 }}
                   />
                 </ComposedChart>
               </ResponsiveContainer>
