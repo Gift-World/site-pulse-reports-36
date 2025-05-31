@@ -130,7 +130,7 @@ export const CashflowTab: React.FC<CashflowTabProps> = ({ project }) => {
                   />
                   <Legend />
                   <Bar yAxisId="left" dataKey="income" name="Income" fill="#22bff0" />
-                  <Bar yAxisId="left" dataKey="expenses" name="Expenses" fill="#ff5722" />
+                  <Bar yAxisId="left" dataKey="expenses" name="Expenses" fill="#ff9500" />
                   <Line 
                     yAxisId="right" 
                     type="monotone" 
@@ -157,7 +157,7 @@ export const CashflowTab: React.FC<CashflowTabProps> = ({ project }) => {
               <Card>
                 <CardHeader className="pb-2">
                   <CardDescription>Total Expenses</CardDescription>
-                  <CardTitle className="text-2xl" style={{ color: '#ff5722' }}>
+                  <CardTitle className="text-2xl" style={{ color: '#ff9500' }}>
                     ${cashflowData.reduce((sum, item) => sum + item.expenses, 0).toLocaleString()}
                   </CardTitle>
                 </CardHeader>
@@ -227,7 +227,7 @@ export const CashflowTab: React.FC<CashflowTabProps> = ({ project }) => {
               <Card>
                 <CardHeader className="pb-2">
                   <CardDescription>Total Actual</CardDescription>
-                  <CardTitle className="text-xl" style={{ color: '#ff5722' }}>
+                  <CardTitle className="text-xl" style={{ color: '#ff9500' }}>
                     ${totalActual.toLocaleString()}
                   </CardTitle>
                 </CardHeader>
@@ -256,7 +256,7 @@ export const CashflowTab: React.FC<CashflowTabProps> = ({ project }) => {
             <div>
               <h4 className="font-medium mb-4 flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-amber-500" />
-                Items with Significant Variance (>10%)
+                Items with Significant Variance ({'>'}10%)
               </h4>
               <div className="space-y-3">
                 {significantItems.map((item) => (
