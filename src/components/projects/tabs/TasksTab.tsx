@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
-import { CalendarIcon, CheckCircle, ChevronDown, GripVertical, Plus, Search, XCircle, List, Calendar as CalendarIcon2, Route } from "lucide-react";
+import { CalendarIcon, CheckCircle, ChevronDown, GripVertical, Plus, Search, XCircle, List, Calendar as CalendarIcon2, Route, FileText } from "lucide-react";
 import { format } from "date-fns"
 
 interface Task {
@@ -266,6 +266,31 @@ const TasksTab = () => {
     </div>
   );
 
+  const ProgramOfWorksView = () => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold">Program of Works</h3>
+          <p className="text-sm text-muted-foreground">Upload and manage project program of works</p>
+        </div>
+        <Button>
+          <FileText className="w-4 h-4 mr-2" /> Upload Program
+        </Button>
+      </div>
+      
+      <div className="border rounded-lg p-6 text-center">
+        <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+        <h4 className="font-medium mb-2">No Program of Works Uploaded</h4>
+        <p className="text-sm text-muted-foreground mb-4">
+          Upload your project's program of works to track activities and milestones
+        </p>
+        <Button variant="outline">
+          <Plus className="w-4 h-4 mr-2" /> Upload Program File
+        </Button>
+      </div>
+    </div>
+  );
+
   const CriticalPathView = () => (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -331,7 +356,7 @@ const TasksTab = () => {
 
   return (
     <Tabs defaultValue="list" className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="list" className="flex items-center gap-2">
           <List className="h-4 w-4" />
           List View
@@ -339,6 +364,10 @@ const TasksTab = () => {
         <TabsTrigger value="calendar" className="flex items-center gap-2">
           <CalendarIcon2 className="h-4 w-4" />
           Calendar View
+        </TabsTrigger>
+        <TabsTrigger value="program" className="flex items-center gap-2">
+          <FileText className="h-4 w-4" />
+          Program of Works
         </TabsTrigger>
         <TabsTrigger value="critical" className="flex items-center gap-2">
           <Route className="h-4 w-4" />
@@ -352,6 +381,10 @@ const TasksTab = () => {
       
       <TabsContent value="calendar" className="mt-6">
         <TaskCalendarView />
+      </TabsContent>
+      
+      <TabsContent value="program" className="mt-6">
+        <ProgramOfWorksView />
       </TabsContent>
       
       <TabsContent value="critical" className="mt-6">
