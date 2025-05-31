@@ -38,7 +38,7 @@ export function Header() {
   
   const handleMenuClick = () => {
     toggleSidebar();
-    navigate("/dashboard");
+    navigate("/app/dashboard");
   };
 
   return (
@@ -62,7 +62,7 @@ export function Header() {
       
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link to="/">
+          <Link to="/home">
             <Home className="h-5 w-5" />
           </Link>
         </Button>

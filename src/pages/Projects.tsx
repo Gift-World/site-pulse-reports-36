@@ -1,19 +1,19 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
 import { Project } from "@/types/project";
 import { NewProjectForm } from "@/components/projects/NewProjectForm";
+import { EditProjectForm } from "@/components/projects/EditProjectForm";
 import { toast } from "@/hooks/use-toast";
 
 // Export the projects data so it can be imported by ProjectDetail
-export const projects: Project[] = [
+export const initialProjects: Project[] = [
   {
     id: 1,
     name: "Downtown Office Complex",
@@ -154,30 +154,49 @@ export const projects: Project[] = [
   }
 ];
 
+export const projects = initialProjects;
+
 const Projects = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [projectsList, setProjectsList] = useState<Project[]>(initialProjects);
   
-  const filteredProjects = projects.filter(project =>
+  const filteredProjects = projectsList.filter(project =>
     project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     project.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleEditProject = (projectId: number) => {
-    console.log("Edit project:", projectId);
-    toast({
-      title: "Edit Project",
-      description: "Project editing functionality will be implemented soon.",
-    });
+    const project = projectsList.find(p => p.id === projectId);
+    if (project) {
+      setEditingProject(project);
+    }
+  };
+
+  const handleUpdateProject = (updatedProject: Project) => {
+    setProjectsList(prev => 
+      prev.map(p => p.id === updatedProject.id ? updatedProject : p)
+    );
+    setEditingProject(null);
   };
 
   const handleDeleteProject = (projectId: number, projectName: string) => {
-    console.log("Delete project:", projectId);
+    // In a real app, this would require admin approval
     toast({
-      title: "Project Deleted",
-      description: `Project "${projectName}" has been deleted successfully.`,
-      variant: "destructive",
+      title: "Admin Approval Required",
+      description: "Delete request sent to admin for approval.",
     });
+    
+    // Simulate admin approval and delete
+    setTimeout(() => {
+      setProjectsList(prev => prev.filter(p => p.id !== projectId));
+      toast({
+        title: "Project Deleted",
+        description: `Project "${projectName}" has been permanently deleted.`,
+        variant: "destructive",
+      });
+    }, 2000);
   };
 
   const getBudgetSpendPercentage = (project: Project) => {
@@ -263,7 +282,7 @@ const Projects = () => {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Delete Project</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Are you sure you want to delete "{project.name}"? This action cannot be undone.
+                        Are you sure you want to delete "{project.name}"? This action requires admin approval and cannot be undone.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -272,7 +291,7 @@ const Projects = () => {
                         onClick={() => handleDeleteProject(project.id, project.name)}
                         className="bg-red-600 hover:bg-red-700"
                       >
-                        Delete
+                        Request Delete
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -322,7 +341,7 @@ const Projects = () => {
                   </div>
                   
                   <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Budget: ${(project.budget.total / 1000000).toFixed(1)}M</span>
+                    <span>Budget: ${(project.budget!.total / 1000000).toFixed(1)}M</span>
                     <span>Team: {project.team} members</span>
                   </div>
                   
@@ -340,6 +359,25 @@ const Projects = () => {
           );
         })}
       </div>
+
+      {/* Edit Project Dialog */}
+      <Dialog open={!!editingProject} onOpenChange={() => setEditingProject(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Edit Project</DialogTitle>
+            <DialogDescription>
+              Make changes to your project details below.
+            </DialogDescription>
+          </DialogHeader>
+          {editingProject && (
+            <EditProjectForm 
+              project={editingProject} 
+              onComplete={handleUpdateProject}
+              onCancel={() => setEditingProject(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

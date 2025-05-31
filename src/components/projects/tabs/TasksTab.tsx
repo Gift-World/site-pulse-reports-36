@@ -1,4 +1,6 @@
+
 import React, { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -23,7 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
-import { CalendarIcon, CheckCircle, ChevronDown, GripVertical, Plus, Search, XCircle } from "lucide-react";
+import { CalendarIcon, CheckCircle, ChevronDown, GripVertical, Plus, Search, XCircle, List, Calendar as CalendarIcon2, Route } from "lucide-react";
 import { format } from "date-fns"
 
 interface Task {
@@ -37,6 +39,8 @@ interface Task {
   progress: number;
   startDate: string;
   endDate: string;
+  dependencies?: number[];
+  isCritical?: boolean;
 }
 
 const initialTasks: Task[] = [
@@ -50,7 +54,9 @@ const initialTasks: Task[] = [
     assignee: "john-doe",
     progress: 65,
     startDate: "Dec 10, 2023",
-    endDate: ""
+    endDate: "",
+    dependencies: [],
+    isCritical: true
   },
   {
     id: 2,
@@ -62,7 +68,9 @@ const initialTasks: Task[] = [
     assignee: "jane-smith",
     progress: 100,
     startDate: "Dec 15, 2023",
-    endDate: "Dec 20, 2023"
+    endDate: "Dec 20, 2023",
+    dependencies: [1],
+    isCritical: true
   },
   {
     id: 3,
@@ -74,7 +82,9 @@ const initialTasks: Task[] = [
     assignee: "mike-johnson",
     progress: 100,
     startDate: "Dec 18, 2023",
-    endDate: "Dec 22, 2023"
+    endDate: "Dec 22, 2023",
+    dependencies: [],
+    isCritical: false
   },
   {
     id: 4,
@@ -86,7 +96,9 @@ const initialTasks: Task[] = [
     assignee: "sarah-wilson",
     progress: 45,
     startDate: "Dec 20, 2023",
-    endDate: ""
+    endDate: "",
+    dependencies: [1, 2],
+    isCritical: true
   },
   {
     id: 5,
@@ -98,7 +110,9 @@ const initialTasks: Task[] = [
     assignee: "alex-brown",
     progress: 0,
     startDate: "Jan 8, 2024",
-    endDate: ""
+    endDate: "",
+    dependencies: [4],
+    isCritical: true
   }
 ];
 
@@ -125,7 +139,9 @@ const TasksTab = () => {
     task.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  return (
+  const criticalPathTasks = tasks.filter(task => task.isCritical);
+
+  const TaskListView = () => (
     <div>
       <div className="flex items-center justify-between py-4">
         <div className="relative w-1/3">
@@ -198,6 +214,150 @@ const TasksTab = () => {
         </Table>
       </div>
     </div>
+  );
+
+  const TaskCalendarView = () => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">Task Calendar</h3>
+        <Button>
+          <Plus className="w-4 h-4 mr-2" /> Add Task
+        </Button>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1">
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={setDate}
+            className="rounded-md border"
+          />
+        </div>
+        <div className="lg:col-span-2">
+          <div className="space-y-4">
+            <h4 className="font-medium">Tasks for {date ? format(date, "PPP") : "Selected Date"}</h4>
+            {tasks.filter(task => {
+              if (!date) return false;
+              const taskDate = new Date(task.dueDate);
+              return taskDate.toDateString() === date.toDateString();
+            }).map(task => (
+              <div key={task.id} className="p-4 border rounded-lg">
+                <div className="flex items-center justify-between">
+                  <h5 className="font-medium">{task.title}</h5>
+                  <Badge className={statusColors[task.status]}>{task.status}</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge className={priorityColors[task.priority]} variant="outline">{task.priority}</Badge>
+                  <span className="text-sm text-muted-foreground">Assigned to: {task.assignee}</span>
+                </div>
+              </div>
+            ))}
+            {tasks.filter(task => {
+              if (!date) return false;
+              const taskDate = new Date(task.dueDate);
+              return taskDate.toDateString() === date.toDateString();
+            }).length === 0 && (
+              <p className="text-muted-foreground">No tasks scheduled for this date.</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const CriticalPathView = () => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold">Critical Path Analysis</h3>
+          <p className="text-sm text-muted-foreground">Tasks that directly impact project completion timeline</p>
+        </div>
+        <Button variant="outline">
+          <Route className="w-4 h-4 mr-2" /> Recalculate Path
+        </Button>
+      </div>
+      
+      <div className="space-y-4">
+        {criticalPathTasks.map((task, index) => (
+          <div key={task.id} className="relative">
+            <div className="flex items-center gap-4 p-4 border rounded-lg bg-red-50 border-red-200">
+              <div className="flex-shrink-0 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                {index + 1}
+              </div>
+              <div className="flex-1">
+                <h4 className="font-medium">{task.title}</h4>
+                <p className="text-sm text-muted-foreground">{task.description}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge className={statusColors[task.status]}>{task.status}</Badge>
+                  <Badge className={priorityColors[task.priority]} variant="outline">{task.priority}</Badge>
+                  <span className="text-sm text-muted-foreground">Due: {task.dueDate}</span>
+                </div>
+                <div className="mt-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Progress</span>
+                    <span>{task.progress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                    <div
+                      className="bg-red-500 h-2 rounded-full"
+                      style={{ width: `${task.progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex-shrink-0">
+                <span className="text-sm text-muted-foreground">Assigned to:</span>
+                <p className="font-medium">{task.assignee}</p>
+              </div>
+            </div>
+            {index < criticalPathTasks.length - 1 && (
+              <div className="absolute left-8 -bottom-2 w-0.5 h-4 bg-red-300"></div>
+            )}
+          </div>
+        ))}
+      </div>
+      
+      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <h4 className="font-medium text-blue-900">Critical Path Summary</h4>
+        <p className="text-sm text-blue-700 mt-1">
+          Total critical path duration: {criticalPathTasks.length * 5} days | 
+          Tasks at risk: {criticalPathTasks.filter(t => t.status === "Not Started" || t.progress < 50).length} | 
+          Completion risk: {criticalPathTasks.filter(t => t.status === "Not Started" || t.progress < 50).length > 2 ? "High" : "Low"}
+        </p>
+      </div>
+    </div>
+  );
+
+  return (
+    <Tabs defaultValue="list" className="w-full">
+      <TabsList className="grid w-full grid-cols-3">
+        <TabsTrigger value="list" className="flex items-center gap-2">
+          <List className="h-4 w-4" />
+          List View
+        </TabsTrigger>
+        <TabsTrigger value="calendar" className="flex items-center gap-2">
+          <CalendarIcon2 className="h-4 w-4" />
+          Calendar View
+        </TabsTrigger>
+        <TabsTrigger value="critical" className="flex items-center gap-2">
+          <Route className="h-4 w-4" />
+          Critical Path
+        </TabsTrigger>
+      </TabsList>
+      
+      <TabsContent value="list" className="mt-6">
+        <TaskListView />
+      </TabsContent>
+      
+      <TabsContent value="calendar" className="mt-6">
+        <TaskCalendarView />
+      </TabsContent>
+      
+      <TabsContent value="critical" className="mt-6">
+        <CriticalPathView />
+      </TabsContent>
+    </Tabs>
   );
 };
 
